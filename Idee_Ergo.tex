@@ -1,29 +1,46 @@
-\documentclass[11pt]{cours}
+\documentclass[12pt]{cours}
+\newgeometry{margin=2cm}
 
-\title{\textbf{\textsc{Idée de projet mathématiques-informatique}}}
-\author{DELAY -- Paul Constans}
+\title{\textbf{\textsc{Projet mathématiques-informatique : Ergo}}}
+\author{DELAY Emmanuel}
 
-%\corrigetrue
 
-\parskip 0.5cm % Distance entre les paragraphes
-%\parindent 0.5cm % Décalage du début de paragraphe
+\parskip 0.5em % Distance entre les paragraphes
+\parindent 1em % Décalage du début de paragraphe
 
 \begin{document}
 
-Le point de départ est le jeu \href{https://www.catalystgamelabs.com/ergo/}{Ergo}. En gros, le but du jeu est de prouver sa propre existence. Les règles précises sont disponibles sur \url{https://www.catalystgamelabs.com/download/Ergo%20Rules%202015.pdf}. Mon idée serait de faire une implémentation de ce jeu qui pourrait permettre de jouer sur ordinateur, voir de jouer contre l'ordinateur.
+\maketitle
 
-Je ne sais pas exactement quel niveau de détail vous attendez pour le projet. Je n'ai pour l'instant pas trop avancé dans ma réflexion ne sachant pas si l'idée sera retenue ou non. J'ai aussi quelques doutes sur l'aspect légal : le jeu n'étant pas libre, je ne sais pas s'il est possible de l'adapter. Je pense cependant que tant que je n'ai pas l'intention de distribuer le résultat, il ne doit pas y avoir de problème ? Peut-être le Big Boss peut-il demander son avis au Directeur Technique ou au service juridique ?
+\section{Présentation du jeu}
 
-Concrètement, les différents points à programmer seraient :
+Le point de départ est le jeu \href{https://www.catalystgamelabs.com/ergo/}{Ergo}, \og The Game of Proving You Exist!\fg. Vous pouvez retrouver les règles détaillées \href{https://www.catalystgamelabs.com/download/Ergo%20Rules%202015.pdf}{ici}.
+
+Le jeu est composé de 55 cartes : 4 de chaque variable (A, B, C ou D), 4 de chaque opérateur (ET, OU, $\implies$), 6 cartes NON, 8 parenthèses, 3 cartes Ergo et 10 cartes particulières.
+
+Chaque joueur (4 maximum) se voit assigné une variable (A, B, C ou D) au début du jeu. À chaque manche, les joueurs essaient collectivement de créer une preuve de leur existence tout en réfutant l'existence des autres joueurs. À chaque tour, un joueur pioche deux cartes et doit jouer deux cartes (éventuellement les défausser). Lorsque une carte Ergo est jouée ou qu'il n'y a plus de carte dans la pioche la preuve est terminée. À condition qu'il n'y ait pas de paradoxe, chaque joueur dont l'existence est prouvée reçoit un nombre de points égal au nombre de cartes dans la preuve. Toutes les cartes sont ensuite mélangée et une nouvelle manche est lancée. Le premier joueur ayant 50 points gagne.
+
+Concernant la construction de la preuve, un certain nombre de règles doivent être respectées~:
 \begin{itemize}
-\item Analyser une proposition pour vérifier si elle est syntaxiquement correcte;
-\item Analyser les propositions pour déterminer quelles sont les variables \og prouvées \fg. J'imagine pour cette étape (sans avoir pour l'instant trop creusé) qu'il va falloir décrire chaque proposition sous forme d'arbre, ou peut-être passer par une forme conjonctive normale ou \dots ? ;
-\item Créer une interface graphique;
-\item Éventuellement implémenter une \og intelligence artificielle \fg{} pour pouvoir jouer contre l'ordinateur.
+\item la preuve doit avoir au maximum 4 lignes. Dès qu'elle atteint 4 lignes, toutes les cartes supplémentaires doivent être jouées sur une de ces lignes~;
+\item chaque ligne doit être syntaxiquement correcte (deux opérateurs ou deux variables ne peuvent pas se suivre, chaque parenthèse ouvrante doit correspondre à une parenthèse fermante, \dots)~;
+\item une carte peut être insérée entre deux cartes déjà posées à condition que le résultat reste syntaxiquement correct.
 \end{itemize}
 
-\bigskip
-Si cette idée plaît au Big Boss, je peux réécrire un document plus présentable avec un cahier des charges plus précis.
+\section{Le projet}
+
+Le but est de réaliser une implémentation en Python de ce jeu. Pour cela, je vois plusieurs points à traiter, plus ou moins par ordre de difficulté croissante :
+\begin{itemize}
+\item analyser une ligne de la preuve pour vérifier qu'elle est syntaxiquement correcte~;
+\item coder une ligne syntaxiquement correcte sous une forme exploitable (arbre, forme conjonctive normale, forme disjonctive normale, \dots ?)~;
+\item déterminer à partir du codage des 4 lignes quelles variables sont prouvées ou s'il y a une contradiction~;
+\item réaliser une interface graphique (à priori avec tkinter)~;
+\item implémenter une fonction pour pouvoir jouer contre l'ordinateur.
+\end{itemize}
+
+Si on finit tout ça et qu'on a peur de s'ennuyer, on pourra toujours creuser pour améliorer la façon dont l'ordinateur joue. Au pire, on demandera à Frédéric Muller de nous prêter ses TetrisBot pour qu'ils apprennent à jouer à Ergo ;-)
+ 
+
 
 \end{document}
 
