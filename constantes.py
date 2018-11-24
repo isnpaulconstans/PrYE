@@ -3,3 +3,5 @@
 # parametres de la fenetre
 HEIGHT = 320
 WIDTH = 200
+
+# images cartes
