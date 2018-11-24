@@ -5,3 +5,4 @@ HEIGHT = 320
 WIDTH = 200
 
 # images cartes
+CARTE_IMP = "carteImp.gif"
