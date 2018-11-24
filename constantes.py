@@ -3,6 +3,9 @@
 # parametres de la fenetre
 HEIGHT = 320
 WIDTH = 200
+CARD_HEIGHT = 140
+CARD_WIDTH = 100
+
 
 # images cartes
-CARTE_IMP = "carteImp.gif"
+CARD_THEN = "carteImp.gif"
