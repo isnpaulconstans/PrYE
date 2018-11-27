@@ -1,10 +1,10 @@
 ﻿# Créé par Nicolas, le 24/11/2018 en Python 3.2
 
 # parametres de la fenetre
-HEIGHT = 700
-WIDTH = 800
 CARD_HEIGHT = 140
 CARD_WIDTH = 100
+HEIGHT = 5 * CARD_HEIGHT + 10
+WIDTH = 800
 
 CARPET_COLOR = "green"
 

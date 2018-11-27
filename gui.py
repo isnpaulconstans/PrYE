@@ -12,11 +12,13 @@ class ErgoGui(tk.Tk):
         self.title("Ergo")
         self.can = tk.Canvas(self, height=HEIGHT, width=WIDTH, bg=CARPET_COLOR)
         self.cardThen = Card(CARD_A)
-        self.card=self.can.create_image(CARD_WIDTH//2, CARD_HEIGHT//2, image=self.cardThen.image)
-        self.can.create_rectangle(0,140,800,140,fill="black")
-        self.can.create_rectangle(0,280,800,280,fill="black")
-        self.can.create_rectangle(0,420,800,420,fill="black")
-        self.can.create_rectangle(0,560,800,560,outline="red")
+        self.card = self.can.create_image(CARD_WIDTH//2, CARD_HEIGHT//2,
+                                          image=self.cardThen.image)
+        for i in range(4):
+            self.can.create_line(0, i*CARD_HEIGHT, WIDTH, i*CARD_HEIGHT,
+                                 fill="black")
+        self.can.create_rectangle(0, HEIGHT-CARD_HEIGHT-5, WIDTH, HEIGHT,
+                                  width=5, outline="red")
         self.can.pack()
         self.can.bind('<Button1-Motion>', func=self.move)
 
