@@ -4,7 +4,7 @@
 
 import tkinter as tk
 import constantes as cst
-from cartes import Card
+from cards import Card, CardList
 
 
 class ErgoGui(tk.Tk):
@@ -24,7 +24,7 @@ class ErgoGui(tk.Tk):
                                   width=5, outline="red")
         self.can.pack()
         self.can.bind('<Button1-Motion>', func=self.move)
-        # test
+        # TEST
         card_then = Card("THEN")
         self.card = self.can.create_image(cst.CARD_WIDTH//2, cst.CARD_HEIGHT//2,
                                           image=tk.PhotoImage(file=card_then.image))
