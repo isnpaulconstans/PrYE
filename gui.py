@@ -23,11 +23,12 @@ class ErgoGui(tk.Tk):
                                   cst.WIDTH, cst.HEIGHT,
                                   width=5, outline="red")
         self.can.pack()
-        self.can.bind('<Button1-Motion>', func=self.move)
         # TEST
+        self.can.bind('<Button1-Motion>', func=self.move)
         card_then = Card("THEN")
+        self.im = tk.PhotoImage(file=card_then.image)
         self.card = self.can.create_image(cst.CARD_WIDTH//2, cst.CARD_HEIGHT//2,
-                                          image=tk.PhotoImage(file=card_then.image))
+                                          image=self.im)
 
     def move(self, event):
         """TEST : déplace la carte."""
