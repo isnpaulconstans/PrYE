@@ -26,7 +26,7 @@ class Card(object):
 
     def is_operator(self):
         """Indique si la carte est un opérateur."""
-        return self.valeur in ["AND", "OR", "THEN", "NOT"]
+        return self.valeur in ["AND", "OR", "THEN"]
 
     def is_open(self):
         """Indique si la carte est une parenthèse ouvrante."""
@@ -79,8 +79,11 @@ class CardList(list):
             if card1.is_operator():
                 if card2.is_operator() or card2.is_close():
                     return False
+            if card1.is_not():
+                if card2.is_operator() or card2.is_close() or card2.is_not():
+                    return False
             if card1.is_open():
-                if card2.is_operator() and (not card2.is_not()):
+                if card2.is_operator():
                     return False
         return not card2.is_operator()
 
@@ -106,8 +109,7 @@ class CardList(list):
                 else:
                     stack.pop()
             else:
-                while stack != [] and stack[-1].is_operator()\
-                                  and stack[-1].priority() >= card.priority():
+                while stack != [] and stack[-1].priority() >= card.priority():
                     npi_card_lst.append(stack.pop())
                 stack.append(card)
         while stack != []:
@@ -129,13 +131,16 @@ class CardList(list):
 
 def tests():
     """Des tests..."""
-    card_list = CardList([Card("NOT"), Card("("), Card("NOT"), Card("A"),
-                          Card("AND"), Card("B"), Card(")"), Card("OR"),
+    card_list = CardList([Card("NOT"), Card("NOT"), Card("("), Card("A"),
+                          Card("AND"), Card("NOT"), Card("B"), Card(")"), Card("AND"),
                           Card("D")])
-    card_list.append(Card("OR"))
+    print(card_list)
+    print(card_list.correct)
+    card_list.pop(0)
     print(card_list)
     print(card_list.correct)
     print(card_list.npi)
+    card_list.append(Card("OR"))
     card_list.append(Card("A"))
     print(card_list)
     print(card_list.correct)
