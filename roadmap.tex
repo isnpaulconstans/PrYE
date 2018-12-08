@@ -16,8 +16,8 @@
 \begin{description}
 \item[Card :] Une carte avec son image, sa valeur, sa priorité.
 \item[CardList(list) :] Une liste de cartes en notation infixe avec une analyse de correction syntaxique, et le cas échéant la notation polonaise inversée.
-\item[Proof : ] Gère les 4 lignes de la démonstration (avec mémorisation des éventuels ajouts pendant un tour pour que le joueur puisse retirer une carte tant que le coup n'est pas validé). La classe doit avoir une méthode \texttt{deduc(self)} renvoyant un quadruplet d'éléments parmi \texttt{False}, \texttt{True} ou \texttt{None} indiquant si chaque variable est prouvée, niée ou indécidable.
-\item[Deck(list) :] Le jeu de carte (mélangé) avec une méthode \texttt{Draw(self, number)} permettant de piocher \texttt{number} cartes (5 à la distribution, puis 2 à chaque tour).
+\item[Proof : ] Gère les 4 lignes de la démonstration (avec mémorisation des éventuels ajouts pendant un tour pour que le joueur puisse retirer une carte tant que le coup n'est pas validé). La classe doit avoir une méthode \texttt{deduc()} renvoyant un quadruplet d'éléments parmi \texttt{False}, \texttt{True} ou \texttt{None} indiquant si chaque variable est prouvée, niée ou indécidable.
+\item[Deck(list) :] Le jeu de carte (mélangé) avec une méthode \texttt{Draw(number)} permettant de piocher \texttt{number} cartes (5 à la distribution, puis 2 à chaque tour).
 \item[Main :] Gère la partie (distributions des cartes, tours de jeux, fin de partie, \dots).
 \item[ErgoGui :] Interface graphique, peut-être confondue avec Main ? À réfléchir.
 \end{description}
