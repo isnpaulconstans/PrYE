@@ -30,6 +30,6 @@ PRIORITY = {
     "OR": 2,
     "THEN": 3,
     "NOT": 4,
-    "(": 100,  # PARENTHESE
-    ")": 100,  # PARENTHESE
+    "(": 0,  # PARENTHESE
+    ")": 0,  # PARENTHESE
     }
