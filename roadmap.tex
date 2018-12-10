@@ -1,0 +1,38 @@
+\documentclass[12pt]{cours}
+
+\title{\textbf{\textsc{Roadmap pour le jeu Ergo}}}
+\author{Delay Emmanuel -- Desforêts Nicolas}
+
+\begin{document}
+
+\maketitle
+
+\begin{description}
+\item[27 septembre :] première proposition du projet
+\item[15 novembre :] mise en place des outils (Redmine et Git). C'est fonctionnel : \url{http://paulconstans.ddns.info/redmine/projects/ergo/repository}
+\item[21 novembre :] début du codage.
+\item[5 décembre :] tempête de cerveaux sur la structure du programme. Il ressort plusieurs classes :
+
+\begin{description}
+\item[Card :] Une carte avec son image, sa valeur, sa priorité.
+\item[CardList(list) :] Une liste de cartes en notation infixe avec une analyse de correction syntaxique, et le cas échéant la notation polonaise inversée.
+\item[Proof : ] Gère les 4 lignes de la démonstration (avec mémorisation des éventuels ajouts pendant un tour pour que le joueur puisse retirer une carte tant que le coup n'est pas validé). La classe doit avoir une méthode \texttt{deduction()} renvoyant un quadruplet d'éléments parmi \texttt{False}, \texttt{True} ou \texttt{None} indiquant si chaque variable est prouvée, niée ou indécidable.
+\item[Deck(list) :] Le jeu de carte (mélangé) avec une méthode \texttt{Draw(number)} permettant de piocher \texttt{number} cartes (5 à la distribution, puis 2 à chaque tour).
+\item[Main :] Gère la partie (distributions des cartes, tours de jeux, fin de partie, \dots).
+\item[ErgoGui :] Interface graphique, peut-être confondue avec Main ? À réfléchir.
+\end{description}
+\item[10 décembre :] rédaction du premier roadmap.
+\item[22 janvier : version alpha]  premier jet d'interface graphique, classes Card, CardList, Proof (sans forcément la méthode \texttt{deduction} et un Main permettant quelques essais.
+\item[15 mars : version bêta] interface graphique plus aboutie (gestion des positions des cartes, retournement des parenthèses par clic droit, \dots), et finalisation de la classe Proof (normalement, le cours de logique devrait nous aider pour cette partie) et réflexion sur des (ou implémentation de) stratégies possibles pour l'ordinateur.
+\item[30 avril : version Pré-Prod] Peaufinage de tout le reste, et gestion du jeu de l'ordinateur.
+\item[31 mai :] version finale
+\end{description}
+
+Concernant le diagramme de Gant, il est en cours sur \url{http://paulconstans.ddns.info/redmine/projects/ergo/issues/gantt}. La prise en main du logiciel n'est pas encore complète, mais on y travail ;-)
+
+Pour la documentation technique et la rédaction du rapport final, les références consultées sont stockées sur \url{http://paulconstans.ddns.info/redmine/projects/ergo/documents}. On a aussi commencé un \href{http://paulconstans.ddns.info/redmine/projects/ergo/repository/revisions/master/raw/diagramme%20des%20classes.pdf}{diagramme des classes}
+
+
+
+\end{document}
+

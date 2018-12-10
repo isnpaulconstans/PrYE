@@ -49,19 +49,19 @@ class CardList(list):
     def __init__(self, *args):
         """Initialisation de la liste."""
         super().__init__(*args)
-        self.test_correction()
+        self.npi = self.to_npi()
 
     def append(self, card):
         super().append(card)
-        self.test_correction()
+        self.npi = self.to_npi()
 
     def insert(self, index, card):
         super().insert(index, card)
-        self.test_correction()
+        self.npi = self.to_npi()
 
     def pop(self, index=-1):
         card = super().pop(index)
-        self.test_correction()
+        self.npi = self.to_npi()
         return card
 
     def is_syntactically_correct(self):
@@ -88,12 +88,14 @@ class CardList(list):
         return not card2.is_operator()
 
     def to_npi(self):
-        """Prend en paramètre une liste de carte en notation d'infixe, et renvoie
+        """Prend en paramètre une liste de carte en notation infixe, et renvoie
 
-         * None si le parenthésage de la liste n'est pas correct
+         * None si la syntaxe de la liste n'est pas correcte
 
          * une liste de carte correspondant à la notation polonaise inversée de
            la liste de départ sinon."""
+        if not self.is_syntactically_correct():
+            return None
         npi_card_lst = []
         stack = []
         for card in self:
@@ -119,15 +121,6 @@ class CardList(list):
             npi_card_lst.append(card)
         return npi_card_lst
 
-    def test_correction(self):
-        """teste la correction de la liste, et met à jour les attributs npi
-        et correct."""
-        if self.is_syntactically_correct():
-            self.npi = self.to_npi()
-        else:
-            self.npi = None
-        self.correct = self.npi is not None
-
 
 def tests():
     """Des tests..."""
@@ -135,15 +128,13 @@ def tests():
                           Card("AND"), Card("NOT"), Card("B"), Card(")"), Card("AND"),
                           Card("D")])
     print(card_list)
-    print(card_list.correct)
+    print(card_list.npi)
     card_list.pop(0)
     print(card_list)
-    print(card_list.correct)
     print(card_list.npi)
     card_list.append(Card("OR"))
     card_list.append(Card("A"))
     print(card_list)
-    print(card_list.correct)
     print(card_list.npi)
 
 
