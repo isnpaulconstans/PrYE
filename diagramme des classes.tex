@@ -36,13 +36,13 @@
 
 \draw[dashed,-latex] ({CardList}) -- node[below, midway]{utilise} (Card);
 
-\begin{class}[text width=8cm]{Proof}{10, -7}
+\begin{class}[text width=9cm]{Proof}{10, -7}
 \attribute{premises : list of CardList}
 \attribute{correct : boolean}
 \attribute{currently\_added : dict \{premise : list of int\}}
 \operation{insert(premise : int, index : int, card : Card)}
 \operation{remove(premise : int, index : int)}
-\operation{conclusion() -> list of (True | False | None)}
+\operation{conclusion() -> list of (True|False|None|Paradox)}
 \end{class}
 
 \draw[dashed,-latex] (Proof) --node[below, midway]{utilise} ({CardList});
@@ -50,6 +50,9 @@
 \begin{class}[text width=7cm]{Deck}{0,-7}
 \attribute{cards : list of Card}
 \operation{draw(number : int) -> list of Card}
+\operation{append(card : Card)}
+\operation{reset()}
+\operation{is\_finished() -> boolean}
 \end{class}
 
 \draw[dashed,-latex] (Deck) --node[right, midway]{utilise} (Card);

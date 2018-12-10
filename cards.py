@@ -3,6 +3,7 @@
 """Différentes classes et algo."""
 
 import constantes as cst
+from random import shuffle
 
 
 class Card(object):
@@ -120,6 +121,42 @@ class CardList(list):
                 return None
             npi_card_lst.append(card)
         return npi_card_lst
+
+
+class Deck(list):
+    """Le paquet de cartes."""
+    def __init__(self):
+        """Initialise le paquet de cartes."""
+        super().__init__([Card("A"), Card("B"), Card("C"), Card("D")] * 4 +
+                         [Card("AND"), Card("OR"), Card("THEN")] * 4 +
+                         [Card("NOT")] * 6 +
+                         [Card("(")] * 8 +
+                         # [Card("Fallacy"), Card("Justification")] * 3 +
+                         # [Card("TabulaRasa"), Card("Revolution")] +
+                         # [Card("WildVar"), Card("WildOp")] +
+                         [Card("Ergo")] * 3
+                         )
+        shuffle(self)
+
+    def draw(self, number):
+        """Renvoie number cartes du paquet s'il en reste assez, la fin du
+        paquet ou une liste vide sinon."""
+        res = []
+        while len(res) < number and self != []:
+            res.append(self.pop())
+        return res
+
+    def append(self, card):
+        """Ajoute une carte (possible avec Tabula Rasa)."""
+        super().append(card)
+
+    def reset(self):
+        """Réinitialise le paquet de cartes."""
+        self.__init__()
+
+    def is_finished(self):
+        """Indique si la paquet est terminé."""
+        return self == []
 
 
 def tests():
