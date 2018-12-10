@@ -7,9 +7,9 @@ constantes du jeu."""
 CARD_HEIGHT = 140
 CARD_WIDTH = 100
 HEIGHT = 5 * CARD_HEIGHT + 10
-WIDTH = 800
+WIDTH = 1000
 
-CARPET_COLOR = "green"
+CARPET_COLOR = "ivory"
 
 # images cartes
 IMAGE = {
@@ -23,6 +23,7 @@ IMAGE = {
     "NOT": "carteNeg.gif",
     "(": "carteOpenParenthesis.gif",
     ")": "carteCloseParenthesis.gif",
+    "CQFD" : "carteCQFD.gif"
     }
 
 PRIORITY = {

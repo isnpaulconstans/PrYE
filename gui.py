@@ -81,7 +81,7 @@ class ErgoGui(tk.Tk):
         card1 = Card(self.grilleHand[0])
         self.im1 = tk.PhotoImage(file=card1.image)
         self.cardP1 = self.can.create_image(cst.CARD_WIDTH+cst.CARD_WIDTH//2,
-                                    cst.CARD_HEIGHT//2+570, image=self.im1)
+                                    cst.CARD_HEIGHT//2+570, image=card1.image)
         card2 = Card(self.grilleHand[1])
         self.im2 = tk.PhotoImage(file=card2.image)
         self.cardP2 = self.can.create_image(2*cst.CARD_WIDTH+cst.CARD_WIDTH//2,
