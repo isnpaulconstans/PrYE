@@ -1,1 +1,2 @@
 * PARENTHESE : Gestion des parenthèses : à réfléchir avec l'interface graphique
+* les dix cartes spéciales. En particulier, au niveau de l'interface graphique, on les joue où ? Pour les Wild, selection dans un menu ou au clavier ?
