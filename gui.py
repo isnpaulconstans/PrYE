@@ -23,7 +23,7 @@ class ErgoGui(tk.Tk):
                         "D","D","D","AND","AND","AND","AND","OR","OR","OR",
                         "OR","THEN","THEN","THEN","THEN","NOT","NOT","NOT",
                         "NOT","NOT","NOT","(","(","(","(","(","(","(","(",
-                        "CQFD","CQFD","CQFD"]
+                        "CQFD","CQFD","CQFD"] #deck
         self.can = tk.Canvas(self, height=cst.HEIGHT, width=cst.WIDTH,
                              bg=cst.CARPET_COLOR)
         for i in range(4):
