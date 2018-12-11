@@ -4,8 +4,8 @@
 
 constantes du jeu."""
 
-CARD_HEIGHT = 140
-CARD_WIDTH = 100
+CARD_HEIGHT = 70
+CARD_WIDTH = 50
 HEIGHT = 5 * CARD_HEIGHT + 10
 WIDTH = 1000
 

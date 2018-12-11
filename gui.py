@@ -16,7 +16,18 @@ class ErgoGui(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.title("Ergo")
-        self.geometry("1200x800") #dimension fenetre jeu
+        self.geometry("1200x500") #dimension fenetre jeu
+        # creation de la barre de menu:
+        self.barreMenu = tk.Menu(self)
+        # creation du menu "Aide"
+        self.aide = tk.Menu(self.barreMenu, tearoff=0)
+        self.barreMenu.add_cascade(label="Aide", underline=0, menu=self.aide)
+        self.aide.add_command(label="Règles", underline=0)
+        self.aide.add_command(label="A propos", underline=0)
+        self.aide.add_command(label="Quitter", underline=0, command=self.quitter)
+        # afficher le menu
+        self.config(menu=self.barreMenu)
+
         self.grillePremice = [[-1]*7 for _ in range(4)] #grille pour chaque ligne
         self.grilleHand = [-1 for _ in range(5)] #cartes du joueur
         self.listCard = ["A","A","A","A","B","B","B","B","C","C","C","C","D",
@@ -29,7 +40,7 @@ class ErgoGui(tk.Tk):
         for i in range(4):
             self.can.create_line(0, i*cst.CARD_HEIGHT, cst.WIDTH,
                                  i*cst.CARD_HEIGHT, fill="black")
-        for i in range(10):
+        for i in range(20):
             self.can.create_line(i*cst.CARD_WIDTH,0,i*cst.CARD_WIDTH,
                                 4*cst.CARD_HEIGHT, fill="red",dash=(4,4))
         self.can.create_rectangle(0, cst.HEIGHT-cst.CARD_HEIGHT-5,
@@ -39,7 +50,7 @@ class ErgoGui(tk.Tk):
                             cst.WIDTH-100,cst.HEIGHT, width=5, fill="red")
         self.can.create_text(50,4*CARD_HEIGHT +50 , text="Joueur",
                             font="Arial 16 italic", fill="blue")
-        self.can.create_text(9*CARD_WIDTH+50,4*CARD_HEIGHT +50 , text="Pile",
+        self.can.create_text(18*CARD_WIDTH+50,4*CARD_HEIGHT +50 , text="Pile",
                             font="Arial 16 italic", fill="blue")
         for i in range(4):
             tk.Label(text="Premice"+str(i+1)).grid(row=i+1,column=2)
@@ -47,6 +58,9 @@ class ErgoGui(tk.Tk):
         self.name = tk.Label(text="Ergo le jeu",
                             font="Arial 16 italic")
         self.name.grid(row=1,column=0)
+        self.slogan = tk.Label(text="Prouve que tu existe ...",
+                            font="Arial 28 italic")
+        self.slogan.grid(row=6,column=1)
         self.ButPlay = tk.Button(text="play",command=self.play)
         self.ButPlay.grid(row=5,column=0)
         # TEST
@@ -101,6 +115,9 @@ class ErgoGui(tk.Tk):
     def move(self, event):
         """TEST : déplace la carte."""
         self.can.coords(self.cardP1, event.x, event.y)
+
+    def quitter(self):
+        self.destroy()
 
 
 if __name__ == '__main__':
