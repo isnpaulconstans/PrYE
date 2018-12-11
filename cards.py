@@ -160,7 +160,7 @@ class Deck(list):
 
 
 class Proof(object):
-    """Classe gérant les prémices et la preuve."""
+    """Classe gérant les prémisses et la preuve."""
     def __init__(self):
         """Initialisation des attributs."""
         super().__init__()
@@ -169,7 +169,7 @@ class Proof(object):
         self.currently_added = []
 
     def insert(self, premise, index, card):
-        """Insère la carte card dans le prémice premise en position index
+        """Insère la carte card dans le prémisse premise en position index
         et actualise currently_added."""
         self.premises[premise].insert(index, card)
         self.correct &= (self.premises[premise].npi is not None)
@@ -181,7 +181,7 @@ class Proof(object):
         self.currently_added.append((premise, index))
 
     def pop(self, premise, index):
-        """Enlève la carte en position index du prémice premise à condition qu'
+        """Enlève la carte en position index du prémisse premise à condition qu'
         elle vienne d'être ajoutée. Renvoie la carte en question ou None si on
         ne peut pas l'enlever."""
         try:
