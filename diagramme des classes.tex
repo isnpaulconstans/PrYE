@@ -39,10 +39,11 @@
 \begin{class}[text width=9cm]{Proof}{10, -7}
 \attribute{premises : list of CardList}
 \attribute{correct : boolean}
-\attribute{currently\_added : dict \{premise : list of int\}}
+\attribute{currently\_added : list of (premise : int, index : int)}
 \operation{insert(premise : int, index : int, card : Card)}
-\operation{remove(premise : int, index : int)}
-\operation{conclusion() -> list of (True|False|None|Paradox)}
+\operation{pop(premise : int, index : int)}
+\operation{reset\_added()}
+\operation{conclusion() -> None | list of (True|False|None)}
 \end{class}
 
 \draw[dashed,-latex] (Proof) --node[below, midway]{utilise} ({CardList});

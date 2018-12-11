@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """Différentes classes et algo."""
 
-import constantes as cst
 from random import shuffle
+import constantes as cst
 
 
 class Card(object):
@@ -135,7 +135,7 @@ class Deck(list):
                          # [Card("TabulaRasa"), Card("Revolution")] +
                          # [Card("WildVar"), Card("WildOp")] +
                          [Card("Ergo")] * 3
-                         )
+                        )
         shuffle(self)
 
     def draw(self, number):
@@ -157,6 +157,51 @@ class Deck(list):
     def is_finished(self):
         """Indique si la paquet est terminé."""
         return self == []
+
+
+class Proof(object):
+    """Classe gérant les prémices et la preuve."""
+    def __init__(self):
+        """Initialisation des attributs."""
+        super().__init__()
+        self.premises = [CardList() for _ in range(4)]
+        self.correct = True
+        self.currently_added = []
+
+    def insert(self, premise, index, card):
+        """Insère la carte card dans le prémice premise en position index
+        et actualise currently_added."""
+        self.premises[premise].insert(index, card)
+        self.correct &= (self.premises[premise].npi is not None)
+        if self.currently_added != []:
+            (premise1, index1) = self.currently_added.pop()
+            if premise1 == premise and index1 >= index:
+                index1 += 1
+            self.currently_added.append((premise1, index1))
+        self.currently_added.append((premise, index))
+
+    def pop(self, premise, index):
+        """Enlève la carte en position index du prémice premise à condition qu'
+        elle vienne d'être ajoutée. Renvoie la carte en question ou None si on
+        ne peut pas l'enlever."""
+        try:
+            self.currently_added.remove((premise, index))
+        except ValueError:
+            return None
+        if self.currently_added != []:
+            (premise1, index1) = self.currently_added.pop()
+            if premise1 == premise and index1 >= index:
+                index1 -= 1
+            self.currently_added.append((premise1, index1))
+        return self.premises[premise].pop(index)
+
+    def reset_added(self):
+        """Remise à zéro de currently_added pour le prochain tour."""
+        self.currently_added = []
+
+    def conclusion(self):
+        """TODO"""
+        raise NotImplementedError
 
 
 def tests():
