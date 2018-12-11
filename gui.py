@@ -4,9 +4,30 @@
 
 import tkinter as tk
 import random as rd
-import constantes as cst
-from cards import Card, CardList
+# import constantes as cst
+from cards import Proof, Deck
 
+CARD_HEIGHT = 70
+CARD_WIDTH = 50
+HEIGHT = 5 * CARD_HEIGHT + 10
+WIDTH = 1000
+
+CARPET_COLOR = "ivory"
+
+# images cartes
+IMAGE = {
+    "THEN": "carteImp.gif",
+    "A": "carteA.gif",
+    "B": "carteB.gif",
+    "C": "carteC.gif",
+    "D": "carteD.gif",
+    "AND": "carteEt.gif",
+    "OR": "carteOu.gif",
+    "NOT": "carteNeg.gif",
+    "(": "carteOpenParenthesis.gif",
+    ")": "carteCloseParenthesis.gif",
+    "Ergo": "carteCQFD.gif"
+    }
 
 
 class ErgoGui(tk.Tk):
@@ -16,91 +37,97 @@ class ErgoGui(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.title("Ergo")
-        self.geometry("1200x500") #dimension fenetre jeu
-        # creation de la barre de menu:
-        self.barreMenu = tk.Menu(self)
-        # creation du menu "Aide"
-        self.aide = tk.Menu(self.barreMenu, tearoff=0)
-        self.barreMenu.add_cascade(label="Aide", underline=0, menu=self.aide)
-        self.aide.add_command(label="Règles", underline=0)
-        self.aide.add_command(label="A propos", underline=0)
-        self.aide.add_command(label="Quitter", underline=0, command=self.quitter)
-        # afficher le menu
-        self.config(menu=self.barreMenu)
+        self.geometry("1200x500")  # dimension fenetre jeu
+        self.resizable(width=False, height=False)
+        self.__init_menu__()
+        self.__init_canvas__()
 
-        self.grillePremice = [[-1]*7 for _ in range(4)] #grille pour chaque ligne
-        self.grilleHand = [-1 for _ in range(5)] #cartes du joueur
-        self.listCard = ["A","A","A","A","B","B","B","B","C","C","C","C","D",
-                        "D","D","D","AND","AND","AND","AND","OR","OR","OR",
-                        "OR","THEN","THEN","THEN","THEN","NOT","NOT","NOT",
-                        "NOT","NOT","NOT","(","(","(","(","(","(","(","(",
-                        "CQFD","CQFD","CQFD"] #deck
-        self.can = tk.Canvas(self, height=cst.HEIGHT, width=cst.WIDTH,
-                             bg=cst.CARPET_COLOR)
-        for i in range(4):
-            self.can.create_line(0, i*cst.CARD_HEIGHT, cst.WIDTH,
-                                 i*cst.CARD_HEIGHT, fill="black")
-        for i in range(20):
-            self.can.create_line(i*cst.CARD_WIDTH,0,i*cst.CARD_WIDTH,
-                                4*cst.CARD_HEIGHT, fill="red",dash=(4,4))
-        self.can.create_rectangle(0, cst.HEIGHT-cst.CARD_HEIGHT-5,
-                                  cst.WIDTH, cst.HEIGHT,
-                                  width=5, outline="red")
-        self.can.create_line(cst.WIDTH-100,cst.HEIGHT-cst.CARD_HEIGHT-5,
-                            cst.WIDTH-100,cst.HEIGHT, width=5, fill="red")
-        self.can.create_text(50,4*CARD_HEIGHT +50 , text="Joueur",
-                            font="Arial 16 italic", fill="blue")
-        self.can.create_text(18*CARD_WIDTH+50,4*CARD_HEIGHT +50 , text="Pile",
-                            font="Arial 16 italic", fill="blue")
-        for i in range(4):
-            tk.Label(text="Premice"+str(i+1)).grid(row=i+1,column=2)
-        self.can.grid(row=1,column=1,rowspan=5)
-        self.name = tk.Label(text="Ergo le jeu",
-                            font="Arial 16 italic")
-        self.name.grid(row=1,column=0)
+        self.proof = Proof()
+        self.deck = Deck()
+        self.photos = {name: tk.PhotoImage(file=IMAGE[name])
+                       for name in IMAGE}
+        self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
+
+        self.hand = self.deck.draw(5)
+        self.affiche_cards(self.hand, 4)
+
+        self.name = tk.Label(text="Ergo le jeu", font="Arial 16 italic")
+        self.name.grid(row=1, column=0)
         self.slogan = tk.Label(text="Prouve que tu existe ...",
-                            font="Arial 28 italic")
-        self.slogan.grid(row=6,column=1)
-        self.ButPlay = tk.Button(text="play",command=self.play)
-        self.ButPlay.grid(row=5,column=0)
+                               font="Arial 28 italic")
+        self.slogan.grid(row=6, column=1)
+        self.but_play = tk.Button(text="play", command=self.play)
+        self.but_play.grid(row=5, column=0)
         # TEST
+        self.can.bind('<Button-1>', func=self.select)
         self.can.bind('<Button1-Motion>', func=self.move)
+        self.can.bind("<ButtonRelease-1>", func=self.drop)
         # Creation de toutes les images de cartes
-##        card_then = Card("THEN")
-##        self.im = tk.PhotoImage(file=card_then.image)
-##        self.card = self.can.create_image(cst.CARD_WIDTH//2, cst.CARD_HEIGHT//2,
-##                                          image=self.im)
+#        card_then = Card("THEN")
+#        self.im = tk.PhotoImage(file=card_then.image)
+#        self.card = self.can.create_image(CARD_WIDTH//2, CARD_HEIGHT//2,
+#                                          image=self.im)
 
 ##    def afficheCard(self, ref):
 ##            """affiche dans le canvas en bas la main du joueur"""
 ##            card1 = Card(ref)
 ##            self.im1 = tk.PhotoImage(file=card1.image)
-##            self.cardP1 = self.can.create_image(cst.CARD_WIDTH+cst.CARD_WIDTH//2,
-##                                        cst.CARD_HEIGHT//2+570, image=self.im1)
+##            self.cardP1 = self.can.create_image(CARD_WIDTH+CARD_WIDTH//2,
+##                                        CARD_HEIGHT//2+570, image=self.im1)
 ##
 ##
 ##
+
+    def __init_menu__(self):
+        """creation de la barre de menu."""
+        self.barre_menu = tk.Menu(self)
+        # creation du menu "Aide"
+        self.aide = tk.Menu(self.barre_menu, tearoff=0)
+        self.barre_menu.add_cascade(label="Aide", underline=0, menu=self.aide)
+        self.aide.add_command(label="Règles", underline=0)
+        self.aide.add_command(label="A propos", underline=0)
+        self.aide.add_command(label="Quitter", underline=0, command=self.quitter)
+        # afficher le menu
+        self.config(menu=self.barre_menu)
+
+    def __init_canvas__(self):
+        """Création du canvas de jeu."""
+        self.can = tk.Canvas(self, height=HEIGHT, width=WIDTH,
+                             bg=CARPET_COLOR)
+        for i in range(4):
+            self.can.create_line(0, i*CARD_HEIGHT, WIDTH,
+                                 i*CARD_HEIGHT, fill="black")
+        for i in range(20):
+            self.can.create_line(i*CARD_WIDTH, 0, i*CARD_WIDTH,
+                                 4*CARD_HEIGHT, fill="red", dash=(4, 4))
+        self.can.create_rectangle(0, HEIGHT-CARD_HEIGHT-5,
+                                  WIDTH, HEIGHT,
+                                  width=5, outline="red")
+        self.can.create_line(WIDTH-100, HEIGHT-CARD_HEIGHT-5,
+                             WIDTH-100, HEIGHT, width=5, fill="red")
+        self.can.create_text(50, 4*CARD_HEIGHT+50, text="Joueur",
+                             font="Arial 16 italic", fill="blue")
+        self.can.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
+                             text="Pile", font="Arial 16 italic", fill="blue")
+        for i in range(4):
+            tk.Label(text="Prémisse "+str(i+1)).grid(row=i+1, column=2)
+        self.can.grid(row=1, column=1, rowspan=5)
+
     def play(self):
         """lance le jeu en melangeant le jeu de carte et en distribuant
         5 cartes au joueur """
-        rd.shuffle(self.listCard)
-        if self.listCard != []:
-            for i in range(5):
-                self.grilleHand[i]=self.listCard[0]
-                self.listCard.pop(0)
-        self.afficheCard()
+        self.hand = self.deck.draw(5)
+        self.affiche_cards(self.hand, 4)
 
-    def afficheCard(self):
+    def affiche_cards(self, card_list, row):
         """affiche dans le canvas en bas la main du joueur"""
-        card1 = Card(self.grilleHand[0])
-        self.im1 = tk.PhotoImage(file=card1.image)
-        self.cardP1 = self.can.create_image(cst.CARD_WIDTH+cst.CARD_WIDTH//2,
-                                    cst.CARD_HEIGHT//2+570, image=card1.image)
-        card2 = Card(self.grilleHand[1])
-        self.im2 = tk.PhotoImage(file=card2.image)
-        self.cardP2 = self.can.create_image(2*cst.CARD_WIDTH+cst.CARD_WIDTH//2,
-                                    cst.CARD_HEIGHT//2+570, image=self.im2)
-
+        for index, card in enumerate(card_list):
+            self.cards[row] = self.can.create_image(
+                CARD_WIDTH // 2 + index * CARD_WIDTH,
+                CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4),
+                image=self.photos[card.valeur],
+                tag="card"
+                )
 
     def place(self, event):
         """TEST place la carte sur un premice si possible
@@ -111,12 +138,24 @@ class ErgoGui(tk.Tk):
         """TEST retourne la parenthèse"""
         pass
 
+    def select(self, event):
+        """TODO"""
+        num = self.can.find_closest(event.x, event.y)
+        if "card" in self.can.gettags(num):
+            self.can.addtag_withtag("selected", num)
+            self.can.tag_raise(num)  # pour passer en avant plan
 
     def move(self, event):
         """TEST : déplace la carte."""
-        self.can.coords(self.cardP1, event.x, event.y)
+        num = self.can.find_withtag("selected")
+        self.can.coords(num, event.x, event.y)
+
+    def drop(self, event):
+        """TODO"""
+        self.can.dtag("selected", "selected")
 
     def quitter(self):
+        """Quitte"""
         self.destroy()
 
 

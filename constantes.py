@@ -23,7 +23,7 @@ IMAGE = {
     "NOT": "carteNeg.gif",
     "(": "carteOpenParenthesis.gif",
     ")": "carteCloseParenthesis.gif",
-    "Ergo" : "carteCQFD.gif"
+    "Ergo": "carteCQFD.gif"
     }
 
 PRIORITY = {

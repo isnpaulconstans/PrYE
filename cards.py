@@ -3,21 +3,28 @@
 """Différentes classes et algo."""
 
 from random import shuffle
-import constantes as cst
+# import constantes as cst
+PRIORITY = {
+    "AND": 1,
+    "OR": 2,
+    "THEN": 3,
+    "NOT": 4,
+    "(": 0,  # PARENTHESE
+    ")": 0,  # PARENTHESE
+    }
 
 
 class Card(object):
     "Les cartes du jeu."
     def __init__(self, valeur):
         """Créé une carte de la valeur donnée"""
-        self.image = cst.IMAGE[valeur]
         self.valeur = valeur
 
     def priority(self):
         """Renvoie le niveau de priorité de la carte.
         Si la carte n'a pas de niveau de priorité, renvoie une exception."""
         try:
-            return cst.PRIORITY[self.valeur]
+            return PRIORITY[self.valeur]
         except KeyError:
             raise Exception("Card '{}' as no priority".format(self.valeur))
 
