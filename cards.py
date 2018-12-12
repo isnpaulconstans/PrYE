@@ -200,7 +200,9 @@ class Proof(object):
             if premise1 == premise and index1 >= index:
                 index1 -= 1
             self.currently_added.append((premise1, index1))
-        return self.premises[premise].pop(index)
+        card = self.premises[premise].pop(index)
+        self.correct &= (self.premises[premise].npi is not None)
+        return card
 
     def reset_added(self):
         """Remise à zéro de currently_added pour le prochain tour."""
