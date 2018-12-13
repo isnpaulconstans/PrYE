@@ -9,7 +9,7 @@ from cards import Proof, Deck
 
 CARD_HEIGHT = 70
 CARD_WIDTH = 50
-HEIGHT = 5 * CARD_HEIGHT + 10
+HEIGHT = 6 * CARD_HEIGHT + 20
 WIDTH = 1000
 
 CARPET_COLOR = "ivory"
@@ -101,11 +101,20 @@ class ErgoGui(tk.Tk):
             self.can.create_line(i*CARD_WIDTH, 0, i*CARD_WIDTH,
                                  4*CARD_HEIGHT, fill="red", dash=(4, 4))
         self.can.create_rectangle(0, HEIGHT-CARD_HEIGHT-5,
-                                  WIDTH, HEIGHT,
+                                  WIDTH-2*CARD_WIDTH, HEIGHT,
+                                  width=5, outline="red")
+        self.can.create_rectangle(0, HEIGHT-2*CARD_HEIGHT-15,
+                                  WIDTH-2*CARD_WIDTH, HEIGHT-CARD_HEIGHT-10,
                                   width=5, outline="red")
         self.can.create_line(WIDTH-100, HEIGHT-CARD_HEIGHT-5,
                              WIDTH-100, HEIGHT, width=5, fill="red")
-        self.can.create_text(50, 4*CARD_HEIGHT+50, text="Joueur",
+        self.can.create_text(CARD_WIDTH, 4*CARD_HEIGHT+50, text="Joueur 1",
+                             font="Arial 16 italic", fill="blue")
+        self.can.create_text(CARD_WIDTH, 5*CARD_HEIGHT+50, text="Joueur 2",
+                             font="Arial 16 italic", fill="blue")
+        self.can.create_text(10*CARD_WIDTH, 4*CARD_HEIGHT+50, text="Joueur 3",
+                             font="Arial 16 italic", fill="blue")
+        self.can.create_text(10*CARD_WIDTH, 5*CARD_HEIGHT+50, text="Joueur 4",
                              font="Arial 16 italic", fill="blue")
         self.can.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
                              text="Pile", font="Arial 16 italic", fill="blue")
@@ -122,7 +131,7 @@ class ErgoGui(tk.Tk):
     def affiche_cards(self, card_list, row):
         """affiche dans le canvas en bas la main du joueur"""
         for index, card in enumerate(card_list):
-            self.cards[row] = self.can.create_image(
+            self.cards[row] = self.can.create_image(2*CARD_WIDTH+
                 CARD_WIDTH // 2 + index * CARD_WIDTH,
                 CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4),
                 image=self.photos[card.valeur],
