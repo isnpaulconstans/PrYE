@@ -62,21 +62,7 @@ class ErgoGui(tk.Tk):
         self.can.bind('<Button-1>', func=self.select)
         self.can.bind('<Button1-Motion>', func=self.move)
         self.can.bind("<ButtonRelease-1>", func=self.drop)
-        # Creation de toutes les images de cartes
-#        card_then = Card("THEN")
-#        self.im = tk.PhotoImage(file=card_then.image)
-#        self.card = self.can.create_image(CARD_WIDTH//2, CARD_HEIGHT//2,
-#                                          image=self.im)
 
-##    def afficheCard(self, ref):
-##            """affiche dans le canvas en bas la main du joueur"""
-##            card1 = Card(ref)
-##            self.im1 = tk.PhotoImage(file=card1.image)
-##            self.cardP1 = self.can.create_image(CARD_WIDTH+CARD_WIDTH//2,
-##                                        CARD_HEIGHT//2+570, image=self.im1)
-##
-##
-##
 
     def __init_menu__(self):
         """creation de la barre de menu."""
@@ -106,8 +92,9 @@ class ErgoGui(tk.Tk):
         self.can.create_rectangle(0, HEIGHT-2*CARD_HEIGHT-15,
                                   WIDTH-2*CARD_WIDTH, HEIGHT-CARD_HEIGHT-10,
                                   width=5, outline="red")
-        self.can.create_line(WIDTH-100, HEIGHT-CARD_HEIGHT-5,
-                             WIDTH-100, HEIGHT, width=5, fill="red")
+        self.can.create_rectangle(WIDTH-2*CARD_WIDTH+5, HEIGHT-2*CARD_HEIGHT-15,
+                                  WIDTH, HEIGHT,
+                                  width=5, outline="pink")
         self.can.create_text(CARD_WIDTH, 4*CARD_HEIGHT+50, text="Joueur 1",
                              font="Arial 16 italic", fill="blue")
         self.can.create_text(CARD_WIDTH, 5*CARD_HEIGHT+50, text="Joueur 2",
