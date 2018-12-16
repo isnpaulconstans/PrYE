@@ -18,7 +18,7 @@ CARPET_COLOR = "ivory"
 # images cartes
 IMAGE = {
     "THEN": "carteImp.gif",
-    "A": "carteAb.gif",
+    "A": "carteA.gif",
     "B": "carteB.gif",
     "C": "carteC.gif",
     "D": "carteD.gif",
@@ -163,8 +163,8 @@ class ErgoGui(tk.Tk):
 
     def rules(self):
         """Affiche les règles du jeu"""
-        texte =""
-        with open("regles_ergo.txt") as fic:
+        texte = ""
+        with open("regles_ergo.txt", encoding="utf-8") as fic:
             for ligne in fic:
                 texte += ligne
         messagebox.showinfo("Ergo", texte)
