@@ -4,6 +4,7 @@
 
 import tkinter as tk
 import random as rd
+from tkinter import messagebox
 # import constantes as cst
 from cards import Proof, Deck
 
@@ -70,8 +71,8 @@ class ErgoGui(tk.Tk):
         # creation du menu "Aide"
         self.aide = tk.Menu(self.barre_menu, tearoff=0)
         self.barre_menu.add_cascade(label="Aide", underline=0, menu=self.aide)
-        self.aide.add_command(label="Règles", underline=0)
-        self.aide.add_command(label="A propos", underline=0)
+        self.aide.add_command(label="Règles", underline=0, command=self.rules)
+        self.aide.add_command(label="A propos", underline=0, command=self.version)
         self.aide.add_command(label="Quitter", underline=0, command=self.quitter)
         # afficher le menu
         self.config(menu=self.barre_menu)
@@ -135,7 +136,7 @@ class ErgoGui(tk.Tk):
         pass
 
     def select(self, event):
-        """TODO"""
+        """TEST : selectionne une carte"""
         num = self.can.find_closest(event.x, event.y)
         if "card" in self.can.gettags(num):
             self.can.addtag_withtag("selected", num)
@@ -147,13 +148,26 @@ class ErgoGui(tk.Tk):
         self.can.coords(num, event.x, event.y)
 
     def drop(self, event):
-        """TODO"""
+        """TEST : place la carte sur la grille, si en dehors place sur pile"""
         lig, col = event.y//70, event.x//50
-        if 0 <= event.x <= WIDTH:
-            self.can.coords("selected", CARD_WIDTH*(col+0.5), CARD_HEIGHT*(lig+0.5))
+        if 0 <= event.x <= WIDTH and 0 <= event.y <= HEIGHT:
+            self.can.coords("selected", CARD_WIDTH*(col+0.5),
+                            CARD_HEIGHT*(lig+0.5))
         else:
-            self.can.coords("selected", WIDTH-25, HEIGHT-35)
+            self.can.coords("selected", WIDTH-CARD_WIDTH, HEIGHT-CARD_HEIGHT/2)
         self.can.dtag("selected", "selected")
+
+    def version(self):
+        """version du jeux"""
+        messagebox.showinfo("Ergo", "Version Alpha 16/12/18")
+
+    def rules(self):
+        """Affiche les règles du jeu"""
+        texte =""
+        with open("regles_ergo.txt") as fic:
+            for ligne in fic:
+                texte += ligne
+        messagebox.showinfo("Ergo", texte)
 
     def quitter(self):
         """Quitte"""
