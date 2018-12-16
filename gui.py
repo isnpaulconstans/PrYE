@@ -17,7 +17,7 @@ CARPET_COLOR = "ivory"
 # images cartes
 IMAGE = {
     "THEN": "carteImp.gif",
-    "A": "carteA.gif",
+    "A": "carteAb.gif",
     "B": "carteB.gif",
     "C": "carteC.gif",
     "D": "carteD.gif",
@@ -113,7 +113,7 @@ class ErgoGui(tk.Tk):
         """lance le jeu en melangeant le jeu de carte et en distribuant
         5 cartes au joueur """
         self.hand = self.deck.draw(5)
-        self.affiche_cards(self.hand, 4)
+        self.affiche_cards(self.hand, 2)
 
     def affiche_cards(self, card_list, row):
         """affiche dans le canvas en bas la main du joueur"""
@@ -148,6 +148,11 @@ class ErgoGui(tk.Tk):
 
     def drop(self, event):
         """TODO"""
+        lig, col = event.y//70, event.x//50
+        if 0 <= event.x <= WIDTH:
+            self.can.coords("selected", CARD_WIDTH*(col+0.5), CARD_HEIGHT*(lig+0.5))
+        else:
+            self.can.coords("selected", WIDTH-25, HEIGHT-35)
         self.can.dtag("selected", "selected")
 
     def quitter(self):
