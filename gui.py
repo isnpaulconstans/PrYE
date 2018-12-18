@@ -3,9 +3,7 @@
 """Interface graphique."""
 
 import tkinter as tk
-import random as rd
 from tkinter import messagebox
-# import constantes as cst
 from cards import Proof, Deck
 
 CARD_HEIGHT = 70
@@ -49,7 +47,9 @@ class ErgoGui(tk.Tk):
                        for name in IMAGE}
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
 
-        self.hand = self.deck.draw(5)
+        self.hand = self.deck.draw(7)
+        self.pile = []
+        self.selected_card = None
         self.affiche_cards(self.hand, 4)
 
         self.name = tk.Label(text="Ergo le jeu", font="Arial 16 italic")
@@ -113,17 +113,34 @@ class ErgoGui(tk.Tk):
     def play(self):
         """lance le jeu en melangeant le jeu de carte et en distribuant
         5 cartes au joueur """
-        self.hand = self.deck.draw(5)
-        self.affiche_cards(self.hand, 2)
+        if len(self.hand) != 5:
+            messagebox.showwarning("Ergo", "Il reste plus de 5 cartes.")
+            return
+        if not self.proof.is_all_correct():
+            messagebox.showwarning("Ergo", "Jeu invalide")
+            return
+        self.hand.extend(self.deck.draw(2))
+        self.affiche_cards(self.hand, 4)
+        self.proof.reset_added()
+        self.can.delete("pile")
 
     def affiche_cards(self, card_list, row):
         """affiche dans le canvas en bas la main du joueur"""
+        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
+        for num in self.cards[row]:
+            if "selected" in self.can.gettags(num):
+                continue
+            self.can.delete(num)
+        self.cards[row] = []
         for index, card in enumerate(card_list):
-            self.cards[row] = self.can.create_image(2*CARD_WIDTH+
-                CARD_WIDTH // 2 + index * CARD_WIDTH,
-                CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4),
-                image=self.photos[card.valeur],
-                tag="card"
+            x = CARD_WIDTH // 2 + index * CARD_WIDTH
+            if row == 4:
+                x += 2 * CARD_WIDTH
+            self.cards[row].append(
+                self.can.create_image(x, y,
+                                      image=self.photos[card.valeur],
+                                      tag="card"
+                                     )
                 )
 
     def place(self, event):
@@ -140,6 +157,20 @@ class ErgoGui(tk.Tk):
         num = self.can.find_closest(event.x, event.y)
         if "card" in self.can.gettags(num):
             self.can.addtag_withtag("selected", num)
+            row = event.y//CARD_HEIGHT
+            col = event.x//CARD_WIDTH - 2 * (row == 4)
+            if 0 <= row < 4:  # un des premisses
+                self.selected_card = self.proof.pop(row, col)
+                if self.selected_card is None:  # impossible de la sélectionner
+                    self.can.dtag("selected")
+                    return
+                self.affiche_cards(self.proof.premises[row], row)
+            elif 4 <= row <= 5 and 18 <= col <= 19:  # Pile
+                self.selected_card = self.pile.pop()
+                self.can.dtag("selected", "pile")
+            else:  # carte de la main
+                self.selected_card = self.hand.pop(col)
+                self.affiche_cards(self.hand, 4)
             self.can.tag_raise(num)  # pour passer en avant plan
 
     def move(self, event):
@@ -149,13 +180,26 @@ class ErgoGui(tk.Tk):
 
     def drop(self, event):
         """TEST : place la carte sur la grille, si en dehors place sur pile"""
-        lig, col = event.y//70, event.x//50
-        if 0 <= event.x <= WIDTH and 0 <= event.y <= HEIGHT:
-            self.can.coords("selected", CARD_WIDTH*(col+0.5),
-                            CARD_HEIGHT*(lig+0.5))
-        else:
+        if self.selected_card is None:
+            return
+        row, col = event.y//CARD_HEIGHT, event.x//CARD_WIDTH
+        if 0 <= event.x <= WIDTH and 0 <= row < 4:  # un des premisses
+            if self.proof.insert(row, col, self.selected_card):
+                self.can.delete("selected")
+                self.affiche_cards(self.proof.premises[row], row)
+                self.selected_card = None
+                return
+        elif 4 <= row <= 5 and 18 <= col <= 19:  # Pile
             self.can.coords("selected", WIDTH-CARD_WIDTH, HEIGHT-CARD_HEIGHT/2)
-        self.can.dtag("selected", "selected")
+            self.pile.append(self.selected_card)
+            self.can.addtag_withtag("pile", "selected")
+            self.can.dtag("selected")
+            self.selected_card = None
+            return
+        self.hand.append(self.selected_card)
+        self.can.delete("selected")
+        self.affiche_cards(self.hand, 4)
+        self.selected_card = None
 
     def version(self):
         """version du jeux"""

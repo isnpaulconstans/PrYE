@@ -172,20 +172,23 @@ class Proof(object):
         """Initialisation des attributs."""
         super().__init__()
         self.premises = [CardList() for _ in range(4)]
-        self.correct = True
         self.currently_added = []
 
     def insert(self, premise, index, card):
         """Insère la carte card dans le prémisse premise en position index
         et actualise currently_added."""
+        if len(self.currently_added) >= 2:
+            return False
         self.premises[premise].insert(index, card)
-        self.correct &= (self.premises[premise].npi is not None)
+        if index >= len(self.premises[premise]):
+            index = len(self.premises[premise])-1
         if self.currently_added != []:
             (premise1, index1) = self.currently_added.pop()
             if premise1 == premise and index1 >= index:
                 index1 += 1
             self.currently_added.append((premise1, index1))
         self.currently_added.append((premise, index))
+        return True
 
     def pop(self, premise, index):
         """Enlève la carte en position index du prémisse premise à condition qu'
@@ -201,12 +204,17 @@ class Proof(object):
                 index1 -= 1
             self.currently_added.append((premise1, index1))
         card = self.premises[premise].pop(index)
-        self.correct &= (self.premises[premise].npi is not None)
         return card
 
     def reset_added(self):
         """Remise à zéro de currently_added pour le prochain tour."""
         self.currently_added = []
+
+    def is_all_correct(self):
+        for premise in self.premises:
+            if premise.to_npi() is None:
+                return False
+        return True
 
     def conclusion(self):
         """TODO"""
