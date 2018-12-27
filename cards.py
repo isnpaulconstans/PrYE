@@ -53,21 +53,27 @@ class Card(object):
 
 
 class CardList(list):
-    """Liste de cartes."""
+    """Liste de cartes, avec la Notation Polonaise Inversée associée.
+    Si la liste ne correspond pas à une preuve syntaxiquement correcte,
+    NPI vaut None."""
     def __init__(self, *args):
         """Initialisation de la liste."""
         super().__init__(*args)
         self.npi = self.to_npi()
 
     def append(self, card):
+        """Ajoute la carte card à la  fin de la liste."""
         super().append(card)
         self.npi = self.to_npi()
 
     def insert(self, index, card):
+        """Insère card à la position index."""
         super().insert(index, card)
         self.npi = self.to_npi()
 
     def pop(self, index=-1):
+        """Supprime la carte en position index (par défaut la dernière)
+        et la renvoie."""
         card = super().pop(index)
         self.npi = self.to_npi()
         return card
@@ -96,7 +102,8 @@ class CardList(list):
         return not card2.is_operator()
 
     def to_npi(self):
-        """Prend en paramètre une liste de carte en notation infixe, et renvoie
+        """Prend en paramètre une liste de carte en notation infixe,
+        et renvoie
 
          * None si la syntaxe de la liste n'est pas correcte
 
@@ -169,14 +176,22 @@ class Deck(list):
 class Proof(object):
     """Classe gérant les prémisses et la preuve."""
     def __init__(self):
-        """Initialisation des attributs."""
+        """Initialisation des attributs :
+
+        * premises : liste de 4 CardList correspondant aux 4 lignes de
+        prémisses;
+
+        * currently_added : liste de cartes venant d'être ajoutées aux
+        prémisses, et pas encore validées."""
         super().__init__()
         self.premises = [CardList() for _ in range(4)]
         self.currently_added = []
 
     def insert(self, premise, index, card):
-        """Insère la carte card dans le prémisse premise en position index
-        et actualise currently_added."""
+        """Insère la carte card dans la prémisse premise en position index
+        et actualise currently_added.
+
+        Renvoie True si l'insertion est possible, False sinon."""
         if len(self.currently_added) >= 2:
             return False
         self.premises[premise].insert(index, card)
@@ -191,9 +206,9 @@ class Proof(object):
         return True
 
     def pop(self, premise, index):
-        """Enlève la carte en position index du prémisse premise à condition qu'
-        elle vienne d'être ajoutée. Renvoie la carte en question ou None si on
-        ne peut pas l'enlever."""
+        """Enlève la carte en position index de la prémisse premise à
+        condition qu'elle vienne d'être ajoutée. Renvoie la carte en
+        question ou None si on ne peut pas l'enlever."""
         try:
             self.currently_added.remove((premise, index))
         except ValueError:
@@ -211,13 +226,17 @@ class Proof(object):
         self.currently_added = []
 
     def is_all_correct(self):
+        """Indique si toutes les prémisses sont correctes ou pas."""
         for premise in self.premises:
             if premise.to_npi() is None:
                 return False
         return True
 
     def conclusion(self):
-        """TODO"""
+        """Renvoie None si les prémisses conduisent à une contradiction,
+        ou un dictionnaire associant à chaque variable 'A', 'B', 'C' et
+        'D' soit True si elle est prouvée, False si la négation est
+        prouvée, on None si on ne peut rien conclure."""
         raise NotImplementedError
 
 

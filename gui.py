@@ -111,21 +111,22 @@ class ErgoGui(tk.Tk):
         self.can.grid(row=1, column=1, rowspan=5)
 
     def play(self):
-        """lance le jeu en melangeant le jeu de carte et en distribuant
-        5 cartes au joueur """
+        """Valide un coup si possible, et passe au joueur suivant (TODO)."""
         if len(self.hand) != 5:
             messagebox.showwarning("Ergo", "Il reste plus de 5 cartes.")
             return
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
+        # TODO : passe au joueur suivant.
         self.hand.extend(self.deck.draw(2))
         self.affiche_cards(self.hand, 4)
         self.proof.reset_added()
         self.can.delete("pile")
 
     def affiche_cards(self, card_list, row):
-        """affiche dans le canvas en bas la main du joueur"""
+        """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
+        prémisses, 4 pour la main du joueur."""
         y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
         for num in self.cards[row]:
             if "selected" in self.can.gettags(num):
@@ -140,20 +141,13 @@ class ErgoGui(tk.Tk):
                 self.can.create_image(x, y,
                                       image=self.photos[card.valeur],
                                       tag="card"
-                                     )
+                                      )
                 )
 
-    def place(self, event):
-        """TEST place la carte sur un premice si possible
-        Renvoie True si ok, False sinon."""
-        pass
-
-    def switch(self):
-        """TEST retourne la parenthèse"""
-        pass
-
     def select(self, event):
-        """TEST : selectionne une carte"""
+        """Selectionne une carte, la marque comme "selected", la met en avant
+        plan, et l'enlève de l'endroit où elle était (main, prémisse ou pile).
+        """
         num = self.can.find_closest(event.x, event.y)
         if "card" in self.can.gettags(num):
             self.can.addtag_withtag("selected", num)
@@ -174,16 +168,18 @@ class ErgoGui(tk.Tk):
             self.can.tag_raise(num)  # pour passer en avant plan
 
     def move(self, event):
-        """TEST : déplace la carte."""
+        """Déplace la carte marquée "selected"."""
         num = self.can.find_withtag("selected")
         self.can.coords(num, event.x, event.y)
 
     def drop(self, event):
-        """TEST : place la carte sur la grille, si en dehors place sur pile"""
+        """Place la carte marquée "selected" sur la grille, et l'ajoute au bon
+        endroit (prémisse, main ou pile) et enlève la marque "selected".
+        Si c'est impossible, la remet à la fin de la main."""
         if self.selected_card is None:
             return
         row, col = event.y//CARD_HEIGHT, event.x//CARD_WIDTH
-        if 0 <= event.x <= WIDTH and 0 <= row < 4:  # un des premisses
+        if 0 <= event.x <= WIDTH and 0 <= row < 4:  # une des premisses
             if self.proof.insert(row, col, self.selected_card):
                 self.can.delete("selected")
                 self.affiche_cards(self.proof.premises[row], row)
@@ -201,8 +197,12 @@ class ErgoGui(tk.Tk):
         self.affiche_cards(self.hand, 4)
         self.selected_card = None
 
+    def switch(self):
+        """TODO retourne la parenthèse"""
+        pass
+
     def version(self):
-        """version du jeux"""
+        """affiche la version du jeu"""
         messagebox.showinfo("Ergo", "Version Alpha 16/12/18")
 
     def rules(self):
@@ -215,6 +215,7 @@ class ErgoGui(tk.Tk):
 
     def quitter(self):
         """Quitte"""
+        self.quit()
         self.destroy()
 
 

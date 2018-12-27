@@ -37,17 +37,19 @@
 
 \begin{class}[text width=9cm]{Proof}{10, -7}
 \attribute{premises : list of CardList}
-\attribute{correct : boolean}
 \attribute{currently\_added : list of (premise : int, index : int)}
+\operation{\_\_init\_\_()}
 \operation{insert(premise : int, index : int, card : Card)}
 \operation{pop(premise : int, index : int)}
 \operation{reset\_added()}
+\operation{is\_all\_correct() -> boolean}
 \operation{conclusion() -> None | list of (True|False|None)}
 \end{class}
 
 \draw[dashed,-latex] (Proof) --node[right, midway]{utilise} ({CardList[list]});
 
 \begin{class}[text width=7cm]{Deck[list]}{0,-7}
+\operation{\_\_init\_\_()}
 \operation{draw(number : int) -> list of Card}
 \operation{append(card : Card)}
 \operation{reset()}
@@ -56,11 +58,26 @@
 
 \draw[dashed,-latex] ({Deck[list]}) --node[right, midway]{utilise} (Card);
 
-\begin{class}{ErgoGui[Tk]}{0,-12}
+\begin{class}[text width=9cm]{ErgoGui[Tk]}{0,-12.5}
 \attribute{proof : Proof}
 \attribute{deck : Deck}
+\attribute{photos : dict of tk.PhotoImage}
+\attribute{cards : list of list of cards}
+\attribute{hand : list of cards}
+\attribute{pile : list of cards}
+\attribute{selected\_card : None | card}
 \operation{\_\_init\_\_()}
 \operation{\_\_init\_menu\_\_()}
+\operation{\_\_init\_canvas\_\_()}
+\operation{play()}
+\operation{affiche\_cards(card\_list : list of card, row : int)}
+\operation{select(event : tk.Event)}
+\operation{move(event : tk.Event)}
+\operation{drop(event : tk.Event)}
+\operation{switch(event : tk.Event)}
+\operation{version()}
+\operation{rules()}
+\operation{quitter()}
 \end{class}
 
 \draw[dashed,-latex] (ErgoGui[Tk]) --node[right, midway]{utilise} ({Deck[list]});
