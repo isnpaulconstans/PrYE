@@ -16,24 +16,41 @@ PRIORITY = {
 
 class Card(object):
     "Les cartes du jeu."
-    def __init__(self, valeur):
-        """Créé une carte de la valeur donnée"""
+    def __init__(self, valeur: str):
+        """Constructeur de la classe
+
+         :param valeur: Valeur de la carte (ET, OU, AND, NOT, ...)
+         :type valeur: string
+
+         :return: Objet Card
+         :rtype: Card
+        """
         self.valeur = valeur
 
     def priority(self):
         """Renvoie le niveau de priorité de la carte.
-        Si la carte n'a pas de niveau de priorité, renvoie une exception."""
+        Si la carte n'a pas de niveau de priorité, renvoie une exception.
+
+         :return: niveau de priorité
+         :rtype: int
+        """
         try:
             return PRIORITY[self.valeur]
         except KeyError:
             raise Exception("Card '{}' as no priority".format(self.valeur))
 
     def is_letter(self):
-        """"Indique si la carte est une lettre ou non."""
+        """Indique si la carte est une lettre ou non.
+
+         :rtype: boolean
+        """
         return self.valeur in ["A", "B", "C", "D"]
 
-    def is_operator(self):
-        """Indique si la carte est un opérateur."""
+    def is_operator(self) -> bool:
+        """Indique si la carte est un opérateur
+
+         :rtype: boolean
+        """
         return self.valeur in ["AND", "OR", "THEN"]
 
     def is_open(self):
@@ -102,8 +119,7 @@ class CardList(list):
         return not card2.is_operator()
 
     def to_npi(self):
-        """Prend en paramètre une liste de carte en notation infixe,
-        et renvoie
+        """Renvoie
 
          * None si la syntaxe de la liste n'est pas correcte
 
@@ -179,10 +195,11 @@ class Proof(object):
         """Initialisation des attributs :
 
         * premises : liste de 4 CardList correspondant aux 4 lignes de
-        prémisses;
+          prémisses;
 
         * currently_added : liste de cartes venant d'être ajoutées aux
-        prémisses, et pas encore validées."""
+          prémisses, et pas encore validées.
+        """
         super().__init__()
         self.premises = [CardList() for _ in range(4)]
         self.currently_added = []
