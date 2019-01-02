@@ -1,9 +1,10 @@
-Documentation du module Cards
-==============================
+Documentation des modules
+=========================
+
+Module cards
+------------
 
 .. automodule:: cards
-
-Le module Cards gère les cartes
 
 .. autoclass:: Card
    :members:
@@ -24,3 +25,14 @@ Le module Cards gère les cartes
    :members:
    :private-members:
    :special-members:
+
+Module gui
+----------
+
+.. automodule:: gui
+
+.. autoclass:: ErgoGui
+   :members:
+   :private-members:
+   :special-members:
+

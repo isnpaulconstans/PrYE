@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Documentation du module Cards &#8212; Documentation Ergo 1.0</title>
+    <title>Documentation des modules &#8212; Documentation Ergo 1.0</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Recherche" href="search.html" />
-    <link rel="prev" title="Règles du jeu" href="regles.html" />
+    <link rel="prev" title="Wiki" href="regles.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -40,10 +40,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-cards">
-<span id="documentation-du-module-cards"></span><h1>Documentation du module Cards<a class="headerlink" href="#module-cards" title="Lien permanent vers ce titre">¶</a></h1>
+  <div class="section" id="documentation-des-modules">
+<h1>Documentation des modules<a class="headerlink" href="#documentation-des-modules" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="section" id="module-cards">
+<span id="module-cards"></span><h2>Module cards<a class="headerlink" href="#module-cards" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Différentes classes et algo.</p>
-<p>Le module Cards gère les cartes</p>
 <dl class="class">
 <dt id="cards.Card">
 <em class="property">class </em><code class="descclassname">cards.</code><code class="descname">Card</code><span class="sig-paren">(</span><em>valeur: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Card"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Card" title="Lien permanent vers cette définition">¶</a></dt>
@@ -301,6 +302,88 @@ question ou None si on ne peut pas l’enlever.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-gui">
+<span id="module-gui"></span><h2>Module gui<a class="headerlink" href="#module-gui" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Interface graphique.</p>
+<dl class="class">
+<dt id="gui.ErgoGui">
+<em class="property">class </em><code class="descclassname">gui.</code><code class="descname">ErgoGui</code><a class="reference internal" href="_modules/gui.html#ErgoGui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Interface graphique.
+TODO</p>
+<dl class="method">
+<dt id="gui.ErgoGui.__init_canvas__">
+<code class="descname">__init_canvas__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.__init_canvas__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.__init_canvas__" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Création du canvas de jeu.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.__init_menu__">
+<code class="descname">__init_menu__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.__init_menu__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.__init_menu__" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>creation de la barre de menu.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.affiche_cards">
+<code class="descname">affiche_cards</code><span class="sig-paren">(</span><em>card_list</em>, <em>row</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.affiche_cards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.affiche_cards" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>affiche la liste de carte card_list à la ligne row (0 à 3 pour les
+prémisses, 4 pour la main du joueur.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.drop">
+<code class="descname">drop</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.drop" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Place la carte marquée «&nbsp;selected&nbsp;» sur la grille, et l’ajoute au bon
+endroit (prémisse, main ou pile) et enlève la marque «&nbsp;selected&nbsp;».
+Si c’est impossible, la remet à la fin de la main.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.move">
+<code class="descname">move</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.move" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Déplace la carte marquée «&nbsp;selected&nbsp;».</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.play">
+<code class="descname">play</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.play"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.play" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Valide un coup si possible, et passe au joueur suivant (TODO).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.quitter">
+<code class="descname">quitter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.quitter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.quitter" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Quitte</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.rules">
+<code class="descname">rules</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.rules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.rules" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Affiche les règles du jeu</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.select">
+<code class="descname">select</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.select" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Selectionne une carte, la marque comme «&nbsp;selected&nbsp;», la met en avant
+plan, et l’enlève de l’endroit où elle était (main, prémisse ou pile).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.switch">
+<code class="descname">switch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.switch" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>TODO retourne la parenthèse</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.version">
+<code class="descname">version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.version" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>affiche la version du jeu</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
 
 
           </div>
@@ -311,7 +394,7 @@ question ou None si on ne peut pas l’enlever.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="regles.html" title="Chapitre précédent">Règles du jeu</a></li>
+      <li>Previous: <a href="regles.html" title="Chapitre précédent">Wiki</a></li>
   </ul></li>
 </ul>
 </div>

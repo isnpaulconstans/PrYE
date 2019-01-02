@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Règles du jeu &#8212; Documentation Ergo 1.0</title>
+    <title>Wiki &#8212; Documentation Ergo 1.0</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -41,18 +41,22 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="regles-du-jeu">
-<h1>Règles du jeu<a class="headerlink" href="#regles-du-jeu" title="Lien permanent vers ce titre">¶</a></h1>
-<p>h1. Ergo</p>
-<p>h2. Présentation du jeu</p>
-<p>Le point de départ est le jeu «&nbsp;Ergo&nbsp;»:<a class="reference external" href="https://www.catalystgamelabs.com/ergo/">https://www.catalystgamelabs.com/ergo/</a> , ??The Game of Proving You Exist!??. Vous pouvez retrouver les règles détaillées «&nbsp;ici&nbsp;»:<a class="reference external" href="https://www.catalystgamelabs.com/download/Ergo%20Rules%202015.pdf">https://www.catalystgamelabs.com/download/Ergo%20Rules%202015.pdf</a> .</p>
+  <div class="section" id="wiki">
+<h1>Wiki<a class="headerlink" href="#wiki" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="section" id="presentation-du-jeu">
+<h2>Présentation du jeu<a class="headerlink" href="#presentation-du-jeu" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Le point de départ est le jeu «&nbsp;Ergo&nbsp;» : <a class="reference external" href="https://www.catalystgamelabs.com/ergo/">The_Game_of_Proving_You_Exist</a> Vous pouvez retrouver les règles détaillées <a class="reference external" href="https://www.catalystgamelabs.com/download/Ergo%20Rules%202015.pdf.">ici</a></p>
 <p>Le jeu est composé de 55 cartes : 4 de chaque variable (A, B, C ou D), 4 de chaque opérateur (ET, OU, =&gt;), 6 cartes NON, 8 parenthèses, 3 cartes Ergo et 10 cartes particulières.</p>
 <p>Chaque joueur (4 maximum) se voit assigné une variable (A, B, C ou D) au début du jeu. À chaque manche, les joueurs essaient collectivement de créer une preuve de leur existence tout en réfutant l’existence des autres joueurs. À chaque tour, un joueur pioche deux cartes et doit jouer deux cartes (éventuellement les défausser). Lorsque une carte Ergo est jouée ou qu’il n’y a plus de carte dans la pioche la preuve est terminée. À condition qu’il n’y ait pas de paradoxe, chaque joueur dont l’existence est prouvée reçoit un nombre de points égal au nombre de cartes dans la preuve. Toutes les cartes sont ensuite mélangée et une nouvelle manche est lancée. Le premier joueur ayant 50 points gagne.</p>
-<p>Concernant la construction de la preuve, un certain nombre de règles doivent être respectées :
-* la preuve doit avoir au maximum 4 lignes. Dès qu’elle atteint 4 lignes, toutes les cartes supplémentaires doivent être jouées sur une de ces lignes ;
-* chaque ligne doit être syntaxiquement correcte (deux opérateurs ou deux variables ne peuvent pas se suivre, chaque parenthèse ouvrante doit correspondre à une parenthèse fermante, dots) ;
-* une carte peut être insérée entre deux cartes déjà posées à condition que le résultat reste syntaxiquement correct.</p>
-<p>h2. Le projet</p>
+<p>Concernant la construction de la preuve, un certain nombre de règles doivent être respectées :</p>
+<ul class="simple">
+<li>la preuve doit avoir au maximum 4 lignes. Dès qu’elle atteint 4 lignes, toutes les cartes supplémentaires doivent être jouées sur une de ces lignes ;</li>
+<li>chaque ligne doit être syntaxiquement correcte (deux opérateurs ou deux variables ne peuvent pas se suivre, chaque parenthèse ouvrante doit correspondre à une parenthèse fermante, dots) ;</li>
+<li>une carte peut être insérée entre deux cartes déjà posées à condition que le résultat reste syntaxiquement correct.</li>
+</ul>
+</div>
+<div class="section" id="le-projet">
+<h2>Le projet<a class="headerlink" href="#le-projet" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Le but est de réaliser une implémentation en Python de ce jeu. Pour cela, je vois plusieurs points à traiter, plus ou moins par ordre de difficulté croissante :</p>
 <ul class="simple">
 <li>analyser une ligne de la preuve pour vérifier qu’elle est syntaxiquement correcte ;</li>
@@ -62,6 +66,7 @@
 <li>implémenter une fonction pour pouvoir jouer contre l’ordinateur.</li>
 </ul>
 <p>Si on finit tout ça et qu’on a peur de s’ennuyer, on pourra toujours creuser pour améliorer la façon dont l’ordinateur joue. Au pire, on demandera à Frédéric Muller de nous prêter ses TetrisBot pour qu’ils apprennent à jouer à Ergo ;-)</p>
+</div>
 </div>
 
 
