@@ -141,7 +141,7 @@ class ErgoGui(tk.Tk):
                 self.can.create_image(x, y,
                                       image=self.photos[card.valeur],
                                       tag="card"
-                                      )
+                                     )
                 )
 
     def select(self, event):

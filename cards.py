@@ -13,6 +13,14 @@ PRIORITY = {
     ")": 0,  # PARENTHESE
     }
 
+CARDS = {"A" : 4, "B" : 4, "C" : 4, "D" : 4,
+         "AND" : 4, "OR" : 4, "THEN" : 4,
+         "NOT" : 6, "(" : 4, ")" : 4,
+#         "Fallacy" : 3, "Justification" : 3,
+#         "TabulaRasa" : 1, "Revolution" : 1,
+#         "WildVar" : 1, "WildOp" : 1,
+#         "Ergo" : 3,
+         }
 
 class Card(object):
     "Les cartes du jeu."
@@ -25,6 +33,7 @@ class Card(object):
          :return: Objet Card
          :rtype: Card
         """
+        assert valeur in CARDS
         self.valeur = valeur
 
     def priority(self):
@@ -102,6 +111,10 @@ class CardList(list):
             return True
         if len(self) == 1:
             return self[0].is_letter()
+        if not (self[0].is_open() or self[0].is_letter() or self[0].is_not()):
+            return False
+        if self[-1].is_not() or self[-1].is_operator():
+            return False
         for i_card in range(len(self)-1):
             card1, card2 = self[i_card], self[i_card+1]
             if card1.is_letter() or card1.is_close():
@@ -157,15 +170,9 @@ class Deck(list):
     """Le paquet de cartes."""
     def __init__(self):
         """Initialise le paquet de cartes."""
-        super().__init__([Card("A"), Card("B"), Card("C"), Card("D")] * 4 +
-                         [Card("AND"), Card("OR"), Card("THEN")] * 4 +
-                         [Card("NOT")] * 6 +
-                         [Card("(")] * 8 +
-                         # [Card("Fallacy"), Card("Justification")] * 3 +
-                         # [Card("TabulaRasa"), Card("Revolution")] +
-                         # [Card("WildVar"), Card("WildOp")] +
-                         [Card("Ergo")] * 3
-                        )
+        super().__init__()
+        for carte, nb in CARDS.items():
+            self.extend([Card(carte)]*nb)
         shuffle(self)
 
     def draw(self, number):
