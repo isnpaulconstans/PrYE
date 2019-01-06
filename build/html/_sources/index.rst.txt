@@ -8,8 +8,6 @@ Bienvenue dans la documentation du jeu Ergo!
 
 Ceci est la page d'accueil de la documentation du jeu Ergo.
 
-Règles du jeu :
----------------
 
 .. toctree::
    :maxdepth: 2

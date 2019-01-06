@@ -64,7 +64,6 @@ class ErgoGui(tk.Tk):
         self.can.bind('<Button1-Motion>', func=self.move)
         self.can.bind("<ButtonRelease-1>", func=self.drop)
 
-
     def __init_menu__(self):
         """creation de la barre de menu."""
         self.barre_menu = tk.Menu(self)
@@ -139,7 +138,7 @@ class ErgoGui(tk.Tk):
                 x += 2 * CARD_WIDTH
             self.cards[row].append(
                 self.can.create_image(x, y,
-                                      image=self.photos[card.valeur],
+                                      image=self.photos[card.name],
                                       tag="card"
                                      )
                 )

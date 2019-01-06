@@ -47,17 +47,17 @@
 <p>Différentes classes et algo.</p>
 <dl class="class">
 <dt id="cards.Card">
-<em class="property">class </em><code class="descclassname">cards.</code><code class="descname">Card</code><span class="sig-paren">(</span><em>valeur: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Card"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Card" title="Lien permanent vers cette définition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">cards.</code><code class="descname">Card</code><span class="sig-paren">(</span><em>name: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Card"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Card" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Les cartes du jeu.</p>
 <dl class="method">
 <dt id="cards.Card.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>valeur: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Card.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Card.__init__" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Card.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Card.__init__" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Constructeur de la classe</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Paramètres:</th><td class="field-body"><strong>valeur</strong> (<em>string</em>) – Valeur de la carte (ET, OU, AND, NOT, …)</td>
+<tr class="field-odd field"><th class="field-name">Paramètres:</th><td class="field-body"><strong>name</strong> (<em>string</em>) – nom de la carte (ET, OU, AND, NOT, …)</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Retourne:</th><td class="field-body">Objet Card</td>
 </tr>
@@ -165,6 +165,17 @@ NPI vaut None.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="cards.CardList.evalue">
+<code class="descname">evalue</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#CardList.evalue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.CardList.evalue" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Évalue la liste en fonction du modèle. npi doit être calculé.
+:param model: liste de 4 booléens correspondant aux valeurs de
+A, B, C et D
+:type model: list
+:return: Valeur de la liste de carte en fonction du modèle.
+:rtype: boolean</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="cards.CardList.insert">
 <code class="descname">insert</code><span class="sig-paren">(</span><em>index</em>, <em>card</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#CardList.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.CardList.insert" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Insère card à la position index.</p>
@@ -266,9 +277,9 @@ prémisses, et pas encore validées.</li>
 <dt id="cards.Proof.conclusion">
 <code class="descname">conclusion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Proof.conclusion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Proof.conclusion" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Renvoie None si les prémisses conduisent à une contradiction,
-ou un dictionnaire associant à chaque variable “A”, “B”, “C” et
-“D” soit True si elle est prouvée, False si la négation est
-prouvée, on None si on ne peut rien conclure.</p>
+ou une liste associant à chaque variable “A”, “B”, “C” et “D” soit True
+si elle est prouvée, False si la négation est prouvée, on None si on ne
+peut rien conclure.</p>
 </dd></dl>
 
 <dl class="method">

@@ -12,8 +12,8 @@
 
 \begin{tikzpicture}
 \begin{class}{Card}{0, 0}
-\attribute{valeur : str}
-\operation{\_\_init\_\_(image : str)}
+\attribute{name : str}
+\operation{\_\_init\_\_(name : str)}
 \operation{priority() -> int}
 \operation{is\_letter() -> boolean}
 \operation{is\_operator() -> boolean}
@@ -31,6 +31,7 @@
 \operation{pop(index = -1 : int) -> Card}
 \operation{is\_syntactically\_correct() -> boolean}
 \operation{to\_npi() -> list of Card or None}
+\operation{evalue(model : list) -> boolean}
 \end{class}
 
 \draw[dashed,-latex] ({CardList[list]}) -- node[below, midway]{utilise} (Card);
@@ -40,7 +41,7 @@
 \attribute{currently\_added : list of (premise : int, index : int)}
 \operation{\_\_init\_\_()}
 \operation{insert(premise : int, index : int, card : Card)}
-\operation{pop(premise : int, index : int)}
+\operation{pop(premise : int, index : int) -> Card}
 \operation{reset\_added()}
 \operation{is\_all\_correct() -> boolean}
 \operation{conclusion() -> None | list of (True|False|None)}
@@ -59,6 +60,8 @@
 \draw[dashed,-latex] ({Deck[list]}) --node[right, midway]{utilise} (Card);
 
 \begin{class}[text width=9cm]{ErgoGui[Tk]}{0,-12.5}
+\attribute{can : tk.Canvas}
+\attribute{barre\_menu : tk.Menu}
 \attribute{proof : Proof}
 \attribute{deck : Deck}
 \attribute{photos : dict of tk.PhotoImage}

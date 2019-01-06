@@ -3,7 +3,7 @@
 """Différentes classes et algo."""
 
 from random import shuffle
-# import constantes as cst
+
 PRIORITY = {
     "AND": 1,
     "OR": 2,
@@ -13,28 +13,29 @@ PRIORITY = {
     ")": 0,  # PARENTHESE
     }
 
-CARDS = {"A" : 4, "B" : 4, "C" : 4, "D" : 4,
-         "AND" : 4, "OR" : 4, "THEN" : 4,
-         "NOT" : 6, "(" : 4, ")" : 4,
-#         "Fallacy" : 3, "Justification" : 3,
-#         "TabulaRasa" : 1, "Revolution" : 1,
-#         "WildVar" : 1, "WildOp" : 1,
-#         "Ergo" : 3,
-         }
+CARDS = {"A": 4, "B": 4, "C": 4, "D": 4,
+         "AND": 4, "OR": 4, "THEN": 4,
+         "NOT": 6, "(": 4, ")": 4,
+#         "Fallacy": 3, "Justification": 3,
+#         "TabulaRasa": 1, "Revolution": 1,
+#         "WildVar": 1, "WildOp": 1,
+#         "Ergo": 3,
+        }
+
 
 class Card(object):
     "Les cartes du jeu."
-    def __init__(self, valeur: str):
+    def __init__(self, name: str):
         """Constructeur de la classe
 
-         :param valeur: Valeur de la carte (ET, OU, AND, NOT, ...)
-         :type valeur: string
+         :param name: nom de la carte (ET, OU, AND, NOT, ...)
+         :type name: string
 
          :return: Objet Card
          :rtype: Card
         """
-        assert valeur in CARDS
-        self.valeur = valeur
+        assert name in CARDS
+        self.name = name
 
     def priority(self):
         """Renvoie le niveau de priorité de la carte.
@@ -44,38 +45,38 @@ class Card(object):
          :rtype: int
         """
         try:
-            return PRIORITY[self.valeur]
+            return PRIORITY[self.name]
         except KeyError:
-            raise Exception("Card '{}' as no priority".format(self.valeur))
+            raise Exception("Card '{}' as no priority".format(self.name))
 
     def is_letter(self):
         """Indique si la carte est une lettre ou non.
 
          :rtype: boolean
         """
-        return self.valeur in ["A", "B", "C", "D"]
+        return self.name in ["A", "B", "C", "D"]
 
     def is_operator(self) -> bool:
         """Indique si la carte est un opérateur
 
          :rtype: boolean
         """
-        return self.valeur in ["AND", "OR", "THEN"]
+        return self.name in ["AND", "OR", "THEN"]
 
     def is_open(self):
         """Indique si la carte est une parenthèse ouvrante."""
-        return self.valeur == "("
+        return self.name == "("
 
     def is_close(self):
         """Indique si la carte est une parenthèse fermante."""
-        return self.valeur == ")"
+        return self.name == ")"
 
     def is_not(self):
         """Indique si la carte est un "NOT"."""
-        return self.valeur == "NOT"
+        return self.name == "NOT"
 
     def __repr__(self):
-        return self.valeur
+        return self.name
 
 
 class CardList(list):
@@ -165,6 +166,38 @@ class CardList(list):
             npi_card_lst.append(card)
         return npi_card_lst
 
+    def evalue(self, model):
+        """Évalue la liste en fonction du modèle. npi doit être calculé.
+        :param model: liste de 4 booléens correspondant aux valeurs de
+        A, B, C et D
+        :type model: list
+        :return: Valeur de la liste de carte en fonction du modèle.
+        :rtype: boolean
+        """
+        assert self.npi is not None
+        if self.npi == []:
+            return True
+        pile = []
+        for carte in self.npi:
+            if carte.is_letter():
+                valeur = model[ord(carte.name)-ord('A')]
+                pile.append(valeur)
+            elif carte.is_operator():
+                val2 = pile.pop()
+                val1 = pile.pop()
+                if carte.name == "AND":
+                    val = val1 and val2
+                elif carte.name == "OR":
+                    val = val1 or val2
+                else:  # "THEN"
+                    val = (not val1) or val2
+                pile.append(val)
+            else:  # "NOT"
+                pile.append(not pile.pop())
+        val = pile.pop()
+        assert pile == []
+        return val
+
 
 class Deck(list):
     """Le paquet de cartes."""
@@ -185,7 +218,7 @@ class Deck(list):
 
     def append(self, card):
         """Ajoute une carte (possible avec Tabula Rasa)."""
-        super().append(card)
+        self.append(card)
 
     def reset(self):
         """Réinitialise le paquet de cartes."""
@@ -258,28 +291,58 @@ class Proof(object):
 
     def conclusion(self):
         """Renvoie None si les prémisses conduisent à une contradiction,
-        ou un dictionnaire associant à chaque variable 'A', 'B', 'C' et
-        'D' soit True si elle est prouvée, False si la négation est
-        prouvée, on None si on ne peut rien conclure."""
-        raise NotImplementedError
+        ou une liste associant à chaque variable 'A', 'B', 'C' et 'D' soit True
+        si elle est prouvée, False si la négation est prouvée, on None si on ne
+        peut rien conclure."""
+        possible = []
+        for code in range(16):
+            model = _to_bin(code)
+            for premise in self.premises:
+                if not premise.evalue(model):
+                    break
+            else:  # modele valable pour toutes les prémisses
+                possible.append(model)
+        if possible == []:
+            return None
+        result = possible[0]
+        # il faut déterminer pour chaque lettre si toutes les valeurs possibles
+        # sont les mêmes
+        for model in possible:
+            for i_lettre in range(4):
+                if result[i_lettre] != model[i_lettre]:
+                    result[i_lettre] = None
+        return result
 
 
-def tests():
+def _to_bin(n):
+    """
+    :param n: Un entier entre 0 et 15
+    :type n: int
+    :return: l'écriture booléenne en binaire sur 4 bits de n.
+    :rtype: list
+    Renvoie une liste de booléens correspondant à l'écriture en binaire sur 4
+    bits de l'entier n."""
+    res = [False]*4
+    i = 3
+    while n > 0:
+        res[i] = (n % 2 == 1)
+        n //= 2
+        i -= 1
+    return res
+
+
+def _tests():
     """Des tests..."""
-    card_list = CardList([Card("NOT"), Card("NOT"), Card("("), Card("A"),
-                          Card("AND"), Card("NOT"), Card("B"), Card(")"), Card("AND"),
+    card_list = CardList([Card("NOT"), Card("("), Card("A"), Card("AND"),
+                          Card("NOT"), Card("B"), Card(")"), Card("AND"),
                           Card("D")])
-    print(card_list)
-    print(card_list.npi)
-    card_list.pop(0)
-    print(card_list)
-    print(card_list.npi)
-    card_list.append(Card("OR"))
-    card_list.append(Card("A"))
-    print(card_list)
-    print(card_list.npi)
+    p = Proof()
+    p.premises[0] = card_list
+    p.premises[1] = CardList([Card("NOT"), Card("B")])
+    p.premises[2] = CardList([Card("D"), Card("THEN"), Card("C")])
+    print(p.conclusion())
 
 
 if __name__ == '__main__':
     print("Bienvenue dans Ergo, le jeu où vous prouvez votre existence.")
-    tests()
+    _tests()
