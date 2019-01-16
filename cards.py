@@ -4,15 +4,7 @@
 
 from random import shuffle
 
-PRIORITY = {
-    "AND": 1,
-    "OR": 2,
-    "THEN": 3,
-    "NOT": 4,
-    "(": 0,  # PARENTHESE
-    ")": 0,  # PARENTHESE
-    }
-
+# Le nom des cartes, et le nombre de cartes de chaque type
 CARDS = {"A": 4, "B": 4, "C": 4, "D": 4,
          "AND": 4, "OR": 4, "THEN": 4,
          "NOT": 6, "(": 4, ")": 4,
@@ -22,27 +14,37 @@ CARDS = {"A": 4, "B": 4, "C": 4, "D": 4,
 #         "Ergo": 3,
         }
 
+# Le niveau de priorité de chaque carte
+PRIORITY = {
+    "AND": 1,
+    "OR": 2,
+    "THEN": 3,
+    "NOT": 4,
+    "(": 0,
+    ")": 0,
+    }
+
 
 class Card(object):
     "Les cartes du jeu."
     def __init__(self, name: str):
         """Constructeur de la classe
 
-         :param name: nom de la carte (ET, OU, AND, NOT, ...)
-         :type name: string
+        :param name: nom de la carte (ET, OU, AND, NOT, ...)
+        :type name: string
 
-         :return: Objet Card
-         :rtype: Card
+        :return: Objet Card
+        :rtype: Card
         """
         assert name in CARDS
         self.name = name
 
     def priority(self):
         """Renvoie le niveau de priorité de la carte.
-        Si la carte n'a pas de niveau de priorité, renvoie une exception.
+        Si la carte n'a pas de niveau de priorité, lève une exception.
 
-         :return: niveau de priorité
-         :rtype: int
+        :return: niveau de priorité
+        :rtype: int
         """
         try:
             return PRIORITY[self.name]
@@ -56,26 +58,38 @@ class Card(object):
         """
         return self.name in ["A", "B", "C", "D"]
 
-    def is_operator(self) -> bool:
-        """Indique si la carte est un opérateur
+    def is_operator(self):
+        """Indique si la carte est un opérateur.
 
          :rtype: boolean
         """
         return self.name in ["AND", "OR", "THEN"]
 
     def is_open(self):
-        """Indique si la carte est une parenthèse ouvrante."""
+        """Indique si la carte est une parenthèse ouvrante.
+
+         :rtype: boolean
+        """
         return self.name == "("
 
     def is_close(self):
-        """Indique si la carte est une parenthèse fermante."""
+        """Indique si la carte est une parenthèse fermante.
+
+         :rtype: boolean
+        """
         return self.name == ")"
 
     def is_not(self):
-        """Indique si la carte est un "NOT"."""
+        """Indique si la carte est un "NOT".
+
+         :rtype: boolean
+        """
         return self.name == "NOT"
 
     def __repr__(self):
+        """:return: le nom de la carte.
+        :rtype: string
+        """
         return self.name
 
 
@@ -84,30 +98,53 @@ class CardList(list):
     Si la liste ne correspond pas à une preuve syntaxiquement correcte,
     NPI vaut None."""
     def __init__(self, *args):
-        """Initialisation de la liste."""
+        """Constructeur de la classe.
+
+        :return: objet CardList
+        :rtype: CardList"""
         super().__init__(*args)
         self.npi = self.to_npi()
 
     def append(self, card):
-        """Ajoute la carte card à la  fin de la liste."""
+        """Ajoute la carte card à la  fin de la liste.
+
+         :param card: la carte à ajouter
+         :type card: Card
+        """
         super().append(card)
         self.npi = self.to_npi()
 
     def insert(self, index, card):
-        """Insère card à la position index."""
+        """Insère card à la position index.
+
+         :param card: la carte à insérer
+         :type card: Card
+         :param index: la position à laquelle insérer la carte
+         :type index: int
+        """
         super().insert(index, card)
         self.npi = self.to_npi()
 
     def pop(self, index=-1):
         """Supprime la carte en position index (par défaut la dernière)
-        et la renvoie."""
+        et la renvoie.
+
+        :param index: la position de la carte à renvoyer
+        :type index: int
+        :return: la carte supprimée
+        :rtype: Card
+        """
         card = super().pop(index)
         self.npi = self.to_npi()
         return card
 
     def is_syntactically_correct(self):
         """Indique si la liste de cartes est syntaxiquement correcte,
-        sans s'occuper de la correspondance des parenthèses."""
+        sans s'occuper de la correspondance des parenthèses.
+
+        :return: True si la liste est syntaxiquement correcte, False sinon
+        :rtype: boolean
+        """
         if self == []:
             return True
         if len(self) == 1:
@@ -133,43 +170,46 @@ class CardList(list):
         return not card2.is_operator()
 
     def to_npi(self):
-        """Renvoie
+        """Met à jour self.npi en :
 
          * None si la syntaxe de la liste n'est pas correcte
 
          * une liste de carte correspondant à la notation polonaise inversée de
            la liste de départ sinon."""
         if not self.is_syntactically_correct():
-            return None
-        npi_card_lst = []
+            self.npi = None
+            return
+        self.npi = []
         stack = []
         for card in self:
             if card.is_letter():
-                npi_card_lst.append(card)
+                self.npi.append(card)
             elif card.is_open():
                 stack.append(card)
             elif card.is_close():
                 while stack != [] and not stack[-1].is_open():
-                    npi_card_lst.append(stack.pop())
-                if stack == []:  # PARENTHESE
-                    return None
+                    self.npi.append(stack.pop())
+                if stack == []:  # Pas de parenthèse ouvrante correspondante
+                    self.npi = None
+                    return
                 else:
                     stack.pop()
             else:
                 while stack != [] and stack[-1].priority() >= card.priority():
-                    npi_card_lst.append(stack.pop())
+                    self.npi.append(stack.pop())
                 stack.append(card)
         while stack != []:
             card = stack.pop()
-            if card.is_open():
-                return None
-            npi_card_lst.append(card)
-        return npi_card_lst
+            if card.is_open():  # pas de parenthèse fermante correspondante
+                self.npi = None
+                return
+            self.npi.append(card)
 
     def evalue(self, model):
         """Évalue la liste en fonction du modèle. npi doit être calculé.
         :param model: liste de 4 booléens correspondant aux valeurs de
         A, B, C et D
+
         :type model: list
         :return: Valeur de la liste de carte en fonction du modèle.
         :rtype: boolean
@@ -195,29 +235,39 @@ class CardList(list):
             else:  # "NOT"
                 pile.append(not pile.pop())
         val = pile.pop()
-        assert pile == []
+        assert pile == []  # sinon il y a eu un problème quelque part
         return val
 
 
 class Deck(list):
     """Le paquet de cartes."""
     def __init__(self):
-        """Initialise le paquet de cartes."""
+        """Constructeur de la classe
+
+        :return: un paquet de cartes mélangées
+        :rtype: Deck
+        """
         super().__init__()
         for carte, nb in CARDS.items():
             self.extend([Card(carte)]*nb)
         shuffle(self)
 
     def draw(self, number):
-        """Renvoie number cartes du paquet s'il en reste assez, la fin du
-        paquet ou une liste vide sinon."""
+        """
+        :return: number cartes du paquet s'il en reste assez, la fin du
+                 paquet ou une liste vide sinon.
+        :rtype: list
+        """
         res = []
         while len(res) < number and self != []:
             res.append(self.pop())
         return res
 
     def append(self, card):
-        """Ajoute une carte (possible avec Tabula Rasa)."""
+        """Ajoute une carte (possible avec Tabula Rasa).
+
+        :param card: la carte à ajouter
+        :type card: Card"""
         self.append(card)
 
     def reset(self):
@@ -225,7 +275,10 @@ class Deck(list):
         self.__init__()
 
     def is_finished(self):
-        """Indique si la paquet est terminé."""
+        """Indique si la paquet est terminé.
+
+        :return: True si la paquet est terminé, False sinon
+        :rtype: boolean"""
         return self == []
 
 
@@ -239,6 +292,9 @@ class Proof(object):
 
         * currently_added : liste de cartes venant d'être ajoutées aux
           prémisses, et pas encore validées.
+
+        :return: un objet Proof
+        :rtype: Proof
         """
         super().__init__()
         self.premises = [CardList() for _ in range(4)]
@@ -248,7 +304,15 @@ class Proof(object):
         """Insère la carte card dans la prémisse premise en position index
         et actualise currently_added.
 
-        Renvoie True si l'insertion est possible, False sinon."""
+        :param premise: le numéro de la prémisse
+        :type premise: int
+        :param index: la position à laquelle insérer la carte dans la prémisse
+        :type index: int
+        :param card: la carte à insérer
+        :type card: Card
+        :return: True si l'insertion est possible, False sinon.
+        :rtype: boolean
+        """
         if len(self.currently_added) >= 2:
             return False
         self.premises[premise].insert(index, card)
@@ -264,8 +328,14 @@ class Proof(object):
 
     def pop(self, premise, index):
         """Enlève la carte en position index de la prémisse premise à
-        condition qu'elle vienne d'être ajoutée. Renvoie la carte en
-        question ou None si on ne peut pas l'enlever."""
+        condition qu'elle vienne d'être ajoutée.
+
+        :param premise: le numéro de la prémisse
+        :type premise: int
+        :param index: la position dans la prémisse de la carte à supprimer
+        :type index: int
+        :return: la carte en question ou None si on ne peut pas l'enlever.
+        :rtype: Card ou NoneType"""
         try:
             self.currently_added.remove((premise, index))
         except ValueError:
@@ -283,17 +353,21 @@ class Proof(object):
         self.currently_added = []
 
     def is_all_correct(self):
-        """Indique si toutes les prémisses sont correctes ou pas."""
+        """Indique si toutes les prémisses sont correctes ou pas.
+
+        :rtype: boolean"""
         for premise in self.premises:
             if premise.to_npi() is None:
                 return False
         return True
 
     def conclusion(self):
-        """Renvoie None si les prémisses conduisent à une contradiction,
-        ou une liste associant à chaque variable 'A', 'B', 'C' et 'D' soit True
-        si elle est prouvée, False si la négation est prouvée, on None si on ne
-        peut rien conclure."""
+        """
+        :return: None si les prémisses conduisent à une contradiction,
+                 ou une liste associant à chaque variable 'A', 'B', 'C' et 'D'
+                 soit True si elle est prouvée, False si la négation est
+                 prouvée, on None si on ne peut rien conclure.
+        :rtype: list ou NoneType"""
         possible = []
         for code in range(16):
             model = _to_bin(code)
@@ -315,13 +389,14 @@ class Proof(object):
 
 
 def _to_bin(n):
-    """
+    """Renvoie une liste de booléens correspondant à l'écriture en binaire sur
+    4 bits de l'entier n.
+
     :param n: Un entier entre 0 et 15
     :type n: int
     :return: l'écriture booléenne en binaire sur 4 bits de n.
     :rtype: list
-    Renvoie une liste de booléens correspondant à l'écriture en binaire sur 4
-    bits de l'entier n."""
+    """
     res = [False]*4
     i = 3
     while n > 0:
