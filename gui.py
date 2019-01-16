@@ -47,12 +47,13 @@ class ErgoGui(tk.Tk):
                        for name in IMAGE}
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
 
-        self.hand = self.deck.draw(7)
-        self.pile = []
-        self.selected_card = None
         self.num_player = 0
         self.nb_player = 4
-        self.affiche_cards(self.hand, 4)
+        self.hands = [self.deck.draw(5) for _ in range(4)]
+        self.hands[self.num_player].extend(self.deck.draw(2)) #on ajoute 2 cartes
+        self.pile = []
+        self.selected_card = None
+        self.affiche_cards(self.hands[self.num_player], 4)
 
         self.name = tk.Label(text="Ergo le jeu", font="Arial 16 italic")
         self.name.grid(row=1, column=0)
@@ -65,6 +66,7 @@ class ErgoGui(tk.Tk):
         self.can.bind('<Button-1>', func=self.select)
         self.can.bind('<Button1-Motion>', func=self.move)
         self.can.bind("<ButtonRelease-1>", func=self.drop)
+        # TODO
 
     def __init_menu__(self):
         """creation de la barre de menu."""
@@ -97,6 +99,7 @@ class ErgoGui(tk.Tk):
         self.can.create_rectangle(WIDTH-2*CARD_WIDTH+5, HEIGHT-2*CARD_HEIGHT-15,
                                   WIDTH, HEIGHT,
                                   width=5, outline="pink")
+        # TODO faire méthode affichage numéro joueur et changement joueur
         self.can.create_text(CARD_WIDTH, 4*CARD_HEIGHT+50, text="Joueur 1",
                              font="Arial 16 italic", fill="blue")
         self.can.create_text(CARD_WIDTH, 5*CARD_HEIGHT+50, text="Joueur 2",
@@ -107,28 +110,31 @@ class ErgoGui(tk.Tk):
                              font="Arial 16 italic", fill="blue")
         self.can.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
                              text="Pile", font="Arial 16 italic", fill="blue")
+
         for i in range(4):
             tk.Label(text="Prémisse "+str(i+1)).grid(row=i+1, column=2)
         self.can.grid(row=1, column=1, rowspan=5)
+        # TODO ajouter les dos de cartes
 
     def play(self):
         """Valide un coup si possible, et passe au joueur suivant (TODO)."""
-        if len(self.hand) != 5:
-            messagebox.showwarning("Ergo", "Il reste plus de 5 cartes.")
+        if len(self.hands[self.num_player]) != 5:
+            messagebox.showwarning("Ergo", "Il faut garder 5 cartes pour valider.")
             return
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
+        # TODO carte ergo et gagnant
         # passe au joueur suivant.
-        self.hand.extend(self.deck.draw(2))
-        self.affiche_cards(self.hand, 4)
+        self.num_player = (self.num_player + 1) % self.nb_player
+        self.hands[self.num_player].extend(self.deck.draw(2))
+        self.affiche_cards(self.hands[self.num_player], 4)
         self.proof.reset_added()
         self.can.delete("pile")
 
     def affiche_cards(self, card_list, row):
         """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
-        prémisses, 4 ou 5 pour la main du joueur et à la colonne col 0 ou 1
-        si c'est la main du joueur."""
+        prémisses, 4 pour la main du joueur"""
         y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
         for num in self.cards[row]:
             if "selected" in self.can.gettags(num):
@@ -145,7 +151,7 @@ class ErgoGui(tk.Tk):
                                       tag="card"
                                      )
                 )
-
+    # TODO creer methode passage coord en col et row
     def select(self, event):
         """Selectionne une carte, la marque comme "selected", la met en avant
         plan, et l'enlève de l'endroit où elle était (mains, prémisse ou pile).
@@ -165,10 +171,10 @@ class ErgoGui(tk.Tk):
                 self.selected_card = self.pile.pop()
                 self.can.dtag("selected", "pile")
             else:  # carte de la main
-                self.selected_card = self.hand.pop(col)
-                self.affiche_cards(self.hand, 4)
+                self.selected_card = self.hands[self.num_player].pop(col)
+                self.affiche_cards(self.hands[self.num_player], 4)
             self.can.tag_raise(num)  # pour passer en avant plan
-
+    # TODO creer retourner faisant appel passage + .turn_parenthesis
     def move(self, event):
         """Déplace la carte marquée "selected"."""
         num = self.can.find_withtag("selected")
@@ -194,9 +200,9 @@ class ErgoGui(tk.Tk):
             self.can.dtag("selected")
             self.selected_card = None
             return
-        self.hand.append(self.selected_card)
+        self.hands[self.num_player].append(self.selected_card)
         self.can.delete("selected")
-        self.affiche_cards(self.hand, 4)
+        self.affiche_cards(self.hands[self.num_player], 4)
         self.selected_card = None
 
     def switch(self):
