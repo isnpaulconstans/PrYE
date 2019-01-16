@@ -1,4 +1,20 @@
-Règles Ergo
-Les cartes disponibles
-Les règles de logique
-...
+HOW TO PLAY ERGO
+Ergo is played in a series of rounds, each consisting of a series of turns.
+THE ROUND
+During each round, players attempt to collectively build a Proof that proves
+their existence, while disproving the existence of any other player.
+When a Proof is stopped, the round ends and the players score points
+as appropriate. All cards are collected and then shuffled; another five
+cards are dealt to each player and another round begins. The rounds
+continue until a single player achieves enough points to secure victory
+over the entire game (see Ending a Round and Winning the Game,
+respectively, below).
+A TURN
+At the beginning of all rounds, the youngest player starts a turn. Each
+player, in clockwise order, then takes a turn, following the same steps
+until the round stops.
+On each turn a player must always draw two cards and then play two
+cards. If the player does not want to play a card(s) to the Proof—or if
+the player cannot play a card(s) to the Proof—the player must discard.
+At the end of each player’s turn, they will always have five cards in
+their hand.

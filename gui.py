@@ -50,11 +50,13 @@ class ErgoGui(tk.Tk):
         self.hand = self.deck.draw(7)
         self.pile = []
         self.selected_card = None
+        self.num_player = 0
+        self.nb_player = 4
         self.affiche_cards(self.hand, 4)
 
         self.name = tk.Label(text="Ergo le jeu", font="Arial 16 italic")
         self.name.grid(row=1, column=0)
-        self.slogan = tk.Label(text="Prouve que tu existe ...",
+        self.slogan = tk.Label(text="Prouve que tu existes ...",
                                font="Arial 28 italic")
         self.slogan.grid(row=6, column=1)
         self.but_play = tk.Button(text="play", command=self.play)
@@ -117,7 +119,7 @@ class ErgoGui(tk.Tk):
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
-        # TODO : passe au joueur suivant.
+        # passe au joueur suivant.
         self.hand.extend(self.deck.draw(2))
         self.affiche_cards(self.hand, 4)
         self.proof.reset_added()
@@ -125,7 +127,8 @@ class ErgoGui(tk.Tk):
 
     def affiche_cards(self, card_list, row):
         """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
-        prémisses, 4 pour la main du joueur."""
+        prémisses, 4 ou 5 pour la main du joueur et à la colonne col 0 ou 1
+        si c'est la main du joueur."""
         y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
         for num in self.cards[row]:
             if "selected" in self.can.gettags(num):
@@ -145,7 +148,7 @@ class ErgoGui(tk.Tk):
 
     def select(self, event):
         """Selectionne une carte, la marque comme "selected", la met en avant
-        plan, et l'enlève de l'endroit où elle était (main, prémisse ou pile).
+        plan, et l'enlève de l'endroit où elle était (mains, prémisse ou pile).
         """
         num = self.can.find_closest(event.x, event.y)
         if "card" in self.can.gettags(num):
@@ -202,7 +205,7 @@ class ErgoGui(tk.Tk):
 
     def version(self):
         """affiche la version du jeu"""
-        messagebox.showinfo("Ergo", "Version Alpha 16/12/18")
+        messagebox.showinfo("Ergo", "Version Alpha 09/01/19")
 
     def rules(self):
         """Affiche les règles du jeu"""
