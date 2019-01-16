@@ -1,32 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Différentes classes et algo."""
+"""Gestion des cartes et des preuves."""
 
 from random import shuffle
 
-# Le nom des cartes, et le nombre de cartes de chaque type
-CARDS = {"A": 4, "B": 4, "C": 4, "D": 4,
-         "AND": 4, "OR": 4, "THEN": 4,
-         "NOT": 6, "(": 4, ")": 4,
-#         "Fallacy": 3, "Justification": 3,
-#         "TabulaRasa": 1, "Revolution": 1,
-#         "WildVar": 1, "WildOp": 1,
-#         "Ergo": 3,
-        }
-
-# Le niveau de priorité de chaque carte
-PRIORITY = {
-    "AND": 1,
-    "OR": 2,
-    "THEN": 3,
-    "NOT": 4,
-    "(": 0,
-    ")": 0,
-    }
-
 
 class Card(object):
-    "Les cartes du jeu."
+    """Les cartes du jeu."""
+    # Le niveau de priorité de chaque carte
+    PRIORITY = {
+        "AND": 1,
+        "OR": 2,
+        "THEN": 3,
+        "NOT": 4,
+        "(": 0,
+        ")": 0,
+        }
+    # Le nombre de cartes de chaque type
+    NUMBER = {"A": 4, "B": 4, "C": 4, "D": 4,
+              "AND": 4, "OR": 4, "THEN": 4,
+              "NOT": 6, "(": 4, ")": 4,
+#              "Fallacy": 3, "Justification": 3,
+#              "TabulaRasa": 1, "Revolution": 1,
+#              "WildVar": 1, "WildOp": 1,
+#              "Ergo": 3,
+             }
+
     def __init__(self, name: str):
         """Constructeur de la classe
 
@@ -36,18 +35,17 @@ class Card(object):
         :return: Objet Card
         :rtype: Card
         """
-        assert name in CARDS
+        assert name in Card.NUMBER
         self.name = name
 
     def priority(self):
-        """Renvoie le niveau de priorité de la carte.
-        Si la carte n'a pas de niveau de priorité, lève une exception.
-
-        :return: niveau de priorité
+        """
+        :return: le niveau de priorité de la carte. Si la carte n'a pas de
+                 niveau de priorité, lève une exception.
         :rtype: int
         """
         try:
-            return PRIORITY[self.name]
+            return Card.PRIORITY[self.name]
         except KeyError:
             raise Exception("Card '{}' as no priority".format(self.name))
 
@@ -86,6 +84,13 @@ class Card(object):
         """
         return self.name == "NOT"
 
+    def turn_parenthesis(self):
+        """Retourne la parenthèse, si c'en est une, ne fait rien sinon."""
+        if self.name == ")":
+            self.name = "("
+        elif self.name == "(":
+            self.name = ")"
+
     def __repr__(self):
         """:return: le nom de la carte.
         :rtype: string
@@ -100,10 +105,12 @@ class CardList(list):
     def __init__(self, *args):
         """Constructeur de la classe.
 
-        :return: objet CardList
+        :param args: des arguments pour construire la liste
+
+        :return: objet CardList initalisé avec les éléments passés par args
         :rtype: CardList"""
         super().__init__(*args)
-        self.npi = self.to_npi()
+        self.to_npi()
 
     def append(self, card):
         """Ajoute la carte card à la  fin de la liste.
@@ -112,7 +119,7 @@ class CardList(list):
          :type card: Card
         """
         super().append(card)
-        self.npi = self.to_npi()
+        self.to_npi()
 
     def insert(self, index, card):
         """Insère card à la position index.
@@ -123,7 +130,7 @@ class CardList(list):
          :type index: int
         """
         super().insert(index, card)
-        self.npi = self.to_npi()
+        self.to_npi()
 
     def pop(self, index=-1):
         """Supprime la carte en position index (par défaut la dernière)
@@ -135,7 +142,7 @@ class CardList(list):
         :rtype: Card
         """
         card = super().pop(index)
-        self.npi = self.to_npi()
+        self.to_npi()
         return card
 
     def is_syntactically_correct(self):
@@ -192,7 +199,7 @@ class CardList(list):
                 if stack == []:  # Pas de parenthèse ouvrante correspondante
                     self.npi = None
                     return
-                else:
+                else:  # On enlève la parenthèse ouvrante correspondante
                     stack.pop()
             else:
                 while stack != [] and stack[-1].priority() >= card.priority():
@@ -218,22 +225,21 @@ class CardList(list):
         if self.npi == []:
             return True
         pile = []
-        for carte in self.npi:
-            if carte.is_letter():
-                valeur = model[ord(carte.name)-ord('A')]
-                pile.append(valeur)
-            elif carte.is_operator():
+        for card in self.npi:
+            if card.is_letter():
+                val = model[ord(card.name)-ord('A')]
+            elif card.is_operator():
                 val2 = pile.pop()
                 val1 = pile.pop()
-                if carte.name == "AND":
+                if card.name == "AND":
                     val = val1 and val2
-                elif carte.name == "OR":
+                elif card.name == "OR":
                     val = val1 or val2
                 else:  # "THEN"
                     val = (not val1) or val2
-                pile.append(val)
             else:  # "NOT"
-                pile.append(not pile.pop())
+                val = not pile.pop()
+            pile.append(val)
         val = pile.pop()
         assert pile == []  # sinon il y a eu un problème quelque part
         return val
@@ -248,8 +254,8 @@ class Deck(list):
         :rtype: Deck
         """
         super().__init__()
-        for carte, nb in CARDS.items():
-            self.extend([Card(carte)]*nb)
+        for carte, number in Card.NUMBER.items():
+            self.extend([Card(carte)]*number)
         shuffle(self)
 
     def draw(self, number):
@@ -357,9 +363,22 @@ class Proof(object):
 
         :rtype: boolean"""
         for premise in self.premises:
-            if premise.to_npi() is None:
+            if premise.npi is None:
                 return False
         return True
+
+    def all_cards_played(self):
+        """Indique si chacune des 4 cartes A, B, C et D a été jouée, et donc
+        s'il est possible de jouer la carte Ergo.
+
+        :rtype: boolean
+        """
+        played = [False]*4
+        for premise in self.premises:
+            for card in premise:
+                if card.is_letter():
+                    played[ord(card.name)-ord('A')] = True
+        return played == [True] * 4
 
     def conclusion(self):
         """
@@ -386,6 +405,14 @@ class Proof(object):
                 if result[i_lettre] != model[i_lettre]:
                     result[i_lettre] = None
         return result
+
+    def score(self):
+        """
+        :return: Le score correspondant à la preuve, c'est à dire le nombre de
+                 cartes qui la compose.
+        :rtype: int
+        """
+        return sum([len(premise) for premise in self.premises])
 
 
 def _to_bin(n):
@@ -416,6 +443,7 @@ def _tests():
     p.premises[1] = CardList([Card("NOT"), Card("B")])
     p.premises[2] = CardList([Card("D"), Card("THEN"), Card("C")])
     print(p.conclusion())
+    print(p.score())
 
 
 if __name__ == '__main__':
