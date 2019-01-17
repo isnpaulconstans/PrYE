@@ -212,12 +212,12 @@ class CardList(list):
                 return
             self.npi.append(card)
 
-    def evalue(self, model):
+    def evalue(self, interpretation):
         """Évalue la liste en fonction du modèle. npi doit être calculé.
-        :param model: liste de 4 booléens correspondant aux valeurs de
+        :param interpretation: liste de 4 booléens correspondant aux valeurs de
         A, B, C et D
 
-        :type model: list
+        :type interpretation: list
         :return: Valeur de la liste de carte en fonction du modèle.
         :rtype: boolean
         """
@@ -227,7 +227,7 @@ class CardList(list):
         pile = []
         for card in self.npi:
             if card.is_letter():
-                val = model[ord(card.name)-ord('A')]
+                val = interpretation[ord(card.name)-ord('A')]
             elif card.is_operator():
                 val2 = pile.pop()
                 val1 = pile.pop()
@@ -387,22 +387,22 @@ class Proof(object):
                  soit True si elle est prouvée, False si la négation est
                  prouvée, on None si on ne peut rien conclure.
         :rtype: list ou NoneType"""
-        possible = []
+        models = []
         for code in range(16):
-            model = _to_bin(code)
+            interpretation = _to_bin(code)
             for premise in self.premises:
-                if not premise.evalue(model):
+                if not premise.evalue(interpretation):
                     break
-            else:  # modele valable pour toutes les prémisses
-                possible.append(model)
-        if possible == []:
+            else:  # interpretation valable pour toutes les prémisses
+                models.append(interpretation)
+        if models == []:
             return None
-        result = possible[0]
+        result = models[0]
         # il faut déterminer pour chaque lettre si toutes les valeurs possibles
         # sont les mêmes
-        for model in possible:
+        for interpretation in models:
             for i_lettre in range(4):
-                if result[i_lettre] != model[i_lettre]:
+                if result[i_lettre] != interpretation[i_lettre]:
                     result[i_lettre] = None
         return result
 

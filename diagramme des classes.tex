@@ -1,18 +1,9 @@
-\documentclass[12pt]{cours}
-
-\title{\textbf{\textsc{Diagramme des classes}}}
-\author{Delay Emmanuel -- Desforêts Nicolas}
-
-
-\usepackage{pgf-umlcd}
-
-
-
-\begin{document}
 
 \begin{tikzpicture}
 \begin{class}{Card}{0, 0}
 \attribute{name : str}
+\attribute{PRIORITY : dict}
+\attribute{NUMBER : dict}
 \operation{\_\_init\_\_(name : str)}
 \operation{priority() -> int}
 \operation{is\_letter() -> boolean}
@@ -20,6 +11,7 @@
 \operation{is\_open() -> boolean}
 \operation{is\_close() -> boolean}
 \operation{is\_not() -> boolean}
+\operation{turn\_parenthesis()}
 \operation{\_\_repr\_\_() -> str}
 \end{class}
 
@@ -31,7 +23,7 @@
 \operation{pop(index = -1 : int) -> Card}
 \operation{is\_syntactically\_correct() -> boolean}
 \operation{to\_npi() -> list of Card or None}
-\operation{evalue(model : list) -> boolean}
+\operation{evalue(interpretation : list) -> boolean}
 \end{class}
 
 \draw[dashed,-latex] ({CardList[list]}) -- node[below, midway]{utilise} (Card);
@@ -44,12 +36,14 @@
 \operation{pop(premise : int, index : int) -> Card}
 \operation{reset\_added()}
 \operation{is\_all\_correct() -> boolean}
+\operation{all\_cards\_played() -> boolean}
 \operation{conclusion() -> None | list of (True|False|None)}
+\operation{score() -> int}
 \end{class}
 
 \draw[dashed,-latex] (Proof) --node[right, midway]{utilise} ({CardList[list]});
 
-\begin{class}[text width=7cm]{Deck[list]}{0,-7}
+\begin{class}[text width=7cm]{Deck[list]}{0,-8}
 \operation{\_\_init\_\_()}
 \operation{draw(number : int) -> list of Card}
 \operation{append(card : Card)}
@@ -59,21 +53,24 @@
 
 \draw[dashed,-latex] ({Deck[list]}) --node[right, midway]{utilise} (Card);
 
-\begin{class}[text width=9cm]{ErgoGui[Tk]}{0,-12.5}
+\begin{class}[text width=9cm]{ErgoGui[Tk]}{0,-13}
 \attribute{can : tk.Canvas}
 \attribute{barre\_menu : tk.Menu}
 \attribute{proof : Proof}
 \attribute{deck : Deck}
 \attribute{photos : dict of tk.PhotoImage}
-\attribute{cards : list of list of cards}
-\attribute{hand : list of cards}
-\attribute{pile : list of cards}
-\attribute{selected\_card : None | card}
+\attribute{cards : list of list of Card}
+\attribute{hands : list of list of Card}
+\attribute{pile : list of Card}
+\attribute{num\_player : int}
+\attribute{nb\_player : int}
+\attribute{selected\_card : None | Card}
 \operation{\_\_init\_\_()}
 \operation{\_\_init\_menu\_\_()}
 \operation{\_\_init\_canvas\_\_()}
+\operation{display\_current\_player(num\_player : int)}
 \operation{play()}
-\operation{affiche\_cards(card\_list : list of card, row : int)}
+\operation{affiche\_cards(card\_list : list of Card, row : int)}
 \operation{select(event : tk.Event)}
 \operation{move(event : tk.Event)}
 \operation{drop(event : tk.Event)}
@@ -87,6 +84,4 @@
 \draw[dashed,-latex] (ErgoGui[Tk]) --node[right, midway]{utilise} (Proof);
 \end{tikzpicture}
 
-
-\end{document}
 
