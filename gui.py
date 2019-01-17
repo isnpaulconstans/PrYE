@@ -230,10 +230,8 @@ class ErgoGui(tk.Tk):
     def switch(self, event):
         """TODO retourne la parenthèse"""
         # creer retourner faisant appel passage + .turn_parenthesis
-        print("clic")
         num = self.can.find_closest(event.x, event.y)
         if "card" in self.can.gettags(num):
-            self.can.addtag_withtag("selected", num)
             row = event.y//CARD_HEIGHT
             col = event.x//CARD_WIDTH
             if row == 4 and 2 <= col < 9:

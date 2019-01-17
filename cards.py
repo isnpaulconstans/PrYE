@@ -255,7 +255,7 @@ class Deck(list):
         """
         super().__init__()
         for carte, number in Card.NUMBER.items():
-            self.extend([Card(carte)]*number)
+            self.extend([Card(carte) for _ in range(number)])
         shuffle(self)
 
     def draw(self, number):
