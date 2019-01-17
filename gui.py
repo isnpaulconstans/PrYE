@@ -233,10 +233,11 @@ class ErgoGui(tk.Tk):
         num = self.can.find_closest(event.x, event.y)
         if "card" in self.can.gettags(num):
             row = event.y//CARD_HEIGHT
-            col = event.x//CARD_WIDTH
-            if row == 4 and 2 <= col < 9:
-                card = self.hands[self.num_player][col-2]
+            col = event.x//CARD_WIDTH - 2
+            if row == 4 and 0 <= col < len(self.hands[self.num_player]):
+                card = self.hands[self.num_player][col]
                 card.turn_parenthesis()
+                print(self.hands)
                 self.affiche_cards(self.hands[self.num_player], 4)
 
 
