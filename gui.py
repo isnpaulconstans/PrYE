@@ -4,7 +4,7 @@
 
 import tkinter as tk
 from tkinter import messagebox
-from cards import Proof, Deck
+from cards import Card, Proof, Deck
 
 CARD_HEIGHT = 70
 CARD_WIDTH = 50
@@ -69,7 +69,9 @@ class ErgoGui(tk.Tk):
         self.can.bind('<Button1-Motion>', func=self.move)
         self.can.bind("<ButtonRelease-1>", func=self.drop)
         self.can.bind("<Button-3>", func=self.switch)
-
+        # TODO creer une méthode init_round
+        # TODO gérer les scores
+        # TODO créer une classe ErgoCanvas et y mettre tous le canvas
 
     def __init_menu__(self):
         """creation de la barre de menu."""
@@ -116,23 +118,19 @@ class ErgoGui(tk.Tk):
                 x = xdeb +  index * CARD_WIDTH
                 self.can.create_image(x, y, image=self.photos["Back"])
         # les noms des joueurs
-        self.P1 = self.can.create_text(CARD_WIDTH*1, 4*CARD_HEIGHT+50,
-                        text="Joueur 1", font="Arial 16 italic", fill="blue")
-        self.P2 = self.can.create_text(CARD_WIDTH*10, 4*CARD_HEIGHT+50,
-                        text="Joueur 2", font="Arial 16 italic", fill="blue")
-        self.P3 = self.can.create_text(CARD_WIDTH*1, 5*CARD_HEIGHT+50,
-                        text="Joueur 3", font="Arial 16 italic", fill="blue")
-        self.P4 = self.can.create_text(CARD_WIDTH*10, 5*CARD_HEIGHT+50,
-                        text="Joueur 4", font="Arial 16 italic", fill="blue")
+        self.names = [self.can.create_text(CARD_WIDTH*(1+9*(i%2)),
+                                           (4+i//2)*CARD_HEIGHT+50,
+                                           text="Joueur "+"ABCD"[i],
+                                           font="Arial 16 italic",
+                                           fill="blue")
+                      for i in range(4)]
 
     def display_current_player(self):
         """ Affiche les numéros de joueurs en faisant tourner, le joueur
         courant est toujours en haut à gauche. """
-        i = 0
-        for player in [self.P1,self.P2,self.P3,self.P4]:
-            self.can.itemconfig(player, text="Joueur "+
-                                str((self.num_player+i) % (self.nb_player)+1))
-            i += 1
+        for i, player in enumerate(self.names):
+            self.can.itemconfig(player, text="Joueur " +
+                                "ABCD"[(self.num_player+i) % (self.nb_player)])
 
     def play(self):
         """Valide un coup si possible, et passe au joueur suivant"""
@@ -143,8 +141,9 @@ class ErgoGui(tk.Tk):
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
-        # TODO carte ergo et gagnant
         # passe au joueur suivant.
+        if self.deck.is_finished():
+            self.fin_manche()
         self.num_player = (self.num_player + 1) % self.nb_player
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.affiche_cards(self.hands[self.num_player], 4)
@@ -209,7 +208,19 @@ class ErgoGui(tk.Tk):
             return
         row, col = event.y//CARD_HEIGHT, event.x//CARD_WIDTH
         if 0 <= event.x <= WIDTH and 0 <= row < 4:  # une des premisses
-            if self.proof.insert(row, col, self.selected_card):
+            if self.selected_card.is_ergo():
+                if self.proof.all_cards_played():
+                    self.can.delete("selected")
+                    self.affiche_cards(self.proof.premises[-1]+[Card("Ergo")],
+                                       3)
+                    self.selected_card = None
+                    self.fin_manche()
+                    return
+                else:
+                    messagebox.showwarning("Fin de manche",
+                        "Toutes les lettres doivent apparaître pour pouvoir\
+                        mettre fin à la manche")
+            elif self.proof.insert(row, col, self.selected_card):
                 self.can.delete("selected")
                 self.affiche_cards(self.proof.premises[row], row)
                 self.selected_card = None
@@ -238,6 +249,23 @@ class ErgoGui(tk.Tk):
                 card.turn_parenthesis()
                 print(self.hands)
                 self.affiche_cards(self.hands[self.num_player], 4)
+
+    def fin_manche(self):
+        """Fin de la manche, affichage des gagnants et du score."""
+        # TODO faire plus propre
+        msg = ""
+        prouve = self.proof.conclusion()
+        if prouve is None:
+            msg += "La preuve contient une contradiction,\
+                    personne ne marque de point"
+        else:
+            msg += "Le(s) gagnant(s) est(sont) : "
+            for index, val in enumerate(prouve):
+                if val:
+                    msg += chr(ord('A')+index) + " "
+                msg += "\n"
+            msg += "\nChacun marque {} points".format(self.proof.score())
+        messagebox.showinfo("Fin de la manche", msg)
 
     def version(self):
         """Affiche la version du jeu"""

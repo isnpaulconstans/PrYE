@@ -23,7 +23,7 @@ class Card(object):
 #              "Fallacy": 3, "Justification": 3,
 #              "TabulaRasa": 1, "Revolution": 1,
 #              "WildVar": 1, "WildOp": 1,
-#              "Ergo": 3,
+              "Ergo": 3,
              }
 
     def __init__(self, name):
@@ -83,6 +83,13 @@ class Card(object):
          :rtype: boolean
         """
         return self.name == "NOT"
+
+    def is_ergo(self):
+        """Indique si la carte est "Ergo".
+
+         :rtype: boolean
+        """
+        return self.name == "Ergo"
 
     def turn_parenthesis(self):
         """Retourne la parenthèse, si c'en est une, ne fait rien sinon."""
