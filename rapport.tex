@@ -144,6 +144,16 @@ Créer une pile vide\;
 }
 \end{algorithm}
 
+\section{Évolutions possibles}
+
+\begin{itemize}
+\item Gérer les scores, et la fin de partie.
+\item Proposer au(x) joueur(s) de rentrer leurs noms.
+\item Pas mal de factorisations possibles dans ErgoGui (séparer le canvas, fonctions de calcul pour passer des coordonnées dans le canvas a un numéro de prémisse et un numéro de colonne, \dots)
+\item Revoir l'algorithme d'évaluation de la preuve par d'autres méthodes ??
+\item Gérer le jeu de l'ordinateur.  Pour l'instant, je ne vois que la force brute (essayer chaque carte de la main à chaque position, et voir ce qui est prouvé). Ensuite, j'avais éventuellement pensé à un minimax en testant toutes les cartes qui n'ont pas encore été jouées, mais je pense que ça va faire trop de calculs. Peut-être qu'en faisant quelques parties, une stratégie se présentera\dots Sinon, il restera la solution de faire appel à un ami ?
+\end{itemize}
+
 \appendix
 
 \section{Diagramme des classes}
