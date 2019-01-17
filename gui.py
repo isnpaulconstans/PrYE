@@ -62,7 +62,7 @@ class ErgoGui(tk.Tk):
         self.slogan = tk.Label(text="Prouve que tu existes ...",
                                font="Arial 28 italic")
         self.slogan.grid(row=6, column=1)
-        self.but_play = tk.Button(text="play", command=self.play)
+        self.but_play = tk.Button(text="jouer", command=self.play)
         self.but_play.grid(row=5, column=0)
         # liens bouttons souris
         self.can.bind('<Button-1>', func=self.select)
@@ -102,18 +102,9 @@ class ErgoGui(tk.Tk):
         self.can.create_rectangle(WIDTH-2*CARD_WIDTH+5, HEIGHT-2*CARD_HEIGHT-15,
                                   WIDTH, HEIGHT,
                                   width=5, outline="pink")
-        # TODO faire méthode affichage numéro joueur et changement joueur
-        self.can.create_text(CARD_WIDTH, 4*CARD_HEIGHT+50, text="Joueur 1",
-                             font="Arial 16 italic", fill="blue")
-        self.can.create_text(CARD_WIDTH, 5*CARD_HEIGHT+50, text="Joueur 2",
-                             font="Arial 16 italic", fill="blue")
-        self.can.create_text(10*CARD_WIDTH, 4*CARD_HEIGHT+50, text="Joueur 3",
-                             font="Arial 16 italic", fill="blue")
-        self.can.create_text(10*CARD_WIDTH, 5*CARD_HEIGHT+50, text="Joueur 4",
-                             font="Arial 16 italic", fill="blue")
         self.can.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
                              text="Pile", font="Arial 16 italic", fill="blue")
-
+        # les lignes des prémisses
         for i in range(4):
             tk.Label(text="Prémisse "+str(i+1)).grid(row=i+1, column=2)
         self.can.grid(row=1, column=1, rowspan=5)
@@ -124,24 +115,30 @@ class ErgoGui(tk.Tk):
             for index in range(5):
                 x = xdeb +  index * CARD_WIDTH
                 self.can.create_image(x, y, image=self.photos["Back"])
+        # les noms des joueurs
+        self.P1 = self.can.create_text(CARD_WIDTH*1, 4*CARD_HEIGHT+50,
+                        text="Joueur 1", font="Arial 16 italic", fill="blue")
+        self.P2 = self.can.create_text(CARD_WIDTH*10, 4*CARD_HEIGHT+50,
+                        text="Joueur 2", font="Arial 16 italic", fill="blue")
+        self.P3 = self.can.create_text(CARD_WIDTH*1, 5*CARD_HEIGHT+50,
+                        text="Joueur 3", font="Arial 16 italic", fill="blue")
+        self.P4 = self.can.create_text(CARD_WIDTH*10, 5*CARD_HEIGHT+50,
+                        text="Joueur 4", font="Arial 16 italic", fill="blue")
 
-
-    def display_current_player(self, num_player):
-
-        self.can.create_text(CARD_WIDTH, 4*CARD_HEIGHT+50, text=P1,
-                             font="Arial 16 italic", fill="blue")
-        self.can.create_text(CARD_WIDTH, 5*CARD_HEIGHT+50, text=P2,
-                             font="Arial 16 italic", fill="blue")
-        self.can.create_text(10*CARD_WIDTH, 4*CARD_HEIGHT+50, text=P3,
-                             font="Arial 16 italic", fill="blue")
-        self.can.create_text(10*CARD_WIDTH, 5*CARD_HEIGHT+50, text=P4,
-                             font="Arial 16 italic", fill="blue")
-
+    def display_current_player(self):
+        """ Affiche les numéros de joueurs en faisant tourner, le joueur
+        courant est toujours en haut à gauche. """
+        i = 1
+        for player in [self.P1,self.P2,self.P3,self.P4]:
+            self.can.itemconfig(player, text="Joueur "+
+                                str((self.num_player+i) % (self.nb_player)+1))
+            i += 1
 
     def play(self):
-        """Valide un coup si possible, et passe au joueur suivant (TODO)."""
+        """Valide un coup si possible, et passe au joueur suivant"""
         if len(self.hands[self.num_player]) != 5:
-            messagebox.showwarning("Ergo", "Il faut garder 5 cartes pour valider.")
+            messagebox.showwarning("Ergo", 
+                                   "Il faut garder 5 cartes pour valider.")
             return
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
@@ -153,6 +150,7 @@ class ErgoGui(tk.Tk):
         self.affiche_cards(self.hands[self.num_player], 4)
         self.proof.reset_added()
         self.can.delete("pile")
+        self.display_current_player()
 
     def affiche_cards(self, card_list, row):
         """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
@@ -173,6 +171,7 @@ class ErgoGui(tk.Tk):
                                       tag="card"
                                      )
                 )
+
     # TODO creer methode passage coord en col et row
     def select(self, event):
         """Selectionne une carte, la marque comme "selected", la met en avant
@@ -228,8 +227,8 @@ class ErgoGui(tk.Tk):
         self.selected_card = None
 
     def switch(self, event):
-        """TODO retourne la parenthèse"""
-        # creer retourner faisant appel passage + .turn_parenthesis
+        """Retourne la parenthèse si c'en est une, dans la main du joueur
+        courant."""
         num = self.can.find_closest(event.x, event.y)
         if "card" in self.can.gettags(num):
             row = event.y//CARD_HEIGHT
@@ -240,14 +239,12 @@ class ErgoGui(tk.Tk):
                 print(self.hands)
                 self.affiche_cards(self.hands[self.num_player], 4)
 
-
-
     def version(self):
-        """affiche la version du jeu"""
-        messagebox.showinfo("Ergo", "Version Alpha 09/01/19")
+        """Affiche la version du jeu"""
+        messagebox.showinfo("Ergo", "Version Alpha 17/01/19")
 
     def rules(self):
-        """Affiche les règles du jeu"""
+        """Affiche les règles du jeu à partir du fichier regles_ergo.txt"""
         texte = ""
         with open("regles_ergo.txt", encoding="utf-8") as fic:
             for ligne in fic:
