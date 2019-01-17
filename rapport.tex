@@ -1,0 +1,135 @@
+\documentclass[12pt, algo]{cours}
+
+\usepackage{pgf-umlcd}
+
+\title{\textbf{\textsc{Ergo -- rapport}}}
+
+\author{Delay Emmanuel-- Desforêts Nicolas}
+
+
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Présentation du projet}
+
+\subsection{Présentation du jeu}
+
+Le point de départ est le jeu \href{https://www.catalystgamelabs.com/ergo/}{Ergo}, \og The Game of Proving You Exist!\fg. Les règles détaillées sont \href{https://www.catalystgamelabs.com/download/Ergo%20Rules%202015.pdf}{ici}.
+
+Le jeu est composé de 55 cartes : 4 de chaque variable (A, B, C ou D), 4 de chaque opérateur (ET, OU, $\implies$), 6 cartes NON, 8 parenthèses, 3 cartes Ergo et 10 cartes particulières.
+
+Chaque joueur (4 maximum) se voit assigné une variable (A, B, C ou D) au début du jeu. À chaque manche, les joueurs essaient collectivement de créer une preuve de leur existence tout en réfutant l'existence des autres joueurs. Au début de la manche, chaque joueur reçoit 5 cartes puis, à chaque tour, un joueur pioche deux cartes et doit jouer deux cartes (éventuellement les défausser). Lorsque une carte Ergo est jouée ou qu'il n'y a plus de carte dans la pioche la preuve est terminée. À condition qu'il n'y ait pas de paradoxe, chaque joueur dont l'existence est prouvée reçoit un nombre de points égal au nombre de cartes dans la preuve. Toutes les cartes sont ensuite mélangée et une nouvelle manche est lancée. Le premier joueur ayant 50 points gagne.
+
+Concernant la construction de la preuve, un certain nombre de règles doivent être respectées~:
+\begin{itemize}
+\item la preuve doit avoir au maximum 4 lignes. Dès qu'elle atteint 4 lignes, toutes les cartes supplémentaires doivent être jouées sur une de ces lignes~;
+\item chaque ligne doit être syntaxiquement correcte (deux opérateurs ou deux variables ne peuvent pas se suivre, chaque parenthèse ouvrante doit correspondre à une parenthèse fermante, \dots)~;
+\item une carte peut être insérée entre deux cartes déjà posées à condition que le résultat reste syntaxiquement correct.
+\end{itemize}
+
+\subsection{Le projet}
+
+Le but est de réaliser une implémentation en Python de ce jeu. Pour cela, plusieurs points sont à traiter, plus ou moins par ordre de difficulté croissante :
+\begin{itemize}
+\item analyser une ligne de la preuve pour vérifier qu'elle est syntaxiquement correcte~;
+\item coder une ligne syntaxiquement correcte sous une forme exploitable (arbre, forme conjonctive normale, forme disjonctive normale, \dots ?)~;
+\item déterminer à partir du codage des 4 lignes quelles variables sont prouvées ou s'il y a une contradiction~;
+\item réaliser une interface graphique (à priori avec tkinter)~;
+\item implémenter une fonction pour pouvoir jouer contre l'ordinateur.
+\end{itemize}
+
+Si on finit tout ça et qu'on a peur de s'ennuyer, on pourra toujours creuser pour améliorer la façon dont l'ordinateur joue. Au pire, on demandera à Frédéric Muller de nous prêter ses TetrisBot pour qu'ils apprennent à jouer à Ergo ;-)
+
+
+\section{Organisation du travail}
+
+\subsection{Outils utilisés}
+
+Nous avons configuré un Rasberry Pi comme serveur pour installer redmine dessus, en nous aidant beaucoup du \href{http://juramaths.fr/redmine/projects/serveur-web-sur-un-raspberry-pi/wiki}{wiki} de Frédéric Muller (merci à lui) et des article de Linux Pratique mis à notre disposition par The Big Boss (loué soit-il). La documentation technique est générée avec Sphinx, encore grâce aux articles de GNU/Linux Magasine que notre Big Boss a eu la bonté de nous fournir (Il n'en sera jamais assez remercié \footnote{Le cirage de pompe peut-il augmenter significativement la note de ce module ?}).
+
+Les résultats sont disponibles sur \url{http://paulconstans.ddns.info/redmine/projects/ergo} et sur \url{http://paulconstans.ddns.info/documentation/}.
+
+\subsection{Répartition du travail}
+
+Après quelques discutions, le travail s'est assez naturellement réparti. Emmanuel Delay s'est chargé de la partie algorithmique tandis que Nicolas Desforêts s'est occupé de l'interface graphique. Comme nous travaillons tous les deux dans le même lycée, nous avons pu nous voir régulièrement pour faire la jointure entre nos deux parties et nous mettre d'accord sur les étapes suivantes.
+
+\section{Solutions techniques}
+
+TODO Nico
+
+\section{Algorithmes utilisés}
+
+\subsection{Passage en notation polonaise inversée : algorithme Shunting-yard}
+
+Une des premier problème algorithmique a été de transformer l'écriture algébrique des preuves en une notation plus utilisable. Ayant pas mal travaillé avec mes élèves sur l'évaluation d'une expression en notation polonaise inversée (NPI), je me disais que je devrais arriver à quelque chose si je pouvais transformer l'écriture algébrique en NPI. J'ai fait quelques recherches la dessus, et je suis tombé sur l'algorithme de \href{https://fr.wikipedia.org/wiki/Algorithme_Shunting-yard}{Shunting-yard}.
+
+Je l'ai légèrement adapté au contexte (proposition logique au lieu de d'expression mathématique) pour obtenir l'algorithme suivant :
+
+\medskip
+
+\begin{algorithm}[H]
+\Entree{Une liste \texttt{input} de cartes (propositions ou connecteurs)}
+\Sortie{Une liste npi correspondant a la notation polonaise inversée de l'entrée}
+\Trait{
+Créer une \texttt{pile} vide\;
+\texttt{npi} $\leftarrow []$ \;
+\PourCh{\texttt{carte} de \texttt{input}}{
+	\uSi{\texttt{carte} est une lettre}{ajouter \texttt{carte} à \texttt{npi}}
+	\uSinonSi{\texttt{carte} est un parenthèse ouvrante}{empiler \texttt{carte}}
+	\uSinonSi{\texttt{carte} est une parenthèse fermante}{
+		\Tq{pile est non vide et que le sommet de la pile n'est pas une parenthèse ouvrante}{dépiler une carte et l'ajouter à \texttt{npi}}
+		\eSi{pile est vide}{quitter \tcp*[l]{Problème de parenthésage}}{dépiler la parenthèse ouvrante}
+		}
+	\Sinon{
+		\Tq{pile est non vide et que le sommet de la pile a une priorité supérieure à \texttt{carte}}{dépiler une carte et l'ajouter à \texttt{npi}}
+		empiler \texttt{carte}
+		}
+	}
+\Tq{pile est non vide}{
+	dépiler une carte et l'ajouter à \texttt{npi}\;
+	\Si{la carte est une parenthèse ouvrante}{quitter \tcp*[l]{Problème de parenthésage}}
+	}
+}
+\end{algorithm}
+
+\subsection{Évaluation de la preuve}
+
+Ici, mon idée a été d'attaquer le problème en force brute : tester tous les modèles possible (comme il y a 4 variables, il y a seulement $2^4=16$ possibilités) et pour chacun évaluer la preuve. Si le résultat est Vrai, c'est que le modèle est admissible et je le mémorise. Ensuite, je regarde pour chaque variable si elle a toujours la même valeur (Vrai ou Faux) dans tous les modèles admissibles. Si c'est la cas, la variable est prouvée ou niée.
+
+D'après le cours qu'on a eu pour l'instant sur la logique avec Line Jakubie-Jamet, et si j'ai bien compris,  
+
+Pour l'évaluation d'une formule, j'ai utilisé l'algorithme classique d'évaluation d'une expression en NPI :
+
+\medskip
+\begin{algorithm}[H]
+\Entrees{Une liste \texttt{npi} de carte en NPI et une interprétation}
+\Sortie{L'évaluation de la liste}
+\Trait{
+Créer une pile vide\;
+\PourCh{\texttt{carte} de \texttt{npi}}{
+	\uSi{\texttt{carte} est une lettre}{empiler sa valeur dans le modèle}
+	\uSinonSi{\texttt{carte} est un opérateur binaire}{
+		dépiler les deux dernières valeurs\;
+		effectuer l'opération entre ces valeurs\;
+		empiler le résultat
+		}
+	\Sinon(\tcp*[h]{c'est un opérateur unaire, le NON}){
+		dépiler la dernière valeur\;
+		empiler sa négation
+		}
+	}
+\Retour{le sommet de \texttt{pile}} \tcp*[l]{qui ne doit avoir qu'un élément}
+}
+\end{algorithm}
+
+\appendix
+
+\section{Diagramme des classes}
+
+\input{"diagramme des classes"}
+\end{document}
+
