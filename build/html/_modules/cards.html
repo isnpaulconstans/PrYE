@@ -42,114 +42,158 @@
   <h1>Code source de cards</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;Différentes classes et algo.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Gestion des cartes et des preuves.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">shuffle</span>
 
-<span class="n">PRIORITY</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;AND&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="s2">&quot;THEN&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-    <span class="s2">&quot;NOT&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-    <span class="s2">&quot;(&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># PARENTHESE</span>
-    <span class="s2">&quot;)&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># PARENTHESE</span>
-    <span class="p">}</span>
 
-<span class="n">CARDS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-         <span class="s2">&quot;AND&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;THEN&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-         <span class="s2">&quot;NOT&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;)&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-<span class="c1">#         &quot;Fallacy&quot;: 3, &quot;Justification&quot;: 3,</span>
-<span class="c1">#         &quot;TabulaRasa&quot;: 1, &quot;Revolution&quot;: 1,</span>
-<span class="c1">#         &quot;WildVar&quot;: 1, &quot;WildOp&quot;: 1,</span>
-<span class="c1">#         &quot;Ergo&quot;: 3,</span>
+<div class="viewcode-block" id="Card"><a class="viewcode-back" href="../doc_classe.html#cards.Card">[docs]</a><span class="k">class</span> <span class="nc">Card</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Les cartes du jeu.&quot;&quot;&quot;</span>
+    <span class="c1"># Le niveau de priorité de chaque carte</span>
+    <span class="n">PRIORITY</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;AND&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;THEN&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;NOT&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s2">&quot;(&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;)&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">}</span>
+    <span class="c1"># Le nombre de cartes de chaque type</span>
+    <span class="n">NUMBER</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+              <span class="s2">&quot;AND&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;THEN&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+              <span class="s2">&quot;NOT&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;)&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+<span class="c1">#              &quot;Fallacy&quot;: 3, &quot;Justification&quot;: 3,</span>
+<span class="c1">#              &quot;TabulaRasa&quot;: 1, &quot;Revolution&quot;: 1,</span>
+<span class="c1">#              &quot;WildVar&quot;: 1, &quot;WildOp&quot;: 1,</span>
+<span class="c1">#              &quot;Ergo&quot;: 3,</span>
+             <span class="p">}</span>
 
-
-<div class="viewcode-block" id="Card"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Card">[docs]</a><span class="k">class</span> <span class="nc">Card</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="s2">&quot;Les cartes du jeu.&quot;</span>
-<div class="viewcode-block" id="Card.__init__"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Card.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="Card.__init__"><a class="viewcode-back" href="../doc_classe.html#cards.Card.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Constructeur de la classe</span>
 
-<span class="sd">         :param name: nom de la carte (ET, OU, AND, NOT, ...)</span>
-<span class="sd">         :type name: string</span>
+<span class="sd">        :param name: nom de la carte (ET, OU, AND, NOT, ...)</span>
+<span class="sd">        :type name: string</span>
 
-<span class="sd">         :return: Objet Card</span>
-<span class="sd">         :rtype: Card</span>
+<span class="sd">        :return: Objet Card</span>
+<span class="sd">        :rtype: Card</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">CARDS</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">Card</span><span class="o">.</span><span class="n">NUMBER</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span></div>
 
-<div class="viewcode-block" id="Card.priority"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Card.priority">[docs]</a>    <span class="k">def</span> <span class="nf">priority</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Renvoie le niveau de priorité de la carte.</span>
-<span class="sd">        Si la carte n&#39;a pas de niveau de priorité, renvoie une exception.</span>
-
-<span class="sd">         :return: niveau de priorité</span>
-<span class="sd">         :rtype: int</span>
+<div class="viewcode-block" id="Card.priority"><a class="viewcode-back" href="../doc_classe.html#cards.Card.priority">[docs]</a>    <span class="k">def</span> <span class="nf">priority</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: le niveau de priorité de la carte. Si la carte n&#39;a pas de</span>
+<span class="sd">                 niveau de priorité, lève une exception.</span>
+<span class="sd">        :rtype: int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">PRIORITY</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">Card</span><span class="o">.</span><span class="n">PRIORITY</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Card &#39;</span><span class="si">{}</span><span class="s2">&#39; as no priority&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Card.is_letter"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Card.is_letter">[docs]</a>    <span class="k">def</span> <span class="nf">is_letter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Card.is_letter"><a class="viewcode-back" href="../doc_classe.html#cards.Card.is_letter">[docs]</a>    <span class="k">def</span> <span class="nf">is_letter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Indique si la carte est une lettre ou non.</span>
 
 <span class="sd">         :rtype: boolean</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Card.is_operator"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Card.is_operator">[docs]</a>    <span class="k">def</span> <span class="nf">is_operator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Indique si la carte est un opérateur</span>
+<div class="viewcode-block" id="Card.is_operator"><a class="viewcode-back" href="../doc_classe.html#cards.Card.is_operator">[docs]</a>    <span class="k">def</span> <span class="nf">is_operator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Indique si la carte est un opérateur.</span>
 
 <span class="sd">         :rtype: boolean</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;AND&quot;</span><span class="p">,</span> <span class="s2">&quot;OR&quot;</span><span class="p">,</span> <span class="s2">&quot;THEN&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Card.is_open"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Card.is_open">[docs]</a>    <span class="k">def</span> <span class="nf">is_open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Indique si la carte est une parenthèse ouvrante.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Card.is_open"><a class="viewcode-back" href="../doc_classe.html#cards.Card.is_open">[docs]</a>    <span class="k">def</span> <span class="nf">is_open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Indique si la carte est une parenthèse ouvrante.</span>
+
+<span class="sd">         :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;(&quot;</span></div>
 
-<div class="viewcode-block" id="Card.is_close"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Card.is_close">[docs]</a>    <span class="k">def</span> <span class="nf">is_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Indique si la carte est une parenthèse fermante.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Card.is_close"><a class="viewcode-back" href="../doc_classe.html#cards.Card.is_close">[docs]</a>    <span class="k">def</span> <span class="nf">is_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Indique si la carte est une parenthèse fermante.</span>
+
+<span class="sd">         :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;)&quot;</span></div>
 
-<div class="viewcode-block" id="Card.is_not"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Card.is_not">[docs]</a>    <span class="k">def</span> <span class="nf">is_not</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Indique si la carte est un &quot;NOT&quot;.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Card.is_not"><a class="viewcode-back" href="../doc_classe.html#cards.Card.is_not">[docs]</a>    <span class="k">def</span> <span class="nf">is_not</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Indique si la carte est un &quot;NOT&quot;.</span>
+
+<span class="sd">         :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;NOT&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+<div class="viewcode-block" id="Card.turn_parenthesis"><a class="viewcode-back" href="../doc_classe.html#cards.Card.turn_parenthesis">[docs]</a>    <span class="k">def</span> <span class="nf">turn_parenthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retourne la parenthèse, si c&#39;en est une, ne fait rien sinon.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;)&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;)&quot;</span></div>
+
+<div class="viewcode-block" id="Card.__repr__"><a class="viewcode-back" href="../doc_classe.html#cards.Card.__repr__">[docs]</a>    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: le nom de la carte.</span>
+<span class="sd">        :rtype: string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div></div>
 
 
-<div class="viewcode-block" id="CardList"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.CardList">[docs]</a><span class="k">class</span> <span class="nc">CardList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+<div class="viewcode-block" id="CardList"><a class="viewcode-back" href="../doc_classe.html#cards.CardList">[docs]</a><span class="k">class</span> <span class="nc">CardList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Liste de cartes, avec la Notation Polonaise Inversée associée.</span>
 <span class="sd">    Si la liste ne correspond pas à une preuve syntaxiquement correcte,</span>
 <span class="sd">    NPI vaut None.&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="CardList.__init__"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.CardList.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialisation de la liste.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CardList.__init__"><a class="viewcode-back" href="../doc_classe.html#cards.CardList.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructeur de la classe.</span>
+
+<span class="sd">        :param args: des arguments pour construire la liste</span>
+
+<span class="sd">        :return: objet CardList initalisé avec les éléments passés par args</span>
+<span class="sd">        :rtype: CardList&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">npi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_npi</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_npi</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CardList.append"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.CardList.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Ajoute la carte card à la  fin de la liste.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CardList.append"><a class="viewcode-back" href="../doc_classe.html#cards.CardList.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ajoute la carte card à la  fin de la liste.</span>
+
+<span class="sd">         :param card: la carte à ajouter</span>
+<span class="sd">         :type card: Card</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">npi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_npi</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_npi</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CardList.insert"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.CardList.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">card</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Insère card à la position index.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CardList.insert"><a class="viewcode-back" href="../doc_classe.html#cards.CardList.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">card</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Insère card à la position index.</span>
+
+<span class="sd">         :param card: la carte à insérer</span>
+<span class="sd">         :type card: Card</span>
+<span class="sd">         :param index: la position à laquelle insérer la carte</span>
+<span class="sd">         :type index: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">card</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">npi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_npi</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_npi</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CardList.pop"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.CardList.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="CardList.pop"><a class="viewcode-back" href="../doc_classe.html#cards.CardList.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Supprime la carte en position index (par défaut la dernière)</span>
-<span class="sd">        et la renvoie.&quot;&quot;&quot;</span>
+<span class="sd">        et la renvoie.</span>
+
+<span class="sd">        :param index: la position de la carte à renvoyer</span>
+<span class="sd">        :type index: int</span>
+<span class="sd">        :return: la carte supprimée</span>
+<span class="sd">        :rtype: Card</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">card</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">npi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_npi</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_npi</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">card</span></div>
 
-<div class="viewcode-block" id="CardList.is_syntactically_correct"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.CardList.is_syntactically_correct">[docs]</a>    <span class="k">def</span> <span class="nf">is_syntactically_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CardList.is_syntactically_correct"><a class="viewcode-back" href="../doc_classe.html#cards.CardList.is_syntactically_correct">[docs]</a>    <span class="k">def</span> <span class="nf">is_syntactically_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Indique si la liste de cartes est syntaxiquement correcte,</span>
-<span class="sd">        sans s&#39;occuper de la correspondance des parenthèses.&quot;&quot;&quot;</span>
+<span class="sd">        sans s&#39;occuper de la correspondance des parenthèses.</span>
+
+<span class="sd">        :return: True si la liste est syntaxiquement correcte, False sinon</span>
+<span class="sd">        :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="p">[]:</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -174,44 +218,47 @@
                     <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="n">card2</span><span class="o">.</span><span class="n">is_operator</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CardList.to_npi"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.CardList.to_npi">[docs]</a>    <span class="k">def</span> <span class="nf">to_npi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Renvoie</span>
+<div class="viewcode-block" id="CardList.to_npi"><a class="viewcode-back" href="../doc_classe.html#cards.CardList.to_npi">[docs]</a>    <span class="k">def</span> <span class="nf">to_npi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Met à jour self.npi en :</span>
 
 <span class="sd">         * None si la syntaxe de la liste n&#39;est pas correcte</span>
 
 <span class="sd">         * une liste de carte correspondant à la notation polonaise inversée de</span>
 <span class="sd">           la liste de départ sinon.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_syntactically_correct</span><span class="p">():</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">npi_card_lst</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">npi</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">npi</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">stack</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">is_letter</span><span class="p">():</span>
-                <span class="n">npi_card_lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">npi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">card</span><span class="o">.</span><span class="n">is_open</span><span class="p">():</span>
                 <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">card</span><span class="o">.</span><span class="n">is_close</span><span class="p">():</span>
                 <span class="k">while</span> <span class="n">stack</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">is_open</span><span class="p">():</span>
-                    <span class="n">npi_card_lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
-                <span class="k">if</span> <span class="n">stack</span> <span class="o">==</span> <span class="p">[]:</span>  <span class="c1"># PARENTHESE</span>
-                    <span class="k">return</span> <span class="kc">None</span>
-                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">npi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">stack</span> <span class="o">==</span> <span class="p">[]:</span>  <span class="c1"># Pas de parenthèse ouvrante correspondante</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">npi</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">return</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># On enlève la parenthèse ouvrante correspondante</span>
                     <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">while</span> <span class="n">stack</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">priority</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">card</span><span class="o">.</span><span class="n">priority</span><span class="p">():</span>
-                    <span class="n">npi_card_lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">npi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
                 <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
         <span class="k">while</span> <span class="n">stack</span> <span class="o">!=</span> <span class="p">[]:</span>
             <span class="n">card</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">is_open</span><span class="p">():</span>
-                <span class="k">return</span> <span class="kc">None</span>
-            <span class="n">npi_card_lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">npi_card_lst</span></div>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">is_open</span><span class="p">():</span>  <span class="c1"># pas de parenthèse fermante correspondante</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">npi</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">npi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">card</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CardList.evalue"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.CardList.evalue">[docs]</a>    <span class="k">def</span> <span class="nf">evalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<div class="viewcode-block" id="CardList.evalue"><a class="viewcode-back" href="../doc_classe.html#cards.CardList.evalue">[docs]</a>    <span class="k">def</span> <span class="nf">evalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Évalue la liste en fonction du modèle. npi doit être calculé.</span>
 <span class="sd">        :param model: liste de 4 booléens correspondant aux valeurs de</span>
 <span class="sd">        A, B, C et D</span>
+
 <span class="sd">        :type model: list</span>
 <span class="sd">        :return: Valeur de la liste de carte en fonction du modèle.</span>
 <span class="sd">        :rtype: boolean</span>
@@ -220,60 +267,72 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">npi</span> <span class="o">==</span> <span class="p">[]:</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="n">pile</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">carte</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">npi</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">carte</span><span class="o">.</span><span class="n">is_letter</span><span class="p">():</span>
-                <span class="n">valeur</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">carte</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">-</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)]</span>
-                <span class="n">pile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valeur</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">carte</span><span class="o">.</span><span class="n">is_operator</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">npi</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">is_letter</span><span class="p">():</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">-</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)]</span>
+            <span class="k">elif</span> <span class="n">card</span><span class="o">.</span><span class="n">is_operator</span><span class="p">():</span>
                 <span class="n">val2</span> <span class="o">=</span> <span class="n">pile</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
                 <span class="n">val1</span> <span class="o">=</span> <span class="n">pile</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">carte</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;AND&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;AND&quot;</span><span class="p">:</span>
                     <span class="n">val</span> <span class="o">=</span> <span class="n">val1</span> <span class="ow">and</span> <span class="n">val2</span>
-                <span class="k">elif</span> <span class="n">carte</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">card</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span>
                     <span class="n">val</span> <span class="o">=</span> <span class="n">val1</span> <span class="ow">or</span> <span class="n">val2</span>
                 <span class="k">else</span><span class="p">:</span>  <span class="c1"># &quot;THEN&quot;</span>
                     <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="n">val1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">val2</span>
-                <span class="n">pile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>  <span class="c1"># &quot;NOT&quot;</span>
-                <span class="n">pile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="ow">not</span> <span class="n">pile</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">pile</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">pile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="n">val</span> <span class="o">=</span> <span class="n">pile</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="n">pile</span> <span class="o">==</span> <span class="p">[]</span>
+        <span class="k">assert</span> <span class="n">pile</span> <span class="o">==</span> <span class="p">[]</span>  <span class="c1"># sinon il y a eu un problème quelque part</span>
         <span class="k">return</span> <span class="n">val</span></div></div>
 
 
-<div class="viewcode-block" id="Deck"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Deck">[docs]</a><span class="k">class</span> <span class="nc">Deck</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+<div class="viewcode-block" id="Deck"><a class="viewcode-back" href="../doc_classe.html#cards.Deck">[docs]</a><span class="k">class</span> <span class="nc">Deck</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Le paquet de cartes.&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Deck.__init__"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Deck.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialise le paquet de cartes.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Deck.__init__"><a class="viewcode-back" href="../doc_classe.html#cards.Deck.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructeur de la classe</span>
+
+<span class="sd">        :return: un paquet de cartes mélangées</span>
+<span class="sd">        :rtype: Deck</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">carte</span><span class="p">,</span> <span class="n">nb</span> <span class="ow">in</span> <span class="n">CARDS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">Card</span><span class="p">(</span><span class="n">carte</span><span class="p">)]</span><span class="o">*</span><span class="n">nb</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">carte</span><span class="p">,</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">Card</span><span class="o">.</span><span class="n">NUMBER</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">Card</span><span class="p">(</span><span class="n">carte</span><span class="p">)]</span><span class="o">*</span><span class="n">number</span><span class="p">)</span>
         <span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Deck.draw"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Deck.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Renvoie number cartes du paquet s&#39;il en reste assez, la fin du</span>
-<span class="sd">        paquet ou une liste vide sinon.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Deck.draw"><a class="viewcode-back" href="../doc_classe.html#cards.Deck.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: number cartes du paquet s&#39;il en reste assez, la fin du</span>
+<span class="sd">                 paquet ou une liste vide sinon.</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">number</span> <span class="ow">and</span> <span class="bp">self</span> <span class="o">!=</span> <span class="p">[]:</span>
             <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">res</span></div>
 
-<div class="viewcode-block" id="Deck.append"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Deck.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Ajoute une carte (possible avec Tabula Rasa).&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Deck.append"><a class="viewcode-back" href="../doc_classe.html#cards.Deck.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ajoute une carte (possible avec Tabula Rasa).</span>
+
+<span class="sd">        :param card: la carte à ajouter</span>
+<span class="sd">        :type card: Card&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">card</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Deck.reset"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Deck.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Deck.reset"><a class="viewcode-back" href="../doc_classe.html#cards.Deck.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Réinitialise le paquet de cartes.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Deck.is_finished"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Deck.is_finished">[docs]</a>    <span class="k">def</span> <span class="nf">is_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Indique si la paquet est terminé.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Deck.is_finished"><a class="viewcode-back" href="../doc_classe.html#cards.Deck.is_finished">[docs]</a>    <span class="k">def</span> <span class="nf">is_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Indique si la paquet est terminé.</span>
+
+<span class="sd">        :return: True si la paquet est terminé, False sinon</span>
+<span class="sd">        :rtype: boolean&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span> <span class="o">==</span> <span class="p">[]</span></div></div>
 
 
-<div class="viewcode-block" id="Proof"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Proof">[docs]</a><span class="k">class</span> <span class="nc">Proof</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Proof"><a class="viewcode-back" href="../doc_classe.html#cards.Proof">[docs]</a><span class="k">class</span> <span class="nc">Proof</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Classe gérant les prémisses et la preuve.&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Proof.__init__"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Proof.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Proof.__init__"><a class="viewcode-back" href="../doc_classe.html#cards.Proof.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialisation des attributs :</span>
 
 <span class="sd">        * premises : liste de 4 CardList correspondant aux 4 lignes de</span>
@@ -281,16 +340,27 @@
 
 <span class="sd">        * currently_added : liste de cartes venant d&#39;être ajoutées aux</span>
 <span class="sd">          prémisses, et pas encore validées.</span>
+
+<span class="sd">        :return: un objet Proof</span>
+<span class="sd">        :rtype: Proof</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">premises</span> <span class="o">=</span> <span class="p">[</span><span class="n">CardList</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">currently_added</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="Proof.insert"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Proof.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">premise</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">card</span><span class="p">):</span>
+<div class="viewcode-block" id="Proof.insert"><a class="viewcode-back" href="../doc_classe.html#cards.Proof.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">premise</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">card</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insère la carte card dans la prémisse premise en position index</span>
 <span class="sd">        et actualise currently_added.</span>
 
-<span class="sd">        Renvoie True si l&#39;insertion est possible, False sinon.&quot;&quot;&quot;</span>
+<span class="sd">        :param premise: le numéro de la prémisse</span>
+<span class="sd">        :type premise: int</span>
+<span class="sd">        :param index: la position à laquelle insérer la carte dans la prémisse</span>
+<span class="sd">        :type index: int</span>
+<span class="sd">        :param card: la carte à insérer</span>
+<span class="sd">        :type card: Card</span>
+<span class="sd">        :return: True si l&#39;insertion est possible, False sinon.</span>
+<span class="sd">        :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currently_added</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">premises</span><span class="p">[</span><span class="n">premise</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">card</span><span class="p">)</span>
@@ -304,10 +374,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">currently_added</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">premise</span><span class="p">,</span> <span class="n">index</span><span class="p">))</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Proof.pop"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Proof.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">premise</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<div class="viewcode-block" id="Proof.pop"><a class="viewcode-back" href="../doc_classe.html#cards.Proof.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">premise</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Enlève la carte en position index de la prémisse premise à</span>
-<span class="sd">        condition qu&#39;elle vienne d&#39;être ajoutée. Renvoie la carte en</span>
-<span class="sd">        question ou None si on ne peut pas l&#39;enlever.&quot;&quot;&quot;</span>
+<span class="sd">        condition qu&#39;elle vienne d&#39;être ajoutée.</span>
+
+<span class="sd">        :param premise: le numéro de la prémisse</span>
+<span class="sd">        :type premise: int</span>
+<span class="sd">        :param index: la position dans la prémisse de la carte à supprimer</span>
+<span class="sd">        :type index: int</span>
+<span class="sd">        :return: la carte en question ou None si on ne peut pas l&#39;enlever.</span>
+<span class="sd">        :rtype: Card ou NoneType&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">currently_added</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">premise</span><span class="p">,</span> <span class="n">index</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -320,22 +396,39 @@
         <span class="n">card</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">premises</span><span class="p">[</span><span class="n">premise</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">card</span></div>
 
-<div class="viewcode-block" id="Proof.reset_added"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Proof.reset_added">[docs]</a>    <span class="k">def</span> <span class="nf">reset_added</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Proof.reset_added"><a class="viewcode-back" href="../doc_classe.html#cards.Proof.reset_added">[docs]</a>    <span class="k">def</span> <span class="nf">reset_added</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remise à zéro de currently_added pour le prochain tour.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">currently_added</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="Proof.is_all_correct"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Proof.is_all_correct">[docs]</a>    <span class="k">def</span> <span class="nf">is_all_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Indique si toutes les prémisses sont correctes ou pas.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Proof.is_all_correct"><a class="viewcode-back" href="../doc_classe.html#cards.Proof.is_all_correct">[docs]</a>    <span class="k">def</span> <span class="nf">is_all_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Indique si toutes les prémisses sont correctes ou pas.</span>
+
+<span class="sd">        :rtype: boolean&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">premise</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">premises</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">premise</span><span class="o">.</span><span class="n">to_npi</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">premise</span><span class="o">.</span><span class="n">npi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Proof.conclusion"><a class="viewcode-back" href="../doc_classe_Cards.html#cards.Proof.conclusion">[docs]</a>    <span class="k">def</span> <span class="nf">conclusion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Renvoie None si les prémisses conduisent à une contradiction,</span>
-<span class="sd">        ou une liste associant à chaque variable &#39;A&#39;, &#39;B&#39;, &#39;C&#39; et &#39;D&#39; soit True</span>
-<span class="sd">        si elle est prouvée, False si la négation est prouvée, on None si on ne</span>
-<span class="sd">        peut rien conclure.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Proof.all_cards_played"><a class="viewcode-back" href="../doc_classe.html#cards.Proof.all_cards_played">[docs]</a>    <span class="k">def</span> <span class="nf">all_cards_played</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Indique si chacune des 4 cartes A, B, C et D a été jouée, et donc</span>
+<span class="sd">        s&#39;il est possible de jouer la carte Ergo.</span>
+
+<span class="sd">        :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">played</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span>
+        <span class="k">for</span> <span class="n">premise</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">premises</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="n">premise</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">is_letter</span><span class="p">():</span>
+                    <span class="n">played</span><span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">-</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">played</span> <span class="o">==</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span></div>
+
+<div class="viewcode-block" id="Proof.conclusion"><a class="viewcode-back" href="../doc_classe.html#cards.Proof.conclusion">[docs]</a>    <span class="k">def</span> <span class="nf">conclusion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: None si les prémisses conduisent à une contradiction,</span>
+<span class="sd">                 ou une liste associant à chaque variable &#39;A&#39;, &#39;B&#39;, &#39;C&#39; et &#39;D&#39;</span>
+<span class="sd">                 soit True si elle est prouvée, False si la négation est</span>
+<span class="sd">                 prouvée, on None si on ne peut rien conclure.</span>
+<span class="sd">        :rtype: list ou NoneType&quot;&quot;&quot;</span>
         <span class="n">possible</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">):</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">_to_bin</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
@@ -353,17 +446,26 @@
             <span class="k">for</span> <span class="n">i_lettre</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="n">i_lettre</span><span class="p">]</span> <span class="o">!=</span> <span class="n">model</span><span class="p">[</span><span class="n">i_lettre</span><span class="p">]:</span>
                     <span class="n">result</span><span class="p">[</span><span class="n">i_lettre</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">result</span></div></div>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Proof.score"><a class="viewcode-back" href="../doc_classe.html#cards.Proof.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Le score correspondant à la preuve, c&#39;est à dire le nombre de</span>
+<span class="sd">                 cartes qui la compose.</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">premise</span><span class="p">)</span> <span class="k">for</span> <span class="n">premise</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">premises</span><span class="p">])</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_to_bin</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Renvoie une liste de booléens correspondant à l&#39;écriture en binaire sur</span>
+<span class="sd">    4 bits de l&#39;entier n.</span>
+
 <span class="sd">    :param n: Un entier entre 0 et 15</span>
 <span class="sd">    :type n: int</span>
 <span class="sd">    :return: l&#39;écriture booléenne en binaire sur 4 bits de n.</span>
 <span class="sd">    :rtype: list</span>
-<span class="sd">    Renvoie une liste de booléens correspondant à l&#39;écriture en binaire sur 4</span>
-<span class="sd">    bits de l&#39;entier n.&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span>
     <span class="n">i</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="k">while</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -383,6 +485,7 @@
     <span class="n">p</span><span class="o">.</span><span class="n">premises</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">([</span><span class="n">Card</span><span class="p">(</span><span class="s2">&quot;NOT&quot;</span><span class="p">),</span> <span class="n">Card</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">)])</span>
     <span class="n">p</span><span class="o">.</span><span class="n">premises</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">CardList</span><span class="p">([</span><span class="n">Card</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">),</span> <span class="n">Card</span><span class="p">(</span><span class="s2">&quot;THEN&quot;</span><span class="p">),</span> <span class="n">Card</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">)])</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">conclusion</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">score</span><span class="p">())</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>

@@ -14,7 +14,7 @@ Ceci est la page d'accueil de la documentation du jeu Ergo.
    :caption: Table des matières:
 
    regles
-   doc_classe_Cards
+   doc_classe
 
 Index et tables
 ==================
