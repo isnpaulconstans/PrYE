@@ -100,7 +100,10 @@ Créer une \texttt{pile} vide\;
 
 Ici, mon idée a été d'attaquer le problème en force brute : tester tous les modèles possible (comme il y a 4 variables, il y a seulement $2^4=16$ possibilités) et pour chacun évaluer la preuve. Si le résultat est Vrai, c'est que le modèle est admissible et je le mémorise. Ensuite, je regarde pour chaque variable si elle a toujours la même valeur (Vrai ou Faux) dans tous les modèles admissibles. Si c'est la cas, la variable est prouvée ou niée.
 
-D'après le cours qu'on a eu pour l'instant sur la logique avec Line Jakubie-Jamet, et si j'ai bien compris,  
+\medskip
+D'après le cours qu'on a eu pour l'instant sur la logique avec Line Jakubie-Jamet, et si j'ai bien compris, cette méthode constitue une preuve sémantique, mais c'est équivalent à une preuve syntaxique. Normalement, on devrait voir dans la suite du cours d'autres algorithmes pour répondre à ce problème (le teaser parle d'arbre sémantique, d'algorithme de Quine, d'algorithme de Davis et Putnam). Une évolution possible (intéressante ?) serait de programmer ces algorithmes.
+
+\medskip
 
 Pour l'évaluation d'une formule, j'ai utilisé l'algorithme classique d'évaluation d'une expression en NPI :
 
