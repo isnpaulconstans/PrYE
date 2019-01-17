@@ -6,6 +6,18 @@
 
 \author{Delay Emmanuel-- Desforêts Nicolas}
 
+\makeatletter
+\renewcommand{\maketitle}{%
+  \thispagestyle{plain}
+  \begin{center}%
+  \let \footnote \thanks
+    {\LARGE \@title \par}%
+    \vskip 1.5em%
+    {\large \@author}%
+  \end{center}%
+  \par
+  \vskip 1.5em}
+\makeatother
 
 
 \begin{document}
@@ -33,7 +45,8 @@ Concernant la construction de la preuve, un certain nombre de règles doivent ê
 
 \subsection{Le projet}
 
-Le but est de réaliser une implémentation en Python de ce jeu. Pour cela, plusieurs points sont à traiter, plus ou moins par ordre de difficulté croissante :
+Le but est de réaliser une implémentation en Python de ce jeu. Pour cela, plusieurs points sont à traiter, plus ou moins par ordre de difficulté croissante~:
+\nopagebreak
 \begin{itemize}
 \item analyser une ligne de la preuve pour vérifier qu'elle est syntaxiquement correcte~;
 \item coder une ligne syntaxiquement correcte sous une forme exploitable (arbre, forme conjonctive normale, forme disjonctive normale, \dots ?)~;
@@ -67,11 +80,12 @@ TODO Nico
 
 Une des premier problème algorithmique a été de transformer l'écriture algébrique des preuves en une notation plus utilisable. Ayant pas mal travaillé avec mes élèves sur l'évaluation d'une expression en notation polonaise inversée (NPI), je me disais que je devrais arriver à quelque chose si je pouvais transformer l'écriture algébrique en NPI. J'ai fait quelques recherches la dessus, et je suis tombé sur l'algorithme de \href{https://fr.wikipedia.org/wiki/Algorithme_Shunting-yard}{Shunting-yard}.
 
-Je l'ai légèrement adapté au contexte (proposition logique au lieu de d'expression mathématique) pour obtenir l'algorithme suivant :
+Je l'ai légèrement adapté au contexte (proposition logique au lieu de d'expression mathématique) pour obtenir l'algorithme \ref{Shunting-yard}.
 
-\medskip
 
-\begin{algorithm}[H]
+\begin{algorithm}
+\caption{Algorithme de passage en notation polonaise inversée}
+\label{Shunting-yard}
 \Entree{Une liste \texttt{input} de cartes (propositions ou connecteurs)}
 \Sortie{Une liste npi correspondant a la notation polonaise inversée de l'entrée}
 \Trait{
@@ -105,16 +119,17 @@ D'après le cours qu'on a eu pour l'instant sur la logique avec Line Jakubie-Jam
 
 \medskip
 
-Pour l'évaluation d'une formule, j'ai utilisé l'algorithme classique d'évaluation d'une expression en NPI :
+Pour l'évaluation d'une formule, j'ai utilisé l'algorithme classique d'évaluation d'une expression en NPI (algorithme \ref{evalNPI}).
 
-\medskip
-\begin{algorithm}[H]
+\begin{algorithm}
+\caption{Algorithme d'évaluation d'une formule}
+\label{evalNPI}
 \Entrees{Une liste \texttt{npi} de carte en NPI et une interprétation}
 \Sortie{L'évaluation de la liste}
 \Trait{
 Créer une pile vide\;
 \PourCh{\texttt{carte} de \texttt{npi}}{
-	\uSi{\texttt{carte} est une lettre}{empiler sa valeur dans le modèle}
+	\uSi{\texttt{carte} est une lettre}{empiler sa valeur dans l'interprétation}
 	\uSinonSi{\texttt{carte} est un opérateur binaire}{
 		dépiler les deux dernières valeurs\;
 		effectuer l'opération entre ces valeurs\;
