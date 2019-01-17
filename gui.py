@@ -25,7 +25,8 @@ IMAGE = {
     "NOT": "carteNeg.gif",
     "(": "carteOpenParenthesis.gif",
     ")": "carteCloseParenthesis.gif",
-    "Ergo": "carteCQFD.gif"
+    "Ergo": "carteCQFD.gif",
+    "Back": "carteDos.gif"
     }
 
 
@@ -38,14 +39,15 @@ class ErgoGui(tk.Tk):
         self.title("Ergo")
         self.geometry("1200x500")  # dimension fenetre jeu
         self.resizable(width=False, height=False)
-        self.__init_menu__()
-        self.__init_canvas__()
 
         self.proof = Proof()
         self.deck = Deck()
         self.photos = {name: tk.PhotoImage(file=IMAGE[name])
                        for name in IMAGE}
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
+
+        self.__init_menu__()
+        self.__init_canvas__()
 
         self.num_player = 0
         self.nb_player = 4
@@ -62,11 +64,12 @@ class ErgoGui(tk.Tk):
         self.slogan.grid(row=6, column=1)
         self.but_play = tk.Button(text="play", command=self.play)
         self.but_play.grid(row=5, column=0)
-        # TEST
+        # liens bouttons souris
         self.can.bind('<Button-1>', func=self.select)
         self.can.bind('<Button1-Motion>', func=self.move)
         self.can.bind("<ButtonRelease-1>", func=self.drop)
-        # TODO
+        self.can.bind("<Button-3>", func=self.switch)
+
 
     def __init_menu__(self):
         """creation de la barre de menu."""
@@ -114,7 +117,26 @@ class ErgoGui(tk.Tk):
         for i in range(4):
             tk.Label(text="Prémisse "+str(i+1)).grid(row=i+1, column=2)
         self.can.grid(row=1, column=1, rowspan=5)
-        # TODO ajouter les dos de cartes
+        # le dos de cartes
+        for (row, col) in [(0,11),(1,2),(1,11)]:
+            xdeb = col * CARD_WIDTH + CARD_WIDTH // 2
+            y = 4 * (CARD_HEIGHT+2) + (CARD_HEIGHT + 10) * row + CARD_HEIGHT//2
+            for index in range(5):
+                x = xdeb +  index * CARD_WIDTH
+                self.can.create_image(x, y, image=self.photos["Back"])
+
+
+    def display_current_player(self, num_player):
+
+        self.can.create_text(CARD_WIDTH, 4*CARD_HEIGHT+50, text=P1,
+                             font="Arial 16 italic", fill="blue")
+        self.can.create_text(CARD_WIDTH, 5*CARD_HEIGHT+50, text=P2,
+                             font="Arial 16 italic", fill="blue")
+        self.can.create_text(10*CARD_WIDTH, 4*CARD_HEIGHT+50, text=P3,
+                             font="Arial 16 italic", fill="blue")
+        self.can.create_text(10*CARD_WIDTH, 5*CARD_HEIGHT+50, text=P4,
+                             font="Arial 16 italic", fill="blue")
+
 
     def play(self):
         """Valide un coup si possible, et passe au joueur suivant (TODO)."""
@@ -174,7 +196,7 @@ class ErgoGui(tk.Tk):
                 self.selected_card = self.hands[self.num_player].pop(col)
                 self.affiche_cards(self.hands[self.num_player], 4)
             self.can.tag_raise(num)  # pour passer en avant plan
-    # TODO creer retourner faisant appel passage + .turn_parenthesis
+
     def move(self, event):
         """Déplace la carte marquée "selected"."""
         num = self.can.find_withtag("selected")
@@ -205,9 +227,21 @@ class ErgoGui(tk.Tk):
         self.affiche_cards(self.hands[self.num_player], 4)
         self.selected_card = None
 
-    def switch(self):
+    def switch(self, event):
         """TODO retourne la parenthèse"""
-        pass
+        # creer retourner faisant appel passage + .turn_parenthesis
+        print("clic")
+        num = self.can.find_closest(event.x, event.y)
+        if "card" in self.can.gettags(num):
+            self.can.addtag_withtag("selected", num)
+            row = event.y//CARD_HEIGHT
+            col = event.x//CARD_WIDTH
+            if row == 4 and 2 <= col < 9:
+                card = self.hands[self.num_player][col-2]
+                card.turn_parenthesis()
+                self.affiche_cards(self.hands[self.num_player], 4)
+
+
 
     def version(self):
         """affiche la version du jeu"""
