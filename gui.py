@@ -128,7 +128,7 @@ class ErgoGui(tk.Tk):
     def display_current_player(self):
         """ Affiche les numéros de joueurs en faisant tourner, le joueur
         courant est toujours en haut à gauche. """
-        i = 1
+        i = 0
         for player in [self.P1,self.P2,self.P3,self.P4]:
             self.can.itemconfig(player, text="Joueur "+
                                 str((self.num_player+i) % (self.nb_player)+1))
@@ -137,7 +137,7 @@ class ErgoGui(tk.Tk):
     def play(self):
         """Valide un coup si possible, et passe au joueur suivant"""
         if len(self.hands[self.num_player]) != 5:
-            messagebox.showwarning("Ergo", 
+            messagebox.showwarning("Ergo",
                                    "Il faut garder 5 cartes pour valider.")
             return
         if not self.proof.is_all_correct():
