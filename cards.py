@@ -26,7 +26,7 @@ class Card(object):
 #              "Ergo": 3,
              }
 
-    def __init__(self, name: str):
+    def __init__(self, name):
         """Constructeur de la classe
 
         :param name: nom de la carte (ET, OU, AND, NOT, ...)
