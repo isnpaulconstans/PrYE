@@ -42,7 +42,7 @@ class ErgoGui(tk.Tk):
 
         self.proof = Proof()
         self.deck = Deck()
-        self.photos = {name: tk.PhotoImage(file=IMAGE[name])
+        self.photos = {name: tk.PhotoImage(file='images/'+IMAGE[name])
                        for name in IMAGE}
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
 
