@@ -15,7 +15,7 @@
 \operation{\_\_repr\_\_() -> str}
 \end{class}
 
-\begin{class}[text width=7cm]{CardList[list]}{10,0}
+\begin{class}[text width=7cm]{CardList[list]}{0, -8}
 \attribute{npi : list of Card or None}
 \operation{\_\_init\_\_(*args)}
 \operation{append(card : Card)}
@@ -26,9 +26,9 @@
 \operation{evalue(interpretation : list) -> boolean}
 \end{class}
 
-\draw[dashed,-latex] ({CardList[list]}) -- node[below, midway]{utilise} (Card);
+\draw[dashed,-latex] ({CardList[list]}) -- node[right, midway]{utilise} (Card);
 
-\begin{class}[text width=9cm]{Proof}{10, -7}
+\begin{class}[text width=9cm]{Proof}{0, -14}
 \attribute{premises : list of CardList}
 \attribute{currently\_added : list of (premise : int, index : int)}
 \operation{\_\_init\_\_()}
@@ -43,7 +43,7 @@
 
 \draw[dashed,-latex] (Proof) --node[right, midway]{utilise} ({CardList[list]});
 
-\begin{class}[text width=7cm]{Deck[list]}{0,-8}
+\begin{class}[text width=7cm]{Deck[list]}{10,0}
 \operation{\_\_init\_\_()}
 \operation{draw(number : int) -> list of Card}
 \operation{append(card : Card)}
@@ -51,9 +51,9 @@
 \operation{is\_finished() -> boolean}
 \end{class}
 
-\draw[dashed,-latex] ({Deck[list]}) --node[right, midway]{utilise} (Card);
+\draw[dashed,-latex] ({Deck[list]}) --node[above, midway]{utilise} (Card);
 
-\begin{class}[text width=9cm]{ErgoGui[Tk]}{0,-13}
+\begin{class}[text width=9cm]{ErgoGui[Tk]}{10,-5}
 \attribute{can : tk.Canvas}
 \attribute{barre\_menu : tk.Menu}
 \attribute{proof : Proof}
@@ -75,13 +75,14 @@
 \operation{move(event : tk.Event)}
 \operation{drop(event : tk.Event)}
 \operation{switch(event : tk.Event)}
+\operation{fin\_manche(event : tk.Event)}
 \operation{version()}
 \operation{rules()}
 \operation{quitter()}
 \end{class}
 
 \draw[dashed,-latex] (ErgoGui[Tk]) --node[right, midway]{utilise} ({Deck[list]});
-\draw[dashed,-latex] (ErgoGui[Tk]) --node[right, midway]{utilise} (Proof);
+\draw[dashed,-latex] (ErgoGui[Tk]) --node[above, midway]{utilise} (Proof);
 \end{tikzpicture}
 
 
