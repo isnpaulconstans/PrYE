@@ -34,6 +34,11 @@ IMAGE = {
 class ErgoGui(tk.Tk):
     """Interface graphique."""
     def __init__(self):
+        """Constructeur de la classe
+
+        :return: Objet ErgoGui
+        :rtype: ErgoGui
+        """
         tk.Tk.__init__(self)
         self.title("Ergo")
         self.geometry("1200x500")  # dimension fenetre jeu
@@ -154,7 +159,14 @@ class ErgoGui(tk.Tk):
 
     def affiche_cards(self, card_list, row):
         """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
-        prémisses, 4 pour la main du joueur"""
+        prémisses, 4 pour la main du joueur
+
+        :param card_list: la liste de cartes à afficher
+        :type card_list:list
+
+        :param row: le numéro de la ligne
+        :type row : int
+        """
         y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
         for num in self.cards[row]:
             if "selected" in self.can.gettags(num):
@@ -176,6 +188,9 @@ class ErgoGui(tk.Tk):
     def select(self, event):
         """Selectionne une carte, la marque comme "selected", la met en avant
         plan, et l'enlève de l'endroit où elle était (mains, prémisse ou pile).
+
+        :param event: événement
+        :type event: tkinter.Event
         """
         num = self.can.find_closest(event.x, event.y)
         if "card" in self.can.gettags(num):
@@ -197,14 +212,22 @@ class ErgoGui(tk.Tk):
             self.can.tag_raise(num)  # pour passer en avant plan
 
     def move(self, event):
-        """Déplace la carte marquée "selected"."""
+        """Déplace la carte marquée "selected".
+
+        :param event: événement
+        :type event: tkinter.Event
+        """
         num = self.can.find_withtag("selected")
         self.can.coords(num, event.x, event.y)
 
     def drop(self, event):
         """Place la carte marquée "selected" sur la grille, et l'ajoute au bon
         endroit (prémisse, main ou pile) et enlève la marque "selected".
-        Si c'est impossible, la remet à la fin de la main."""
+        Si c'est impossible, la remet à la fin de la main.
+
+        :param event: événement
+        :type event: tkinter.Event
+        """
         if self.selected_card is None:
             return
         row, col = event.y//CARD_HEIGHT, event.x//CARD_WIDTH
@@ -240,7 +263,11 @@ class ErgoGui(tk.Tk):
 
     def switch(self, event):
         """Retourne la parenthèse si c'en est une, dans la main du joueur
-        courant."""
+        courant.
+
+        :param event: événement
+        :type event: tkinter.Event
+        """
         num = self.can.find_closest(event.x, event.y)
         if "card" in self.can.gettags(num):
             row = event.y//CARD_HEIGHT
