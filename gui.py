@@ -56,7 +56,7 @@ class ErgoGui(tk.Tk):
         self.num_player = 0
         self.nb_player = 4
         self.hands = [self.deck.draw(5) for _ in range(4)]
-        self.hands[self.num_player].extend(self.deck.draw(2)) #on ajoute 2 cartes
+        self.hands[self.num_player].extend(self.deck.draw(2))
         self.pile = []
         self.selected_card = None
         self.affiche_cards(self.hands[self.num_player], 4)
@@ -85,8 +85,10 @@ class ErgoGui(tk.Tk):
         self.aide = tk.Menu(self.barre_menu, tearoff=0)
         self.barre_menu.add_cascade(label="Aide", underline=0, menu=self.aide)
         self.aide.add_command(label="Règles", underline=0, command=self.rules)
-        self.aide.add_command(label="A propos", underline=0, command=self.version)
-        self.aide.add_command(label="Quitter", underline=0, command=self.quitter)
+        self.aide.add_command(label="A propos", underline=0,
+                              command=self.version)
+        self.aide.add_command(label="Quitter", underline=0,
+                              command=self.quitter)
         # afficher le menu
         self.config(menu=self.barre_menu)
 
@@ -107,7 +109,8 @@ class ErgoGui(tk.Tk):
         self.can.create_rectangle(0, HEIGHT-2*CARD_HEIGHT-15,
                                   WIDTH-2*CARD_WIDTH, HEIGHT-CARD_HEIGHT-10,
                                   width=5, outline="red")
-        self.can.create_rectangle(WIDTH-2*CARD_WIDTH+5, HEIGHT-2*CARD_HEIGHT-15,
+        self.can.create_rectangle(WIDTH-2*CARD_WIDTH+5,
+                                  HEIGHT-2*CARD_HEIGHT-15,
                                   WIDTH, HEIGHT,
                                   width=5, outline="pink")
         self.can.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
@@ -117,16 +120,16 @@ class ErgoGui(tk.Tk):
             tk.Label(text="Prémisse "+str(i+1)).grid(row=i+1, column=2)
         self.can.grid(row=1, column=1, rowspan=5)
         # le dos de cartes
-        for (row, col) in [(0,11),(1,2),(1,11)]:
+        for (row, col) in [(0, 11), (1, 2), (1, 11)]:
             xdeb = col * CARD_WIDTH + CARD_WIDTH // 2
             y = 4 * (CARD_HEIGHT+2) + (CARD_HEIGHT + 10) * row + CARD_HEIGHT//2
             for index in range(5):
-                x = xdeb +  index * CARD_WIDTH
+                x = xdeb + index * CARD_WIDTH
                 self.can.create_image(x, y, image=self.photos["Back"])
         # les noms des joueurs
-        self.names = [self.can.create_text(CARD_WIDTH*(1+9*(i%2)),
-                                           (4+i//2)*CARD_HEIGHT+50,
-                                           text="Joueur "+"ABCD"[i],
+        self.names = [self.can.create_text(CARD_WIDTH*(1 + 9 * (i % 2)),
+                                           (4 + i // 2) * CARD_HEIGHT + 50,
+                                           text="Joueur " + "ABCD"[i],
                                            font="Arial 16 italic",
                                            fill="blue")
                       for i in range(4)]
@@ -241,9 +244,9 @@ class ErgoGui(tk.Tk):
                     self.fin_manche()
                     return
                 else:
-                    messagebox.showwarning("Fin de manche",
-                        "Toutes les lettres doivent apparaître pour pouvoir\
-                        mettre fin à la manche")
+                    messagebox.showwarning("Fin de manche", "Toutes les \
+                                           lettres doivent apparaître pour \
+                                           pouvoir mettre fin à la manche")
             elif self.proof.insert(row, col, self.selected_card):
                 self.can.delete("selected")
                 self.affiche_cards(self.proof.premises[row], row)
