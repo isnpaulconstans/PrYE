@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import messagebox
 from cards import Card, Proof, Deck
 
+# Constantes
 CARD_HEIGHT = 70
 CARD_WIDTH = 50
 HEIGHT = 6 * CARD_HEIGHT + 20
@@ -31,9 +32,7 @@ IMAGE = {
 
 
 class ErgoGui(tk.Tk):
-    """Interface graphique.
-    TODO
-    """
+    """Interface graphique."""
     def __init__(self):
         tk.Tk.__init__(self)
         self.title("Ergo")
@@ -45,7 +44,7 @@ class ErgoGui(tk.Tk):
         self.photos = {name: tk.PhotoImage(file='images/'+IMAGE[name])
                        for name in IMAGE}
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
-
+        # initialisation du menu et canvas
         self.__init_menu__()
         self.__init_canvas__()
 
@@ -74,7 +73,8 @@ class ErgoGui(tk.Tk):
         # TODO créer une classe ErgoCanvas et y mettre tous le canvas
 
     def __init_menu__(self):
-        """creation de la barre de menu."""
+        """creation de la barre de menu qui permet d'afficher l'aide,
+        les règles, la version et de pouvoir quitter le jeu."""
         self.barre_menu = tk.Menu(self)
         # creation du menu "Aide"
         self.aide = tk.Menu(self.barre_menu, tearoff=0)
@@ -86,7 +86,8 @@ class ErgoGui(tk.Tk):
         self.config(menu=self.barre_menu)
 
     def __init_canvas__(self):
-        """Création du canvas de jeu."""
+        """Création du canvas de jeu avec les lignes des prémisses, les mains
+        et noms des joueurs et la pile"""
         self.can = tk.Canvas(self, height=HEIGHT, width=WIDTH,
                              bg=CARPET_COLOR)
         for i in range(4):
