@@ -72,7 +72,28 @@ Après quelques discutions, le travail s'est assez naturellement réparti. Emman
 
 \section{Solutions techniques}
 
-TODO Nico
+Nous utilisons Tkinter pour l'interface graphique. Avec en complément messagebox.
+
+Il a fallu créer les images des cartes, en choisissant une dimension pratique pour la gestion du placement de cartes. La première dimension était trop importante et ne permettait pas de faire des lignes de preuve suffisamment longues. Il a juste fallu redimensionner nos images, car nous avions prévus des constantes (CARD\_WIDTH et CARD\_HEIGHT) en cas de changement.
+
+Nous avons choisi de créer nos images au format gif. Une carte particulière, "back" associée à l'image carteDos.gif permet d'afficher les mains des autres joueurs face cachée.
+
+Les cartes sont gérées à l'aide du dictionnaire IMAGE.Nous avons eu des problèmes au début avec nos images, Tkinter ne reconnaissant pas celles-ci.
+
+En cas de sortie prématurée du programme, il arrive (principalement avec Pyscripter) que nous ayons encore des soucis : tkinter ne retrouve plus les images à afficher. Relancer Pyscripter permet de palier au problème. Nous aimerions comprendre exactement les raisons de ce bug.
+
+\smallskip
+
+Notre classe ErgoGui gère toute la partie graphique du jeu.
+
+La gestion du jeu se fait à la souris. On peut attraper (bouton gauche), déplacer (bouton gauche maintenu) et déposer (bouton gauche relâché) la carte à l'aide des méthodes select(), move() et drop().
+
+Le bouton droit permet, associé à la méthode switch, si la carte est une parenthèse, de la retourner.
+
+Il y a eu un problème de définition du deck : quand nous avons réalisé la méthode permettant de retourner les parenthèses, la modification s'appliquait à toutes les parenthèses du même type. Une liste en compréhension a résolu le problème.
+
+Les règles du jeux sont dans un fichier texte. Lors de l'appel de la méthode nous faisons une lecture du fichier puis un affichage dans une fenêtre messagebox.
+
 
 \section{Algorithmes utilisés}
 
@@ -149,7 +170,7 @@ Créer une pile vide\;
 \begin{itemize}
 \item Gérer les scores, et la fin de partie.
 \item Proposer au(x) joueur(s) de rentrer leurs noms.
-\item Pas mal de factorisations possibles dans ErgoGui (séparer le canvas, fonctions de calcul pour passer des coordonnées dans le canvas a un numéro de prémisse et un numéro de colonne, \dots)
+\item Pas mal de factorisations possibles dans ErgoGui (séparer le canvas dans une classe ErgoCanvas dédiée, fonctions de calcul pour passer des coordonnées dans le canvas à un numéro de prémisse et un numéro de colonne, \dots)
 \item Revoir l'algorithme d'évaluation de la preuve par d'autres méthodes ??
 \item Gérer le jeu de l'ordinateur.  Pour l'instant, je ne vois que la force brute (essayer chaque carte de la main à chaque position, et voir ce qui est prouvé). Ensuite, j'avais éventuellement pensé à un minimax en testant toutes les cartes qui n'ont pas encore été jouées, mais je pense que ça va faire trop de calculs. Peut-être qu'en faisant quelques parties, une stratégie se présentera\dots Sinon, il restera la solution de faire appel à un ami ?
 \end{itemize}
