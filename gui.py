@@ -165,10 +165,10 @@ class ErgoGui(tk.Tk):
         prémisses, 4 pour la main du joueur
 
         :param card_list: la liste de cartes à afficher
-        :type card_list:list
+        :type card_list: list
 
         :param row: le numéro de la ligne
-        :type row : int
+        :type row: int
         """
         y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
         for num in self.cards[row]:
@@ -300,7 +300,7 @@ class ErgoGui(tk.Tk):
 
     def version(self):
         """Affiche la version du jeu"""
-        messagebox.showinfo("Ergo", "Version Alpha 17/01/19")
+        messagebox.showinfo("Ergo", "Version Alpha 21/01/19")
 
     def rules(self):
         """Affiche les règles du jeu à partir du fichier regles_ergo.txt"""

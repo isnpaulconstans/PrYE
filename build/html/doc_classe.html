@@ -103,6 +103,20 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="cards.Card.is_ergo">
+<code class="descname">is_ergo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Card.is_ergo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Card.is_ergo" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Indique si la carte est «&nbsp;Ergo&nbsp;».</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type retourné:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="cards.Card.is_letter">
 <code class="descname">is_letter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Card.is_letter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Card.is_letter" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Indique si la carte est une lettre ou non.</p>
@@ -552,18 +566,35 @@ cartes qui la compose.</td>
 <dl class="class">
 <dt id="gui.ErgoGui">
 <em class="property">class </em><code class="descclassname">gui.</code><code class="descname">ErgoGui</code><a class="reference internal" href="_modules/gui.html#ErgoGui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>Interface graphique.
-TODO</p>
+<dd><p>Interface graphique.</p>
+<dl class="method">
+<dt id="gui.ErgoGui.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.__init__" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Constructeur de la classe</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Retourne:</th><td class="field-body">Objet ErgoGui</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type retourné:</th><td class="field-body"><a class="reference internal" href="#gui.ErgoGui" title="gui.ErgoGui">ErgoGui</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="gui.ErgoGui.__init_canvas__">
 <code class="descname">__init_canvas__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.__init_canvas__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.__init_canvas__" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>Création du canvas de jeu.</p>
+<dd><p>Création du canvas de jeu avec les lignes des prémisses, les mains
+et noms des joueurs et la pile</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gui.ErgoGui.__init_menu__">
 <code class="descname">__init_menu__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.__init_menu__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.__init_menu__" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>creation de la barre de menu.</p>
+<dd><p>creation de la barre de menu qui permet d’afficher l’aide,
+les règles, la version et de pouvoir quitter le jeu.</p>
 </dd></dl>
 
 <dl class="method">
@@ -571,6 +602,25 @@ TODO</p>
 <code class="descname">affiche_cards</code><span class="sig-paren">(</span><em>card_list</em>, <em>row</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.affiche_cards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.affiche_cards" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>affiche la liste de carte card_list à la ligne row (0 à 3 pour les
 prémisses, 4 pour la main du joueur</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Paramètres:</th><td class="field-body"><ul class="first last simple">
+<li><strong>card_list</strong> (<em>list</em>) – la liste de cartes à afficher</li>
+<li><strong>row</strong> (<em>int</em>) – le numéro de la ligne</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.display_current_player">
+<code class="descname">display_current_player</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.display_current_player"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.display_current_player" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Affiche les numéros de joueurs en faisant tourner, le joueur
+courant est toujours en haut à gauche.</p>
 </dd></dl>
 
 <dl class="method">
@@ -579,18 +629,40 @@ prémisses, 4 pour la main du joueur</p>
 <dd><p>Place la carte marquée «&nbsp;selected&nbsp;» sur la grille, et l’ajoute au bon
 endroit (prémisse, main ou pile) et enlève la marque «&nbsp;selected&nbsp;».
 Si c’est impossible, la remet à la fin de la main.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Paramètres:</th><td class="field-body"><strong>event</strong> (<em>tkinter.Event</em>) – événement</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.ErgoGui.fin_manche">
+<code class="descname">fin_manche</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.fin_manche"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.fin_manche" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Fin de la manche, affichage des gagnants et du score.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="gui.ErgoGui.move">
 <code class="descname">move</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.move" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Déplace la carte marquée «&nbsp;selected&nbsp;».</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Paramètres:</th><td class="field-body"><strong>event</strong> (<em>tkinter.Event</em>) – événement</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="gui.ErgoGui.play">
 <code class="descname">play</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.play"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.play" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>Valide un coup si possible, et passe au joueur suivant (TODO).</p>
+<dd><p>Valide un coup si possible, et passe au joueur suivant</p>
 </dd></dl>
 
 <dl class="method">
@@ -602,7 +674,7 @@ Si c’est impossible, la remet à la fin de la main.</p>
 <dl class="method">
 <dt id="gui.ErgoGui.rules">
 <code class="descname">rules</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.rules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.rules" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>Affiche les règles du jeu</p>
+<dd><p>Affiche les règles du jeu à partir du fichier regles_ergo.txt</p>
 </dd></dl>
 
 <dl class="method">
@@ -610,18 +682,35 @@ Si c’est impossible, la remet à la fin de la main.</p>
 <code class="descname">select</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.select" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Selectionne une carte, la marque comme «&nbsp;selected&nbsp;», la met en avant
 plan, et l’enlève de l’endroit où elle était (mains, prémisse ou pile).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Paramètres:</th><td class="field-body"><strong>event</strong> (<em>tkinter.Event</em>) – événement</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="gui.ErgoGui.switch">
 <code class="descname">switch</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.switch" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>TODO retourne la parenthèse</p>
+<dd><p>Retourne la parenthèse si c’en est une, dans la main du joueur
+courant.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Paramètres:</th><td class="field-body"><strong>event</strong> (<em>tkinter.Event</em>) – événement</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="gui.ErgoGui.version">
 <code class="descname">version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui.html#ErgoGui.version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.ErgoGui.version" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>affiche la version du jeu</p>
+<dd><p>Affiche la version du jeu</p>
 </dd></dl>
 
 </dd></dl>

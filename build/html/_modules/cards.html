@@ -65,7 +65,7 @@
 <span class="c1">#              &quot;Fallacy&quot;: 3, &quot;Justification&quot;: 3,</span>
 <span class="c1">#              &quot;TabulaRasa&quot;: 1, &quot;Revolution&quot;: 1,</span>
 <span class="c1">#              &quot;WildVar&quot;: 1, &quot;WildOp&quot;: 1,</span>
-<span class="c1">#              &quot;Ergo&quot;: 3,</span>
+              <span class="s2">&quot;Ergo&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
              <span class="p">}</span>
 
 <div class="viewcode-block" id="Card.__init__"><a class="viewcode-back" href="../doc_classe.html#cards.Card.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -125,6 +125,13 @@
 <span class="sd">         :rtype: boolean</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;NOT&quot;</span></div>
+
+<div class="viewcode-block" id="Card.is_ergo"><a class="viewcode-back" href="../doc_classe.html#cards.Card.is_ergo">[docs]</a>    <span class="k">def</span> <span class="nf">is_ergo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Indique si la carte est &quot;Ergo&quot;.</span>
+
+<span class="sd">         :rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Ergo&quot;</span></div>
 
 <div class="viewcode-block" id="Card.turn_parenthesis"><a class="viewcode-back" href="../doc_classe.html#cards.Card.turn_parenthesis">[docs]</a>    <span class="k">def</span> <span class="nf">turn_parenthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Retourne la parenthèse, si c&#39;en est une, ne fait rien sinon.&quot;&quot;&quot;</span>
