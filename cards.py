@@ -219,6 +219,94 @@ class CardList(list):
                 return
             self.npi.append(card)
 
+    def to_fcn(self):
+        """Forme Normale Conjonctive."""
+        def insert_not(formule):
+            """Insère un NOT avant la dernière proposition de la formule."""
+            pile = []
+            exp = 1  # on doit dépiler une proposition
+            while exp != 0:
+                pile.append(formule.pop())
+                if pile[-1].is_letter():
+                    exp -= 1
+                elif pile[-1].is_operator():
+                    exp += 1
+            formule.append(Card("NOT"))
+            while pile:
+                formule.append(pile.pop())
+
+        def elim_then(formule):
+            """Renvoie une formule équivalente
+            en ramplaçant A -> B par non A ou B
+
+            :param formule: une formule en NPI
+            :type formule: list
+            :return: la formule sans implication
+            :rtype: list
+            """
+            res = []
+            for card in formule:
+                if card.name != "THEN":
+                    res.append(card)
+                    continue
+                insert_not(res)
+                res.append(Card("OR"))
+            return res
+
+        def morgan(formule):
+            """Élimine les NON ET et NON OU de la formule en utilisant les lois
+            de Morgan
+
+            :param formule: une formule en NPI
+            :type formule: list
+            :return: (modif, res) où modif=True si une modification a été faite
+              et False sinon et res est la formule modifiée.
+            :rtype: bool
+            """
+            res = []
+            modif = False
+            for card in formule:
+                if not card.is_not():
+                    res.append(card)
+                    continue
+                if not res[-1].is_operator():
+                    res.append(card)
+                    continue
+                modif = True  # NON ET ou NON OU
+                op = res.pop()
+                op.name = "OR" if op.name == "AND" else "AND"
+                insert_not(res)
+                res.append(Card("NOT"))
+                res.append(op)
+                print("->", res)
+            return modif, res
+
+        def elim_not(formule):
+            """Élimine les doubles négations de la formule.
+
+            :param formule: une formule en NPI
+            :type formule: list
+            :return: la formule sans implication
+            :rtype: list
+            """
+            res = []
+            for card in formule:
+                if not (card.is_not() and res[-1].is_not()):
+                    res.append(card)
+                    continue
+                res.pop()
+            return res
+
+        assert self.npi is not None
+        self.fcn = elim_then(self.npi)
+        print(self.fcn)
+        modif = True
+        while modif:
+            modif, self.fcn = morgan(self.fcn)
+            print(self.fcn)
+        self.fcn = elim_not(self.fcn)
+
+
     def evalue(self, interpretation):
         """Évalue la liste en fonction du modèle. npi doit être calculé.
         :param interpretation: liste de 4 booléens correspondant aux valeurs de
@@ -455,4 +543,11 @@ def _tests():
 
 if __name__ == '__main__':
     print("Bienvenue dans Ergo, le jeu où vous prouvez votre existence.")
+    card_list = CardList([Card("NOT"), Card("("), Card("A"), Card("AND"),
+                          Card("NOT"), Card("B"), Card(")"), Card("THEN"),
+                          Card("("), Card("A"), Card("AND"), Card("("),
+                          Card("B"), Card("THEN"), Card("C"), Card(")"), Card(")")])
+    print(card_list.npi)
+    card_list.to_fcn()
+
     _tests()
