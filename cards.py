@@ -8,7 +8,7 @@ from random import shuffle
 class Card(object):
     """Les cartes du jeu."""
     # Le niveau de priorité de chaque carte
-    PRIORITY = {
+    __PRIORITY = {
         "AND": 1,
         "OR": 2,
         "THEN": 3,
@@ -16,15 +16,6 @@ class Card(object):
         "(": 0,
         ")": 0,
         }
-    # Le nombre de cartes de chaque type
-    NUMBER = {"A": 4, "B": 4, "C": 4, "D": 4,
-              "AND": 4, "OR": 4, "THEN": 4,
-              "NOT": 6, "(": 4, ")": 4,
-#              "Fallacy": 3, "Justification": 3,
-#              "TabulaRasa": 1, "Revolution": 1,
-#              "WildVar": 1, "WildOp": 1,
-              "Ergo": 3,
-             }
 
     def __init__(self, name):
         """Constructeur de la classe
@@ -35,8 +26,22 @@ class Card(object):
         :return: Objet Card
         :rtype: Card
         """
-        assert name in Card.NUMBER
         self.name = name
+
+    @property
+    def name(self):
+        """getter
+
+        :return: nom de la carte
+        :rtype: str
+        """
+        return self.__name
+
+    @name.setter
+    def name(self, name):
+        """setter"""
+        assert name in Deck.names()
+        self.__name = name
 
     def priority(self):
         """
@@ -45,7 +50,7 @@ class Card(object):
         :rtype: int
         """
         try:
-            return Card.PRIORITY[self.name]
+            return Card.__PRIORITY[self.name]
         except KeyError:
             raise Exception("Card '{}' as no priority".format(self.name))
 
@@ -117,7 +122,8 @@ class CardList(list):
         :return: objet CardList initalisé avec les éléments passés par args
         :rtype: CardList"""
         super().__init__(*args)
-        self.to_npi()
+        self.__modif = True
+        self.__npi = None
 
     def append(self, card):
         """Ajoute la carte card à la  fin de la liste.
@@ -126,7 +132,7 @@ class CardList(list):
          :type card: Card
         """
         super().append(card)
-        self.to_npi()
+        self.__modif = True
 
     def insert(self, index, card):
         """Insère card à la position index.
@@ -137,7 +143,7 @@ class CardList(list):
          :type index: int
         """
         super().insert(index, card)
-        self.to_npi()
+        self.__modif = True
 
     def pop(self, index=-1):
         """Supprime la carte en position index (par défaut la dernière)
@@ -149,7 +155,7 @@ class CardList(list):
         :rtype: Card
         """
         card = super().pop(index)
-        self.to_npi()
+        self.__modif = True
         return card
 
     def is_syntactically_correct(self):
@@ -169,55 +175,61 @@ class CardList(list):
             return False
         for i_card in range(len(self)-1):
             card1, card2 = self[i_card], self[i_card+1]
-            if card1.is_letter() or card1.is_close():
-                if card2.is_letter() or card2.is_not():
-                    return False
-            if card1.is_operator():
-                if card2.is_operator() or card2.is_close():
-                    return False
-            if card1.is_not():
-                if card2.is_operator() or card2.is_close() or card2.is_not():
-                    return False
-            if card1.is_open():
-                if card2.is_operator():
-                    return False
+            if (card1.is_letter() or card1.is_close()) and \
+               (card2.is_letter() or card2.is_not()):
+                return False
+            if card1.is_operator() and \
+               (card2.is_operator() or card2.is_close()):
+                return False
+            if card1.is_not() and \
+               (card2.is_operator() or card2.is_close() or card2.is_not()):
+                return False
+            if card1.is_open() and card2.is_operator():
+                return False
         return not card2.is_operator()
 
-    def to_npi(self):
+    @property
+    def npi(self):
         """Met à jour self.npi en :
 
          * None si la syntaxe de la liste n'est pas correcte
 
          * une liste de carte correspondant à la notation polonaise inversée de
-           la liste de départ sinon."""
+           la liste de départ sinon.
+        """
+        if not self.__modif:
+            return self.__npi
         if not self.is_syntactically_correct():
-            self.npi = None
-            return
-        self.npi = []
+            self.__npi = None
+            return self.__npi
+        self.__npi = []
         stack = []
         for card in self:
             if card.is_letter():
-                self.npi.append(card)
-            elif card.is_open():
+                self.__npi.append(card)
+                continue
+            if card.is_open():
                 stack.append(card)
-            elif card.is_close():
+                continue
+            if card.is_close():
                 while stack != [] and not stack[-1].is_open():
-                    self.npi.append(stack.pop())
+                    self.__npi.append(stack.pop())
                 if stack == []:  # Pas de parenthèse ouvrante correspondante
-                    self.npi = None
-                    return
+                    self.__npi = None
+                    return self.__npi
                 else:  # On enlève la parenthèse ouvrante correspondante
                     stack.pop()
-            else:
-                while stack != [] and stack[-1].priority() >= card.priority():
-                    self.npi.append(stack.pop())
-                stack.append(card)
+                continue
+            while stack != [] and stack[-1].priority() >= card.priority():
+                self.__npi.append(stack.pop())
+            stack.append(card)
         while stack != []:
             card = stack.pop()
             if card.is_open():  # pas de parenthèse fermante correspondante
-                self.npi = None
-                return
-            self.npi.append(card)
+                self.__npi = None
+                return self.__npi
+            self.__npi.append(card)
+        return self.__npi
 
     def to_fcn(self):
         """Forme Normale Conjonctive."""
@@ -278,7 +290,6 @@ class CardList(list):
                 insert_not(res)
                 res.append(Card("NOT"))
                 res.append(op)
-                print("->", res)
             return modif, res
 
         def elim_not(formule):
@@ -297,15 +308,28 @@ class CardList(list):
                 res.pop()
             return res
 
+        def devlop(formule):
+            """Développe les expressions :
+
+            * A B C ET OU devient A B OU A C OU ET
+
+            * A B ET C OU devient A C OU B C OU ET
+
+            :param formule: une formule en NPI sans implication ni NON et ou
+              NON OU
+            :type formule: list
+            :return: la formule en forme
+            :rtype: list
+            """
+            # TODO à taper
+            pass
+
         assert self.npi is not None
         self.fcn = elim_then(self.npi)
-        print(self.fcn)
         modif = True
         while modif:
             modif, self.fcn = morgan(self.fcn)
-            print(self.fcn)
         self.fcn = elim_not(self.fcn)
-
 
     def evalue(self, interpretation):
         """Évalue la liste en fonction du modèle. npi doit être calculé.
@@ -342,6 +366,16 @@ class CardList(list):
 
 class Deck(list):
     """Le paquet de cartes."""
+    # Le nombre de cartes de chaque type
+    __NUMBER = {"A": 4, "B": 4, "C": 4, "D": 4,
+                "AND": 4, "OR": 4, "THEN": 4,
+                "NOT": 6, "(": 4, ")": 4,
+                # "Fallacy": 3, "Justification": 3,
+                # "TabulaRasa": 1, "Revolution": 1,
+                # "WildVar": 1, "WildOp": 1,
+                "Ergo": 3,
+               }
+
     def __init__(self):
         """Constructeur de la classe
 
@@ -349,9 +383,17 @@ class Deck(list):
         :rtype: Deck
         """
         super().__init__()
-        for carte, number in Card.NUMBER.items():
+        for carte, number in self.__NUMBER.items():
             self.extend([Card(carte) for _ in range(number)])
         shuffle(self)
+
+    @classmethod
+    def names(cls):
+        """
+        :return: Le nom des cartes du paquet
+        :rtype: dict_keys
+        """
+        return cls.__NUMBER.keys()
 
     def draw(self, number):
         """
@@ -549,5 +591,6 @@ if __name__ == '__main__':
                           Card("B"), Card("THEN"), Card("C"), Card(")"), Card(")")])
     print(card_list.npi)
     card_list.to_fcn()
+    print(card_list.fcn)
 
-    _tests()
+#    _tests()
