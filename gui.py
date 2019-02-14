@@ -154,7 +154,8 @@ class ErgoGui(tk.Tk):
         # TEST
         demo = DPLL(self.proof.premises)
         demo.to_fcn()
-        print(demo.fcn)
+        demo2 = ForceBrute(self.proof.premises)
+        print(demo.fcn, "|=", demo2.conclusion())
         # passe au joueur suivant.
         if self.deck.is_finished():
             self.fin_manche()

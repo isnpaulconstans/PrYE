@@ -6,18 +6,24 @@ from cards import Card, CardList, Proof
 
 
 class Demonstration():
-    """Classe générale pour l'évaluation d'une liste de cartes."""
+    """Classe abstraite pour l'évaluation d'une liste de CardList."""
     def __init__(self, premises):
         """Constructeur de la classe.
 
-        :param premises: Une liste de 4 premisses
+        :param premises: Une liste de premisses
         :type premises: list of CardList
 
         :return: objet Demonstration
         :rtype: Demonstration"""
         self.premises = premises
+        nb_premises = 0
+        self.npi = []
         for premise in premises:
             assert premise.npi is not None
+            if premise.npi != []:
+                nb_premises += 1
+            self.npi.extend(premise.npi)
+        self.npi.extend([Card("AND") for _ in range(nb_premises-1)])
 
     def conclusion(self):
         """
@@ -33,13 +39,6 @@ class DPLL(Demonstration):
     """Évaluation par l'algorithme de Davis-Putnam-Logemann-Loveland."""
     def __init__(self, premises):
         super().__init__(premises)
-        nb_premises = 0
-        self.npi = []
-        for premise in premises:
-            if len(premise.npi) > 0:
-                nb_premises += 1
-            self.npi.extend(premise.npi)
-        self.npi.extend([Card("AND") for _ in range(nb_premises-1)])
         self.fcn = []
 
     def __insert_not(self):
@@ -71,24 +70,24 @@ class DPLL(Demonstration):
     def __morgan(self):
         """Élimine les NON ET et NON OU de fcn en utilisant les lois de Morgan.
         """
-        modif = True
-        while modif:
-            old_fcn = self.fcn[:]
-            self.fcn = []
-            modif = False
-            for card in old_fcn:
-                if not card.is_not():
-                    self.fcn.append(card)
-                    continue
-                if not self.fcn[-1].is_operator():
-                    self.fcn.append(card)
-                    continue
-                modif = True  # NON ET ou NON OU
-                operator = self.fcn.pop()
-                operator_name = "OR" if operator.name == "AND" else "AND"
-                self.__insert_not()
-                self.fcn.append(Card("NOT"))
-                self.fcn.append(Card(operator_name))
+        old_fcn = self.fcn[:]
+        self.fcn = []
+        modif = False
+        for card in old_fcn:
+            if not card.is_not():
+                self.fcn.append(card)
+                continue
+            if not self.fcn[-1].is_operator():
+                self.fcn.append(card)
+                continue
+            modif = True  # NON ET ou NON OU
+            operator = self.fcn.pop()
+            operator_name = "OR" if operator.name == "AND" else "AND"
+            self.__insert_not()
+            self.fcn.append(Card("NOT"))
+            self.fcn.append(Card(operator_name))
+        if modif:
+            self.__morgan()
 
     def __elim_not(self):
         """Élimine les doubles négations de fcn."""
@@ -100,21 +99,44 @@ class DPLL(Demonstration):
                 continue
             self.fcn.pop()
 
-    def __devlop(formule):
+    def __devlop(self):
         """Développe les expressions :
 
-        * A B C ET OU devient A B OU A C OU ET
-
-        * A B ET C OU devient A C OU B C OU ET
-
-        :param formule: une formule en NPI sans implication ni NON et ou
-          NON OU
-        :type formule: list
-        :return: la formule en forme
-        :rtype: list
+        "A B C ET OU" ou "B C ET A OU" deviennent "A B OU A C OU ET"
         """
-        # TODO à taper
-        pass
+        def get_litteral():
+            if self.fcn[-1].is_not():
+                neg = self.fcn.pop()
+                return [self.fcn.pop(), neg]
+            return [self.fcn.pop()]
+
+        old_fcn = self.fcn[:]
+        self.fcn = []
+        modif = False
+        for card in old_fcn:
+            if not card.name == "OR":
+                self.fcn.append(card)
+                continue
+            if self.fcn[-1].name == "AND":
+                self.fcn.pop()
+                litteralC = get_litteral()
+                litteralB = get_litteral()
+                litteralA = get_litteral()
+            elif self.fcn[-2].name == "AND" or (self.fcn[-2].is_not() and
+                                                self.fcn[-3].name == "AND"):
+                litteralA = get_litteral()
+                self.fcn.pop()  # AND
+                litteralC = get_litteral()
+                litteralB = get_litteral()
+            else:
+                self.fcn.append(card)
+                continue
+            modif = True
+            self.fcn.extend(litteralA+litteralB+[Card("OR")])
+            litteralA = [Card(card.name) for card in litteralA]  # copie
+            self.fcn.extend(litteralA+litteralC+[Card("OR"), Card("AND")])
+        if modif:
+            self.__devlop()
 
     def to_fcn(self):
         """Forme Normale Conjonctive."""
@@ -145,7 +167,7 @@ class ForceBrute(Demonstration):
             i -= 1
         return res
 
-    def evalue(self, premise, interpretation):
+    def evalue(self, interpretation):
         """Évalue la liste en fonction du modèle. npi doit être calculé.
         :param interpretation: liste de 4 booléens correspondant aux valeurs de
         A, B, C et D
@@ -154,11 +176,11 @@ class ForceBrute(Demonstration):
         :return: Valeur de la liste de carte en fonction du modèle.
         :rtype: boolean
         """
-        assert premise.npi is not None
-        if premise.npi == []:
+        assert self.npi is not None
+        if self.npi == []:
             return True
         pile = []
-        for card in premise.npi:
+        for card in self.npi:
             if card.is_letter():
                 val = interpretation[ord(card.name)-ord('A')]
             elif card.is_operator():
@@ -187,10 +209,7 @@ class ForceBrute(Demonstration):
         models = []
         for code in range(16):
             interpretation = self.__to_bin(code)
-            for premise in self.premises:
-                if not self.evalue(premise, interpretation):
-                    break
-            else:  # interpretation valable pour toutes les prémisses
+            if self.evalue(interpretation):
                 models.append(interpretation)
         if models == []:
             return None
