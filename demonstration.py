@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Gestion des démonstrations"""
 
-from cards import Card, CardList
+from cards import Card, CardList, Proof
 
 
 class Demonstration():
@@ -85,10 +85,10 @@ class DPLL(Demonstration):
                     continue
                 modif = True  # NON ET ou NON OU
                 operator = self.fcn.pop()
-                operator.name = "OR" if operator.name == "AND" else "AND"
+                operator_name = "OR" if operator.name == "AND" else "AND"
                 self.__insert_not()
                 self.fcn.append(Card("NOT"))
-                self.fcn.append(operator)
+                self.fcn.append(Card(operator_name))
 
     def __elim_not(self):
         """Élimine les doubles négations de fcn."""
@@ -122,11 +122,13 @@ class DPLL(Demonstration):
         self.__morgan()
         self.__elim_not()
         self.__devlop()
+        return self.fcn
 
 
 class ForceBrute(Demonstration):
     """Évaluation par force brute."""
-    def _to_bin(n):
+    @staticmethod
+    def __to_bin(n):
         """Renvoie une liste de booléens correspondant à l'écriture en binaire
         sur 4 bits de l'entier n.
 
@@ -142,6 +144,39 @@ class ForceBrute(Demonstration):
             n //= 2
             i -= 1
         return res
+
+    def evalue(self, premise, interpretation):
+        """Évalue la liste en fonction du modèle. npi doit être calculé.
+        :param interpretation: liste de 4 booléens correspondant aux valeurs de
+        A, B, C et D
+
+        :type interpretation: list
+        :return: Valeur de la liste de carte en fonction du modèle.
+        :rtype: boolean
+        """
+        assert premise.npi is not None
+        if premise.npi == []:
+            return True
+        pile = []
+        for card in premise.npi:
+            if card.is_letter():
+                val = interpretation[ord(card.name)-ord('A')]
+            elif card.is_operator():
+                val2 = pile.pop()
+                val1 = pile.pop()
+                if card.name == "AND":
+                    val = val1 and val2
+                elif card.name == "OR":
+                    val = val1 or val2
+                else:  # "THEN"
+                    val = (not val1) or val2
+            else:  # "NOT"
+                val = not pile.pop()
+            pile.append(val)
+        val = pile.pop()
+        assert pile == []  # sinon il y a eu un problème quelque part
+        return val
+
     def conclusion(self):
         """
         :return: None si les prémisses conduisent à une contradiction,
@@ -151,9 +186,9 @@ class ForceBrute(Demonstration):
         :rtype: list ou NoneType"""
         models = []
         for code in range(16):
-            interpretation = _to_bin(code)
+            interpretation = self.__to_bin(code)
             for premise in self.premises:
-                if not premise.evalue(interpretation):
+                if not self.evalue(premise, interpretation):
                     break
             else:  # interpretation valable pour toutes les prémisses
                 models.append(interpretation)
@@ -168,9 +203,34 @@ class ForceBrute(Demonstration):
                     result[i_lettre] = None
         return result
 
-if __name__ == "__main__":
+def _tests():
+    """Des tests..."""
     card_list = CardList([Card("NOT"), Card("("), Card("A"), Card("AND"),
-                          Card("NOT"), Card("B"), Card(")"), Card("THEN"),
-                          Card("("), Card("A"), Card("AND"), Card("("),
-                          Card("B"), Card("THEN"), Card("C"), Card(")"), Card(")")])
-    demo = DPLL([card_list])
+                          Card("NOT"), Card("B"), Card(")"), Card("AND"),
+                          Card("D")])
+    p = Proof()
+    p.premises[0] = card_list
+    p.premises[1] = CardList([Card("NOT"), Card("B")])
+    p.premises[2] = CardList([Card("D"), Card("THEN"), Card("C")])
+    demo = ForceBrute(p.premises)
+    print(demo.conclusion())
+    print(p.score())
+
+
+
+if __name__ == "__main__":
+#    card_list = CardList([Card("NOT"), Card("("), Card("A"), Card("AND"),
+#                          Card("NOT"), Card("B"), Card(")"), Card("THEN"),
+#                          Card("("), Card("A"), Card("AND"), Card("("),
+#                          Card("B"), Card("THEN"), Card("C"), Card(")"), Card(")")])
+#    demo = DPLL([card_list])
+#    fb = ForceBrute([card_list])
+#    card_list.to_fcn()
+#    print(card_list.fcn)
+#    _tests()
+    demo = DPLL([CardList([Card("NOT"), Card("("),
+                           Card("C"), Card("OR"), Card("D"),
+                           Card(")"), Card("OR"), Card("A")]),
+                 CardList([ Card("NOT"), Card("B"), Card("THEN"),  Card("NOT"),
+                           Card("A")])
+                 ])
