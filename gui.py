@@ -5,6 +5,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from cards import Card, Proof, Deck
+from demonstration import ForceBrute, DPLL
 
 # Constantes
 CARD_HEIGHT = 70
@@ -150,6 +151,10 @@ class ErgoGui(tk.Tk):
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
+        # TEST
+        demo = DPLL(self.proof.premises)
+        demo.to_fcn()
+        print(demo.fcn)
         # passe au joueur suivant.
         if self.deck.is_finished():
             self.fin_manche()
@@ -278,14 +283,14 @@ class ErgoGui(tk.Tk):
             if row == 4 and 0 <= col < len(self.hands[self.num_player]):
                 card = self.hands[self.num_player][col]
                 card.turn_parenthesis()
-                print(self.hands)
                 self.affiche_cards(self.hands[self.num_player], 4)
 
     def fin_manche(self):
         """Fin de la manche, affichage des gagnants et du score."""
         # TODO faire plus propre
         msg = ""
-        prouve = self.proof.conclusion()
+        demo = ForceBrute(self.proof.premises)
+        prouve = demo.conclusion()
         if prouve is None:
             msg += "La preuve contient une contradiction,\
                     personne ne marque de point"
