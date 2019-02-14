@@ -9,8 +9,8 @@ class Card(object):
     """Les cartes du jeu."""
     # Le niveau de priorité de chaque carte
     __PRIORITY = {
-        "AND": 1,
-        "OR": 2,
+        "OR": 1,
+        "AND": 2,
         "THEN": 3,
         "NOT": 4,
         "(": 0,
