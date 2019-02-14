@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Gestion des cartes et des preuves."""
+"""Gestion des cartes."""
 
 from random import shuffle
 
@@ -26,7 +26,8 @@ class Card(object):
         :return: Objet Card
         :rtype: Card
         """
-        self.name = name
+        assert name in Deck.names()
+        self.__name = name
 
     @property
     def name(self):
@@ -37,11 +38,11 @@ class Card(object):
         """
         return self.__name
 
-    @name.setter
-    def name(self, name):
-        """setter"""
-        assert name in Deck.names()
-        self.__name = name
+#    @name.setter
+#    def name(self, name):
+#        """setter"""
+#        assert name in Deck.names()
+#        self.__name = name
 
     def priority(self):
         """
@@ -50,64 +51,64 @@ class Card(object):
         :rtype: int
         """
         try:
-            return Card.__PRIORITY[self.name]
+            return Card.__PRIORITY[self.__name]
         except KeyError:
-            raise Exception("Card '{}' as no priority".format(self.name))
+            raise Exception("Card '{}' as no priority".format(self.__name))
 
     def is_letter(self):
         """Indique si la carte est une lettre ou non.
 
          :rtype: boolean
         """
-        return self.name in ["A", "B", "C", "D"]
+        return self.__name in ["A", "B", "C", "D"]
 
     def is_operator(self):
         """Indique si la carte est un opérateur.
 
          :rtype: boolean
         """
-        return self.name in ["AND", "OR", "THEN"]
+        return self.__name in ["AND", "OR", "THEN"]
 
     def is_open(self):
         """Indique si la carte est une parenthèse ouvrante.
 
          :rtype: boolean
         """
-        return self.name == "("
+        return self.__name == "("
 
     def is_close(self):
         """Indique si la carte est une parenthèse fermante.
 
          :rtype: boolean
         """
-        return self.name == ")"
+        return self.__name == ")"
 
     def is_not(self):
         """Indique si la carte est un "NOT".
 
          :rtype: boolean
         """
-        return self.name == "NOT"
+        return self.__name == "NOT"
 
     def is_ergo(self):
         """Indique si la carte est "Ergo".
 
          :rtype: boolean
         """
-        return self.name == "Ergo"
+        return self.__name == "Ergo"
 
     def turn_parenthesis(self):
         """Retourne la parenthèse, si c'en est une, ne fait rien sinon."""
-        if self.name == ")":
-            self.name = "("
-        elif self.name == "(":
-            self.name = ")"
+        if self.__name == ")":
+            self.__name = "("
+        elif self.__name == "(":
+            self.__name = ")"
 
     def __repr__(self):
         """:return: le nom de la carte.
         :rtype: string
         """
-        return self.name
+        return self.__name
 
 
 class CardList(list):
@@ -230,39 +231,6 @@ class CardList(list):
                 return self.__npi
             self.__npi.append(card)
         return self.__npi
-
-
-    def evalue(self, interpretation):
-        """Évalue la liste en fonction du modèle. npi doit être calculé.
-        :param interpretation: liste de 4 booléens correspondant aux valeurs de
-        A, B, C et D
-
-        :type interpretation: list
-        :return: Valeur de la liste de carte en fonction du modèle.
-        :rtype: boolean
-        """
-        assert self.npi is not None
-        if self.npi == []:
-            return True
-        pile = []
-        for card in self.npi:
-            if card.is_letter():
-                val = interpretation[ord(card.name)-ord('A')]
-            elif card.is_operator():
-                val2 = pile.pop()
-                val1 = pile.pop()
-                if card.name == "AND":
-                    val = val1 and val2
-                elif card.name == "OR":
-                    val = val1 or val2
-                else:  # "THEN"
-                    val = (not val1) or val2
-            else:  # "NOT"
-                val = not pile.pop()
-            pile.append(val)
-        val = pile.pop()
-        assert pile == []  # sinon il y a eu un problème quelque part
-        return val
 
 
 class Deck(list):
@@ -418,32 +386,6 @@ class Proof(object):
                     played[ord(card.name)-ord('A')] = True
         return played == [True] * 4
 
-    def conclusion(self):
-        """
-        :return: None si les prémisses conduisent à une contradiction,
-                 ou une liste associant à chaque variable 'A', 'B', 'C' et 'D'
-                 soit True si elle est prouvée, False si la négation est
-                 prouvée, on None si on ne peut rien conclure.
-        :rtype: list ou NoneType"""
-        models = []
-        for code in range(16):
-            interpretation = _to_bin(code)
-            for premise in self.premises:
-                if not premise.evalue(interpretation):
-                    break
-            else:  # interpretation valable pour toutes les prémisses
-                models.append(interpretation)
-        if models == []:
-            return None
-        result = models[0]
-        # il faut déterminer pour chaque lettre si toutes les valeurs possibles
-        # sont les mêmes
-        for interpretation in models:
-            for i_lettre in range(4):
-                if result[i_lettre] != interpretation[i_lettre]:
-                    result[i_lettre] = None
-        return result
-
     def score(self):
         """
         :return: Le score correspondant à la preuve, c'est à dire le nombre de
@@ -453,45 +395,9 @@ class Proof(object):
         return sum([len(premise) for premise in self.premises])
 
 
-def _to_bin(n):
-    """Renvoie une liste de booléens correspondant à l'écriture en binaire sur
-    4 bits de l'entier n.
-
-    :param n: Un entier entre 0 et 15
-    :type n: int
-    :return: l'écriture booléenne en binaire sur 4 bits de n.
-    :rtype: list
-    """
-    res = [False]*4
-    i = 3
-    while n > 0:
-        res[i] = (n % 2 == 1)
-        n //= 2
-        i -= 1
-    return res
-
-
-def _tests():
-    """Des tests..."""
-    card_list = CardList([Card("NOT"), Card("("), Card("A"), Card("AND"),
-                          Card("NOT"), Card("B"), Card(")"), Card("AND"),
-                          Card("D")])
-    p = Proof()
-    p.premises[0] = card_list
-    p.premises[1] = CardList([Card("NOT"), Card("B")])
-    p.premises[2] = CardList([Card("D"), Card("THEN"), Card("C")])
-    print(p.conclusion())
-    print(p.score())
-
-
 if __name__ == '__main__':
-    print("Bienvenue dans Ergo, le jeu où vous prouvez votre existence.")
     card_list = CardList([Card("NOT"), Card("("), Card("A"), Card("AND"),
                           Card("NOT"), Card("B"), Card(")"), Card("THEN"),
                           Card("("), Card("A"), Card("AND"), Card("("),
                           Card("B"), Card("THEN"), Card("C"), Card(")"), Card(")")])
     print(card_list.npi)
-    card_list.to_fcn()
-    print(card_list.fcn)
-
-#    _tests()
