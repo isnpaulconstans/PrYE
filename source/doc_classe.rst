@@ -16,12 +16,32 @@ Module cards
    :private-members:
    :special-members:
 
+.. autoclass:: Proof
+   :members:
+   :private-members:
+   :special-members:
+
 .. autoclass:: Deck
    :members:
    :private-members:
    :special-members:
 
-.. autoclass:: Proof
+Module demonstration
+--------------------
+
+.. automodule:: demonstration
+
+.. autoclass:: Demonstration
+   :members:
+   :private-members:
+   :special-members:
+
+.. autoclass:: DPLL
+   :members:
+   :private-members:
+   :special-members:
+
+.. autoclass:: ForceBrute
    :members:
    :private-members:
    :special-members:

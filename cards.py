@@ -243,67 +243,6 @@ class CardList(list):
         return self.__npi
 
 
-class Deck(list):
-    """Le paquet de cartes."""
-    # Le nombre de cartes de chaque type
-    __NUMBER = {"A": 4, "B": 4, "C": 4, "D": 4,
-                "AND": 4, "OR": 4, "THEN": 4,
-                "NOT": 6, "(": 4, ")": 4,
-                # "Fallacy": 3, "Justification": 3,
-                # "TabulaRasa": 1, "Revolution": 1,
-                # "WildVar": 1, "WildOp": 1,
-                "Ergo": 3,
-               }
-
-    def __init__(self):
-        """Constructeur de la classe
-
-        :return: un paquet de cartes mélangées
-        :rtype: Deck
-        """
-        super().__init__()
-        for carte, number in self.__NUMBER.items():
-            self.extend([Card(carte) for _ in range(number)])
-        shuffle(self)
-
-    @classmethod
-    def names(cls):
-        """
-        :return: Le nom des cartes du paquet
-        :rtype: dict_keys
-        """
-        return cls.__NUMBER.keys()
-
-    def draw(self, number):
-        """
-        :return: number cartes du paquet s'il en reste assez, la fin du
-                 paquet ou une liste vide sinon.
-        :rtype: list
-        """
-        res = []
-        while len(res) < number and self != []:
-            res.append(self.pop())
-        return res
-
-    def append(self, card):
-        """Ajoute une carte (possible avec Tabula Rasa).
-
-        :param card: la carte à ajouter
-        :type card: Card"""
-        self.append(card)
-
-    def reset(self):
-        """Réinitialise le paquet de cartes."""
-        self.__init__()
-
-    def is_finished(self):
-        """Indique si la paquet est terminé.
-
-        :return: True si la paquet est terminé, False sinon
-        :rtype: boolean"""
-        return self == []
-
-
 class Proof():
     """Classe gérant les prémisses et la preuve."""
     def __init__(self):
@@ -435,6 +374,67 @@ class Proof():
         :rtype: int
         """
         return sum([len(premise) for premise in self.premises])
+
+
+class Deck(list):
+    """Le paquet de cartes."""
+    # Le nombre de cartes de chaque type
+    __NUMBER = {"A": 4, "B": 4, "C": 4, "D": 4,
+                "AND": 4, "OR": 4, "THEN": 4,
+                "NOT": 6, "(": 4, ")": 4,
+                # "Fallacy": 3, "Justification": 3,
+                # "TabulaRasa": 1, "Revolution": 1,
+                # "WildVar": 1, "WildOp": 1,
+                "Ergo": 3,
+               }
+
+    def __init__(self):
+        """Constructeur de la classe
+
+        :return: un paquet de cartes mélangées
+        :rtype: Deck
+        """
+        super().__init__()
+        for carte, number in self.__NUMBER.items():
+            self.extend([Card(carte) for _ in range(number)])
+        shuffle(self)
+
+    @classmethod
+    def names(cls):
+        """
+        :return: Le nom des cartes du paquet
+        :rtype: dict_keys
+        """
+        return cls.__NUMBER.keys()
+
+    def draw(self, number):
+        """
+        :return: number cartes du paquet s'il en reste assez, la fin du
+                 paquet ou une liste vide sinon.
+        :rtype: list
+        """
+        res = []
+        while len(res) < number and self != []:
+            res.append(self.pop())
+        return res
+
+    def append(self, card):
+        """Ajoute une carte (possible avec Tabula Rasa).
+
+        :param card: la carte à ajouter
+        :type card: Card"""
+        self.append(card)
+
+    def reset(self):
+        """Réinitialise le paquet de cartes."""
+        self.__init__()
+
+    def is_finished(self):
+        """Indique si la paquet est terminé.
+
+        :return: True si la paquet est terminé, False sinon
+        :rtype: boolean"""
+        return self == []
 
 
 if __name__ == '__main__':
