@@ -46,7 +46,8 @@
 
 <span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="k">import</span> <span class="n">messagebox</span>
-<span class="kn">from</span> <span class="nn">cards</span> <span class="k">import</span> <span class="n">Card</span><span class="p">,</span> <span class="n">Proof</span><span class="p">,</span> <span class="n">Deck</span>
+<span class="kn">from</span> <span class="nn">cards</span> <span class="k">import</span> <span class="n">Proof</span><span class="p">,</span> <span class="n">Deck</span>
+<span class="kn">from</span> <span class="nn">demonstration</span> <span class="k">import</span> <span class="n">ForceBrute</span><span class="p">,</span> <span class="n">DPLL</span>
 
 <span class="c1"># Constantes</span>
 <span class="n">CARD_HEIGHT</span> <span class="o">=</span> <span class="mi">70</span>
@@ -192,6 +193,11 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">proof</span><span class="o">.</span><span class="n">is_all_correct</span><span class="p">():</span>
             <span class="n">messagebox</span><span class="o">.</span><span class="n">showwarning</span><span class="p">(</span><span class="s2">&quot;Ergo&quot;</span><span class="p">,</span> <span class="s2">&quot;Jeu invalide&quot;</span><span class="p">)</span>
             <span class="k">return</span>
+        <span class="c1"># TEST</span>
+        <span class="n">demo</span> <span class="o">=</span> <span class="n">DPLL</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proof</span><span class="o">.</span><span class="n">premises</span><span class="p">)</span>
+        <span class="n">demo</span><span class="o">.</span><span class="n">to_fcn</span><span class="p">()</span>
+        <span class="n">demo2</span> <span class="o">=</span> <span class="n">ForceBrute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proof</span><span class="o">.</span><span class="n">premises</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">demo</span><span class="o">.</span><span class="n">fcn</span><span class="p">,</span> <span class="s2">&quot;|=&quot;</span><span class="p">,</span> <span class="n">demo2</span><span class="o">.</span><span class="n">conclusion</span><span class="p">())</span>
         <span class="c1"># passe au joueur suivant.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="o">.</span><span class="n">is_finished</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fin_manche</span><span class="p">()</span>
@@ -320,14 +326,14 @@
             <span class="k">if</span> <span class="n">row</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_player</span><span class="p">]):</span>
                 <span class="n">card</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_player</span><span class="p">][</span><span class="n">col</span><span class="p">]</span>
                 <span class="n">card</span><span class="o">.</span><span class="n">turn_parenthesis</span><span class="p">()</span>
-                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">affiche_cards</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_player</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ErgoGui.fin_manche"><a class="viewcode-back" href="../doc_classe.html#gui.ErgoGui.fin_manche">[docs]</a>    <span class="k">def</span> <span class="nf">fin_manche</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fin de la manche, affichage des gagnants et du score.&quot;&quot;&quot;</span>
         <span class="c1"># TODO faire plus propre</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">prouve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proof</span><span class="o">.</span><span class="n">conclusion</span><span class="p">()</span>
+        <span class="n">demo</span> <span class="o">=</span> <span class="n">ForceBrute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proof</span><span class="o">.</span><span class="n">premises</span><span class="p">)</span>
+        <span class="n">prouve</span> <span class="o">=</span> <span class="n">demo</span><span class="o">.</span><span class="n">conclusion</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">prouve</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;La preuve contient une contradiction,</span><span class="se">\</span>
 <span class="s2">                    personne ne marque de point&quot;</span>
@@ -342,7 +348,7 @@
 
 <div class="viewcode-block" id="ErgoGui.version"><a class="viewcode-back" href="../doc_classe.html#gui.ErgoGui.version">[docs]</a>    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Affiche la version du jeu&quot;&quot;&quot;</span>
-        <span class="n">messagebox</span><span class="o">.</span><span class="n">showinfo</span><span class="p">(</span><span class="s2">&quot;Ergo&quot;</span><span class="p">,</span> <span class="s2">&quot;Version Alpha 17/01/19&quot;</span><span class="p">)</span></div>
+        <span class="n">messagebox</span><span class="o">.</span><span class="n">showinfo</span><span class="p">(</span><span class="s2">&quot;Ergo&quot;</span><span class="p">,</span> <span class="s2">&quot;Version Alpha 21/01/19&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ErgoGui.rules"><a class="viewcode-back" href="../doc_classe.html#gui.ErgoGui.rules">[docs]</a>    <span class="k">def</span> <span class="nf">rules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Affiche les règles du jeu à partir du fichier regles_ergo.txt&quot;&quot;&quot;</span>

@@ -44,7 +44,7 @@
 <h1>Documentation des modules<a class="headerlink" href="#documentation-des-modules" title="Lien permanent vers ce titre">¶</a></h1>
 <div class="section" id="module-cards">
 <span id="module-cards"></span><h2>Module cards<a class="headerlink" href="#module-cards" title="Lien permanent vers ce titre">¶</a></h2>
-<p>Gestion des cartes et des preuves.</p>
+<p>Gestion des cartes.</p>
 <dl class="class">
 <dt id="cards.Card">
 <em class="property">class </em><code class="descclassname">cards.</code><code class="descname">Card</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Card"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Card" title="Lien permanent vers cette définition">¶</a></dt>
@@ -172,6 +172,22 @@
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="cards.Card.name">
+<code class="descname">name</code><a class="headerlink" href="#cards.Card.name" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>getter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Retourne:</th><td class="field-body">nom de la carte</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type retourné:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="cards.Card.priority">
 <code class="descname">priority</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Card.priority"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Card.priority" title="Lien permanent vers cette définition">¶</a></dt>
@@ -241,24 +257,6 @@ NPI vaut None.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="cards.CardList.evalue">
-<code class="descname">evalue</code><span class="sig-paren">(</span><em>interpretation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#CardList.evalue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.CardList.evalue" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>Évalue la liste en fonction du modèle. npi doit être calculé.
-:param interpretation: liste de 4 booléens correspondant aux valeurs de
-A, B, C et D</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Retourne:</th><td class="field-body">Valeur de la liste de carte en fonction du modèle.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Type retourné:</th><td class="field-body">boolean</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="cards.CardList.insert">
 <code class="descname">insert</code><span class="sig-paren">(</span><em>index</em>, <em>card</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#CardList.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.CardList.insert" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Insère card à la position index.</p>
@@ -293,6 +291,33 @@ sans s’occuper de la correspondance des parenthèses.</p>
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="cards.CardList.modif">
+<code class="descname">modif</code><a class="headerlink" href="#cards.CardList.modif" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Indique s’il y a eu une modification depuis le dernier appel à npi.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Retourne:</th><td class="field-body">True s’il y a une une modification, False sinon.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type retourné:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cards.CardList.npi">
+<code class="descname">npi</code><a class="headerlink" href="#cards.CardList.npi" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Met à jour self.npi en :</p>
+<ul class="simple">
+<li>None si la syntaxe de la liste n’est pas correcte</li>
+<li>une liste de carte correspondant à la notation polonaise inversée de
+la liste de départ sinon.</li>
+</ul>
+</dd></dl>
+
 <dl class="method">
 <dt id="cards.CardList.pop">
 <code class="descname">pop</code><span class="sig-paren">(</span><em>index=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#CardList.pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.CardList.pop" title="Lien permanent vers cette définition">¶</a></dt>
@@ -310,17 +335,6 @@ et la renvoie.</p>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-<dl class="method">
-<dt id="cards.CardList.to_npi">
-<code class="descname">to_npi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#CardList.to_npi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.CardList.to_npi" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>Met à jour self.npi en :</p>
-<ul class="simple">
-<li>None si la syntaxe de la liste n’est pas correcte</li>
-<li>une liste de carte correspondant à la notation polonaise inversée de
-la liste de départ sinon.</li>
-</ul>
 </dd></dl>
 
 </dd></dl>
@@ -397,6 +411,21 @@ paquet ou une liste vide sinon.</td>
 </table>
 </dd></dl>
 
+<dl class="classmethod">
+<dt id="cards.Deck.names">
+<em class="property">classmethod </em><code class="descname">names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Deck.names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Deck.names" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Retourne:</th><td class="field-body">Le nom des cartes du paquet</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type retourné:</th><td class="field-body">dict_keys</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="cards.Deck.reset">
 <code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Deck.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Deck.reset" title="Lien permanent vers cette définition">¶</a></dt>
@@ -453,24 +482,6 @@ s’il est possible de jouer la carte Ergo.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="cards.Proof.conclusion">
-<code class="descname">conclusion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Proof.conclusion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Proof.conclusion" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Retourne:</th><td class="field-body">None si les prémisses conduisent à une contradiction,
-ou une liste associant à chaque variable “A”, “B”, “C” et “D”
-soit True si elle est prouvée, False si la négation est
-prouvée, on None si on ne peut rien conclure.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Type retourné:</th><td class="field-body">list ou NoneType</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="cards.Proof.insert">
 <code class="descname">insert</code><span class="sig-paren">(</span><em>premise</em>, <em>index</em>, <em>card</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cards.html#Proof.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cards.Proof.insert" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Insère la carte card dans la prémisse premise en position index
@@ -505,6 +516,38 @@ et actualise currently_added.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Type retourné:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cards.Proof.modif">
+<code class="descname">modif</code><a class="headerlink" href="#cards.Proof.modif" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Indique s’il y a eu une modification depuis le dernier appel à npi.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Retourne:</th><td class="field-body">True s’il y a une une modification, False sinon.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type retourné:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cards.Proof.npi">
+<code class="descname">npi</code><a class="headerlink" href="#cards.Proof.npi" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Renvoie la preuve complète en notation polonaise inversée</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Retourne:</th><td class="field-body">npi</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type retourné:</th><td class="field-body">list</td>
 </tr>
 </tbody>
 </table>
