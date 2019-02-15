@@ -5,13 +5,13 @@
 from random import shuffle
 
 
-class Card(object):
+class Card():
     """Les cartes du jeu."""
     # Le niveau de priorité de chaque carte
     __PRIORITY = {
-        "OR": 1,
-        "AND": 2,
-        "THEN": 3,
+        "THEN": 1,
+        "OR": 2,
+        "AND": 3,
         "NOT": 4,
         "(": 0,
         ")": 0,
@@ -123,8 +123,17 @@ class CardList(list):
         :return: objet CardList initalisé avec les éléments passés par args
         :rtype: CardList"""
         super().__init__(*args)
-        self.__modif = True
+        self.__modif = True  # modification depuis le dernier appel à npi
         self.__npi = None
+
+    @property
+    def modif(self):
+        """Indique s'il y a eu une modification depuis le dernier appel à npi.
+
+        :return: True s'il y a une une modification, False sinon.
+        :rtype: bool
+        """
+        return self.__modif
 
     def append(self, card):
         """Ajoute la carte card à la  fin de la liste.
@@ -200,6 +209,7 @@ class CardList(list):
         """
         if not self.__modif:
             return self.__npi
+        self.__modif = False
         if not self.is_syntactically_correct():
             self.__npi = None
             return self.__npi
@@ -294,7 +304,7 @@ class Deck(list):
         return self == []
 
 
-class Proof(object):
+class Proof():
     """Classe gérant les prémisses et la preuve."""
     def __init__(self):
         """Initialisation des attributs :
@@ -308,9 +318,39 @@ class Proof(object):
         :return: un objet Proof
         :rtype: Proof
         """
-        super().__init__()
         self.premises = [CardList() for _ in range(4)]
         self.currently_added = []
+        self.__modif = True  # modification depuis le dernier appel à npi
+        self.__npi = []
+
+    @property
+    def modif(self):
+        """Indique s'il y a eu une modification depuis le dernier appel à npi.
+
+        :return: True s'il y a une une modification, False sinon.
+        :rtype: bool
+        """
+        return self.__modif
+
+    @property
+    def npi(self):
+        """Renvoie la preuve complète en notation polonaise inversée
+
+        :return: npi
+        :rtype: list
+        """
+        if not self.modif:
+            return self.__npi
+        self.__modif = False
+        nb_premises = 0
+        self.__npi = []
+        for premise in self.premises:
+            assert premise.npi is not None
+            if premise.npi != []:
+                nb_premises += 1
+            self.__npi.extend(premise.npi)
+        self.__npi.extend([Card("AND") for _ in range(nb_premises-1)])
+        return self.__npi
 
     def insert(self, premise, index, card):
         """Insère la carte card dans la prémisse premise en position index
@@ -327,6 +367,7 @@ class Proof(object):
         """
         if len(self.currently_added) >= 2:
             return False
+        self.__modif = True
         self.premises[premise].insert(index, card)
         if index >= len(self.premises[premise]):
             index = len(self.premises[premise])-1
@@ -352,6 +393,7 @@ class Proof(object):
             self.currently_added.remove((premise, index))
         except ValueError:
             return None
+        self.__modif = True
         if self.currently_added != []:
             (premise1, index1) = self.currently_added.pop()
             if premise1 == premise and index1 >= index:

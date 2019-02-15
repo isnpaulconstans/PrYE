@@ -4,7 +4,7 @@
 
 import tkinter as tk
 from tkinter import messagebox
-from cards import Card, Proof, Deck
+from cards import Proof, Deck
 from demonstration import ForceBrute, DPLL
 
 # Constantes
@@ -47,6 +47,8 @@ class ErgoGui(tk.Tk):
 
         self.proof = Proof()
         self.deck = Deck()
+        self.demoDPLL = DPLL(self.proof)
+        self.demoFB = ForceBrute(self.proof)
         self.photos = {name: tk.PhotoImage(file='images/'+IMAGE[name])
                        for name in IMAGE}
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
@@ -152,10 +154,8 @@ class ErgoGui(tk.Tk):
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
         # TEST
-        demo = DPLL(self.proof.premises)
-        demo.to_fcn()
-        demo2 = ForceBrute(self.proof.premises)
-        print(demo.fcn, "|=", demo2.conclusion())
+#        print(self.demo._proof.premises, self.demo._proof.npi, self.demo._proof.modif)
+        print(self.demoDPLL.fcn, "|=", self.demoFB.conclusion())
         # passe au joueur suivant.
         if self.deck.is_finished():
             self.fin_manche()
@@ -237,38 +237,47 @@ class ErgoGui(tk.Tk):
         :param event: événement
         :type event: tkinter.Event
         """
+        def restore():
+            """remet la carte dans la main du joueur."""
+            self.hands[self.num_player].append(self.selected_card)
+            self.can.delete("selected")
+            self.affiche_cards(self.hands[self.num_player], 4)
+            self.selected_card = None
+
         if self.selected_card is None:
             return
         row, col = event.y//CARD_HEIGHT, event.x//CARD_WIDTH
-        if 0 <= event.x <= WIDTH and 0 <= row < 4:  # une des premisses
-            if self.selected_card.is_ergo():
-                if self.proof.all_cards_played():
-                    self.can.delete("selected")
-                    self.affiche_cards(self.proof.premises[-1]+[Card("Ergo")],
-                                       3)
-                    self.selected_card = None
-                    self.fin_manche()
-                    return
-                else:
-                    messagebox.showwarning("Fin de manche", "Toutes les \
-                                           lettres doivent apparaître pour \
-                                           pouvoir mettre fin à la manche")
-            elif self.proof.insert(row, col, self.selected_card):
-                self.can.delete("selected")
-                self.affiche_cards(self.proof.premises[row], row)
-                self.selected_card = None
-                return
-        elif 4 <= row <= 5 and 18 <= col <= 19:  # Pile
+        if 4 <= row <= 5 and 18 <= col <= 19:  # Pile
             self.can.coords("selected", WIDTH-CARD_WIDTH, HEIGHT-CARD_HEIGHT/2)
             self.pile.append(self.selected_card)
             self.can.addtag_withtag("pile", "selected")
             self.can.dtag("selected")
             self.selected_card = None
             return
-        self.hands[self.num_player].append(self.selected_card)
-        self.can.delete("selected")
-        self.affiche_cards(self.hands[self.num_player], 4)
-        self.selected_card = None
+        if not (0 <= event.x <= WIDTH and 0 <= row < 4):  # une des premisses
+            restore()
+            return
+        if self.selected_card.is_ergo():
+            if not self.proof.is_all_correct():
+                messagebox.showwarning("Ergo", "Jeu invalide")
+                restore()
+                return
+            if not self.proof.all_cards_played():
+                messagebox.showwarning("Fin de manche", "Toutes les lettres " +
+                                       "doivent apparaître pour pouvoir " +
+                                       "mettre fin à la manche")
+                restore()
+                return
+            self.affiche_cards(self.proof.premises[-1]+[self.selected_card], 3)
+            self.can.delete("selected")
+            self.selected_card = None
+            self.fin_manche()
+            return
+        if self.proof.insert(row, col, self.selected_card):
+            self.can.delete("selected")
+            self.affiche_cards(self.proof.premises[row], row)
+            self.selected_card = None
+            return
 
     def switch(self, event):
         """Retourne la parenthèse si c'en est une, dans la main du joueur
@@ -290,8 +299,7 @@ class ErgoGui(tk.Tk):
         """Fin de la manche, affichage des gagnants et du score."""
         # TODO faire plus propre
         msg = ""
-        demo = ForceBrute(self.proof.premises)
-        prouve = demo.conclusion()
+        prouve = self.demoFB.conclusion()
         if prouve is None:
             msg += "La preuve contient une contradiction,\
                     personne ne marque de point"

@@ -7,23 +7,15 @@ from cards import Card, CardList, Proof
 
 class Demonstration():
     """Classe abstraite pour l'évaluation d'une liste de CardList."""
-    def __init__(self, premises):
+    def __init__(self, proof):
         """Constructeur de la classe.
 
-        :param premises: Une liste de premisses
-        :type premises: list of CardList
+        :param proof: Une preuve
+        :type proof: Proof
 
         :return: objet Demonstration
         :rtype: Demonstration"""
-        self.premises = premises
-        nb_premises = 0
-        self.npi = []
-        for premise in premises:
-            assert premise.npi is not None
-            if premise.npi != []:
-                nb_premises += 1
-            self.npi.extend(premise.npi)
-        self.npi.extend([Card("AND") for _ in range(nb_premises-1)])
+        self._proof = proof
 
     def conclusion(self):
         """
@@ -37,114 +29,136 @@ class Demonstration():
 
 class DPLL(Demonstration):
     """Évaluation par l'algorithme de Davis-Putnam-Logemann-Loveland."""
-    def __init__(self, premises):
-        super().__init__(premises)
-        self.fcn = []
+    def __init__(self, proof):
+        super().__init__(proof)
+        self.__fcn = self.__to_fcn()
+
+    @property
+    def fcn(self):
+        if not self._proof.modif:
+            return self.__fcn
+        return self.__to_fcn()
 
     def __insert_not(self):
         """Insère un NOT avant la dernière proposition de fcn."""
         pile = []
         nb_exp = 1  # on doit dépiler une proposition
         while nb_exp != 0:
-            pile.append(self.fcn.pop())
+            pile.append(self.__fcn.pop())
             if pile[-1].is_letter():
                 nb_exp -= 1
             elif pile[-1].is_operator():
                 nb_exp += 1
-        self.fcn.append(Card("NOT"))
+        self.__fcn.append(Card("NOT"))
         while pile:
-            self.fcn.append(pile.pop())
+            self.__fcn.append(pile.pop())
 
     def __elim_then(self):
-        """Génère self.fcn à partir de self.npi
+        """Génère self.__fcn à partir de self.npi
         en ramplaçant A -> B par non A ou B
         """
-        self.fcn = []
-        for card in self.npi:
+        self.__fcn = []
+        for card in self._proof.npi:
             if card.name != "THEN":
-                self.fcn.append(card)
+                self.__fcn.append(card)
                 continue
             self.__insert_not()
-            self.fcn.append(Card("OR"))
+            self.__fcn.append(Card("OR"))
 
     def __morgan(self):
         """Élimine les NON ET et NON OU de fcn en utilisant les lois de Morgan.
         """
-        old_fcn = self.fcn[:]
-        self.fcn = []
+        old_fcn = self.__fcn[:]
+        self.__fcn = []
         modif = False
         for card in old_fcn:
             if not card.is_not():
-                self.fcn.append(card)
+                self.__fcn.append(card)
                 continue
-            if not self.fcn[-1].is_operator():
-                self.fcn.append(card)
+            if not self.__fcn[-1].is_operator():
+                self.__fcn.append(card)
                 continue
             modif = True  # NON ET ou NON OU
-            operator = self.fcn.pop()
+            operator = self.__fcn.pop()
             operator_name = "OR" if operator.name == "AND" else "AND"
             self.__insert_not()
-            self.fcn.append(Card("NOT"))
-            self.fcn.append(Card(operator_name))
+            self.__fcn.append(Card("NOT"))
+            self.__fcn.append(Card(operator_name))
         if modif:
             self.__morgan()
 
     def __elim_not(self):
         """Élimine les doubles négations de fcn."""
-        old_fcn = self.fcn[:]
-        self.fcn = []
+        old_fcn = self.__fcn[:]
+        self.__fcn = []
         for card in old_fcn:
-            if not (card.is_not() and self.fcn[-1].is_not()):
-                self.fcn.append(card)
+            if not (card.is_not() and self.__fcn[-1].is_not()):
+                self.__fcn.append(card)
                 continue
-            self.fcn.pop()
+            self.__fcn.pop()
 
-    def __devlop(self):
+    def __develop(self):
         """Développe les expressions :
 
         "A B C ET OU" ou "B C ET A OU" deviennent "A B OU A C OU ET"
         """
-        def get_litteral():
-            if self.fcn[-1].is_not():
-                neg = self.fcn.pop()
-                return [self.fcn.pop(), neg]
-            return [self.fcn.pop()]
+        def get_proposition():
+            """renvoie la derniere proposition de fcn en npi.
 
-        old_fcn = self.fcn[:]
-        self.fcn = []
+            :return: proposition
+            :rtype: list
+            """
+            pile = []
+            nb_exp = 1  # on doit dépiler une proposition
+            while nb_exp != 0:
+                pile.append(self.__fcn.pop())
+                if pile[-1].is_letter():
+                    nb_exp -= 1
+                elif pile[-1].is_operator():
+                    nb_exp += 1
+            pile.reverse()
+            return pile
+
+        old_fcn = self.__fcn[:]
+        self.__fcn = []
         modif = False
         for card in old_fcn:
             if not card.name == "OR":
-                self.fcn.append(card)
+                self.__fcn.append(card)
                 continue
-            if self.fcn[-1].name == "AND":
-                self.fcn.pop()
-                litteralC = get_litteral()
-                litteralB = get_litteral()
-                litteralA = get_litteral()
-            elif self.fcn[-2].name == "AND" or (self.fcn[-2].is_not() and
-                                                self.fcn[-3].name == "AND"):
-                litteralA = get_litteral()
-                self.fcn.pop()  # AND
-                litteralC = get_litteral()
-                litteralB = get_litteral()
+            if self.__fcn[-1].name == "AND":
+                self.__fcn.pop()
+                litteralC = get_proposition()
+                litteralB = get_proposition()
+                litteralA = get_proposition()
+            elif self.__fcn[-2].name == "AND" or (
+                    self.__fcn[-2].is_not() and self.__fcn[-3].name == "AND"):
+                litteralA = get_proposition()
+                self.__fcn.pop()  # AND
+                litteralC = get_proposition()
+                litteralB = get_proposition()
             else:
-                self.fcn.append(card)
+                self.__fcn.append(card)
                 continue
+            print("A={} ; B={} ; C={}".format(litteralA, litteralB, litteralC))
             modif = True
-            self.fcn.extend(litteralA+litteralB+[Card("OR")])
+            self.__fcn.extend(litteralA+litteralB+[Card("OR")])
             litteralA = [Card(card.name) for card in litteralA]  # copie
-            self.fcn.extend(litteralA+litteralC+[Card("OR"), Card("AND")])
+            self.__fcn.extend(litteralA+litteralC+[Card("OR"), Card("AND")])
+        print(self.__fcn)
         if modif:
-            self.__devlop()
+            self.__develop()
 
-    def to_fcn(self):
+    def __to_fcn(self):
         """Forme Normale Conjonctive."""
         self.__elim_then()
+        print(self.__fcn)
         self.__morgan()
+        print(self.__fcn)
         self.__elim_not()
-        self.__devlop()
-        return self.fcn
+        print(self.__fcn)
+        self.__develop()
+        return self.__fcn
 
 
 class ForceBrute(Demonstration):
@@ -176,11 +190,11 @@ class ForceBrute(Demonstration):
         :return: Valeur de la liste de carte en fonction du modèle.
         :rtype: boolean
         """
-        assert self.npi is not None
-        if self.npi == []:
+        assert self._proof.npi is not None
+        if self._proof.npi == []:
             return True
         pile = []
-        for card in self.npi:
+        for card in self._proof.npi:
             if card.is_letter():
                 val = interpretation[ord(card.name)-ord('A')]
             elif card.is_operator():
@@ -231,7 +245,7 @@ def _tests():
     p.premises[0] = card_list
     p.premises[1] = CardList([Card("NOT"), Card("B")])
     p.premises[2] = CardList([Card("D"), Card("THEN"), Card("C")])
-    demo = ForceBrute(p.premises)
+    demo = ForceBrute(p)
     print(demo.conclusion())
     print(p.score())
 
@@ -247,9 +261,9 @@ if __name__ == "__main__":
 #    card_list.to_fcn()
 #    print(card_list.fcn)
 #    _tests()
-    demo = DPLL([CardList([Card("NOT"), Card("("),
-                           Card("C"), Card("OR"), Card("D"),
-                           Card(")"), Card("OR"), Card("A")]),
-                 CardList([ Card("NOT"), Card("B"), Card("THEN"),  Card("NOT"),
-                           Card("A")])
-                 ])
+    p = Proof()
+    p.premises[0] = CardList([Card("NOT"), Card("("),
+                              Card("B"), Card("THEN"), Card("A"), Card(")"),
+                              Card("AND"), Card("C"), Card("OR"), Card("D"),
+                              Card("AND"), Card("B")])
+    demo = DPLL(p)
