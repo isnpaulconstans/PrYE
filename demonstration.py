@@ -30,17 +30,33 @@ class Demonstration():
 class DPLL(Demonstration):
     """Évaluation par l'algorithme de Davis-Putnam-Logemann-Loveland."""
     def __init__(self, proof):
+        """Constructeur de la classe.
+
+        :param proof: Une preuve
+        :type proof: Proof
+
+        :return: objet Demonstration
+        :rtype: Demonstration"""
         super().__init__(proof)
         self.__fcn = self.__to_fcn()
 
     @property
     def fcn(self):
+        """Renvoie la preuve sous forme conjonctive normale.
+
+        :return: fcn
+        :rtype: list
+        """
         if not self._proof.modif:
             return self.__fcn
         return self.__to_fcn()
 
-    def __insert_not(self):
-        """Insère un NOT avant la dernière proposition de fcn."""
+    def __get_proposition(self):
+        """renvoie la derniere proposition de fcn en npi.
+
+        :return: proposition
+        :rtype: list
+        """
         pile = []
         nb_exp = 1  # on doit dépiler une proposition
         while nb_exp != 0:
@@ -49,9 +65,14 @@ class DPLL(Demonstration):
                 nb_exp -= 1
             elif pile[-1].is_operator():
                 nb_exp += 1
+        pile.reverse()
+        return pile
+
+    def __insert_not(self):
+        """Insère un NOT avant la dernière proposition de fcn."""
+        proposition = self.__get_proposition()
         self.__fcn.append(Card("NOT"))
-        while pile:
-            self.__fcn.append(pile.pop())
+        self.__fcn.extend(proposition)
 
     def __elim_then(self):
         """Génère self.__fcn à partir de self.npi
@@ -102,23 +123,6 @@ class DPLL(Demonstration):
 
         "A B C ET OU" ou "B C ET A OU" deviennent "A B OU A C OU ET"
         """
-        def get_proposition():
-            """renvoie la derniere proposition de fcn en npi.
-
-            :return: proposition
-            :rtype: list
-            """
-            pile = []
-            nb_exp = 1  # on doit dépiler une proposition
-            while nb_exp != 0:
-                pile.append(self.__fcn.pop())
-                if pile[-1].is_letter():
-                    nb_exp -= 1
-                elif pile[-1].is_operator():
-                    nb_exp += 1
-            pile.reverse()
-            return pile
-
         old_fcn = self.__fcn[:]
         self.__fcn = []
         modif = False
@@ -126,37 +130,50 @@ class DPLL(Demonstration):
             if not card.name == "OR":
                 self.__fcn.append(card)
                 continue
-            if self.__fcn[-1].name == "AND":
-                self.__fcn.pop()
-                litteralC = get_proposition()
-                litteralB = get_proposition()
-                litteralA = get_proposition()
-            elif self.__fcn[-2].name == "AND" or (
-                    self.__fcn[-2].is_not() and self.__fcn[-3].name == "AND"):
-                litteralA = get_proposition()
+            if self.__fcn[-1].name != "AND":
+                litteralA = self.__get_proposition()
+                if self.__fcn[-1].name != "AND":
+                    self.__fcn.extend(litteralA)
+                    self.__fcn.append(card)
+                    continue
                 self.__fcn.pop()  # AND
-                litteralC = get_proposition()
-                litteralB = get_proposition()
+                litteralC = self.__get_proposition()
+                litteralB = self.__get_proposition()
             else:
-                self.__fcn.append(card)
-                continue
-            print("A={} ; B={} ; C={}".format(litteralA, litteralB, litteralC))
+                self.__fcn.pop()  # AND
+                litteralC = self.__get_proposition()
+                litteralB = self.__get_proposition()
+                litteralA = self.__get_proposition()
+#            if self.__fcn[-1].name == "AND":
+#                self.__fcn.pop()
+#                litteralC = self.__get_proposition()
+#                litteralB = self.__get_proposition()
+#                litteralA = self.__get_proposition()
+#            elif self.__fcn[-2].name == "AND" or (
+#                    self.__fcn[-2].is_not() and self.__fcn[-3].name == "AND"):
+#                litteralA = self.__get_proposition()
+#                self.__fcn.pop()  # AND
+#                litteralC = self.__get_proposition()
+#                litteralB = self.__get_proposition()
+#            else:
+#                self.__fcn.append(card)
+#                continue
             modif = True
             self.__fcn.extend(litteralA+litteralB+[Card("OR")])
             litteralA = [Card(card.name) for card in litteralA]  # copie
             self.__fcn.extend(litteralA+litteralC+[Card("OR"), Card("AND")])
-        print(self.__fcn)
         if modif:
             self.__develop()
 
     def __to_fcn(self):
-        """Forme Normale Conjonctive."""
+        """Calcule et renvoie la Forme Normale Conjonctive.
+
+        :return: fcn
+        :rtype: list
+        """
         self.__elim_then()
-        print(self.__fcn)
         self.__morgan()
-        print(self.__fcn)
         self.__elim_not()
-        print(self.__fcn)
         self.__develop()
         return self.__fcn
 
@@ -235,6 +252,7 @@ class ForceBrute(Demonstration):
                 if result[i_lettre] != interpretation[i_lettre]:
                     result[i_lettre] = None
         return result
+
 
 def _tests():
     """Des tests..."""
