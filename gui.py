@@ -5,7 +5,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from cards import Proof, Deck
-from demonstration import ForceBrute, DPLL
+from demonstration import ForceBrute, DPLL, FCN
 
 # Constantes
 CARD_HEIGHT = 70
@@ -156,7 +156,8 @@ class ErgoGui(tk.Tk):
             return
         # TEST
 #        print(self.demo._proof.premises, self.demo._proof.npi, self.demo._proof.modif)
-        print(self.demoDPLL.fcn, "|=", self.demoFB.conclusion())
+        print(self.demoDPLL.conclusion(), "|=", self.demoFB.conclusion())
+#        print(self.demoDPLL._DPLL__clause_list, "|=", self.demoFB.conclusion())
         # passe au joueur suivant.
         if self.deck.is_finished():
             self.fin_manche()

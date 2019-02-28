@@ -3,53 +3,33 @@
 """Gestion des démonstrations"""
 
 from cards import Card, CardList, Proof
+from copy import deepcopy
 
 
-class Demonstration():
-    """Classe abstraite pour l'évaluation d'une liste de CardList."""
+class FCN:
+    """Mise en Forme Conjonctive Normale."""
     def __init__(self, proof):
         """Constructeur de la classe.
 
         :param proof: Une preuve
         :type proof: Proof
 
-        :return: objet Demonstration
-        :rtype: Demonstration"""
+        :return: objet FCN
+        :rtype: FCN"""
         self._proof = proof
-
-    def conclusion(self):
-        """
-        :return: None si les prémisses conduisent à une contradiction,
-                 ou une liste associant à chaque variable 'A', 'B', 'C' et 'D'
-                 soit True si elle est prouvée, False si la négation est
-                 prouvée, on None si on ne peut rien conclure.
-        :rtype: list ou NoneType"""
-        raise NotImplementedError
-
-
-class DPLL(Demonstration):
-    """Évaluation par l'algorithme de Davis-Putnam-Logemann-Loveland."""
-    def __init__(self, proof):
-        """Constructeur de la classe.
-
-        :param proof: Une preuve
-        :type proof: Proof
-
-        :return: objet Demonstration
-        :rtype: Demonstration"""
-        super().__init__(proof)
-        self.__fcn = self.__to_fcn()
+        self.__fcn_npi = []
+        self.__clause_list = self.__to_clause_list()
 
     @property
-    def fcn(self):
-        """Renvoie la preuve sous forme conjonctive normale.
+    def clause_list(self):
+        """Renvoie la preuve sous forme d'une liste de clauses.
 
         :return: fcn_lst
         :rtype: list
         """
         if not self._proof.modif:
-            return self.__fcn
-        return self.__to_fcn()
+            return self.__clause_list
+        return self.__to_clause_list()
 
     def __get_proposition(self):
         """renvoie la derniere proposition de fcn en npi.
@@ -189,7 +169,7 @@ class DPLL(Demonstration):
             clause_set.add(sign * value)
         return list(clause_set)
 
-    def __to_fcn(self):
+    def __to_clause_list(self):
         """Calcule et renvoie la Forme Normale Conjonctive sous forme d'un
         ensemble de clause, une clause étant représentée par un ensemble de
         littéraux. Chaque variable est représentée par un entier positif, et sa
@@ -202,15 +182,136 @@ class DPLL(Demonstration):
         :rtype: set
         """
         self.__to_fcn_npi()
-        self.__fcn = []
+        self.__clause_list = []
         while self.__fcn_npi:
             if self.__fcn_npi[-1].name == "AND":
                 self.__fcn_npi.pop()
                 continue
             clause = self.__npi_to_list(self.__get_proposition())
             if clause is not None:
-                self.__fcn.append(clause)
-        return self.__fcn
+                self.__clause_list.append(clause)
+        return self.__clause_list
+
+
+class Demonstration():
+    """Classe abstraite pour l'évaluation d'une liste de CardList."""
+    def __init__(self, proof):
+        """Constructeur de la classe.
+
+        :param proof: Une preuve
+        :type proof: Proof
+
+        :return: objet Demonstration
+        :rtype: Demonstration"""
+        self._proof = proof
+
+    def conclusion(self):
+        """Détermine les variables "démontrées"
+
+        :return: None si les prémisses conduisent à une contradiction,
+                 ou une liste associant à chaque variable 'A', 'B', 'C' et 'D'
+                 soit True si elle est prouvée, False si la négation est
+                 prouvée, on None si on ne peut rien conclure.
+        :rtype: list ou NoneType"""
+        raise NotImplementedError
+
+
+class DPLL(Demonstration):
+    """Évaluation par l'algorithme de Davis-Putnam-Logemann-Loveland."""
+    def __init__(self, proof):
+        """Constructeur de la classe.
+
+        :param proof: Une preuve
+        :type proof: Proof
+
+        :return: objet Demonstration
+        :rtype: Demonstration"""
+        super().__init__(proof)
+        self.__fcn = FCN(proof)
+        self.__clause_list = self.__fcn.clause_list
+
+    @property
+    def clause_list(self):
+        if self._proof.modif:
+            self.__clause_list = self.__fcn.clause_list
+        return self.__clause_list
+
+    @staticmethod
+    def __propagation(clause_list, lit):
+        """
+        supprime toutes les clauses où lit apparaît, et enlève non lit de
+        toutes les clauses où il apparait.
+
+        :param clause_list: Une liste de clauses
+        :type clause_list: list
+        :param lit: un littéral
+        :type lit: int
+        """
+        for clause in clause_list[:]:
+            if lit in clause:
+                clause_list.remove(clause)
+            if -lit in clause:
+                clause.remove(-lit)
+
+    def dpll(self, clause_list, model):
+        """Détermine un modèle pour la liste de clauses en partant d'un modèle
+        partiel.
+
+        :return: True si un modèle de permet de satisfaire la liste de clauses,
+                 et False sinon.
+                 Modifie la liste de clauses et le modèle partiel.
+
+        :param clause_list: une liste de clauses
+        :param model: un modèle partiel
+        """
+        # recherche de clauses unitaires
+        unit_clause = True
+        while unit_clause:
+            unit_clause = False
+            for clause in clause_list:
+                if len(clause) != 1:
+                    continue
+                unit_clause = True
+                lit = clause[0]
+                model[abs(lit)-1] = (lit > 0)
+                self.__propagation(clause_list, lit)
+                break
+        # S'il n'y a plus de cluase, on a trouvé un modèle
+        if clause_list == []:
+            return True
+        # S'il y a une clause vide, la liste de clauses n'est pas satisfiable
+        for clause in clause_list:
+            if clause == []:
+                return False
+        # On cherche une variable non encore déterminée et on cherche à la
+        # déterminer par le principe du tiers exclu.
+        for ivar, var in enumerate(model):
+            if var is not None:
+                continue
+            for valeur in (False, True):
+                model_tmp = model
+                model_tmp[ivar] = valeur
+                clause_list_tmp = deepcopy(clause_list)
+                lit = ivar + 1 if valeur else -ivar-1
+                self.__propagation(clause_list_tmp, lit)
+                if not self.dpll(clause_list_tmp, model_tmp):
+                    model[ivar] = not valeur
+                    self.__propagation(clause_list, -lit)
+                    return self.dpll(clause_list, model)
+
+    def conclusion(self):
+        """Détermine les variables "démontrées"
+
+        :return: None si les prémisses conduisent à une contradiction,
+                 ou une liste associant à chaque variable 'A', 'B', 'C' et 'D'
+                 soit True si elle est prouvée, False si la négation est
+                 prouvée, on None si on ne peut rien conclure.
+        :rtype: list ou NoneType"""
+        clause_list = self.__fcn.clause_list
+        model = [None] * 4
+        if not self.dpll(clause_list, model):
+            return None
+        return model
 
 
 class ForceBrute(Demonstration):
@@ -266,7 +367,8 @@ class ForceBrute(Demonstration):
         return val
 
     def conclusion(self):
-        """
+        """Détermine les variables "démontrées"
+
         :return: None si les prémisses conduisent à une contradiction,
                  ou une liste associant à chaque variable 'A', 'B', 'C' et 'D'
                  soit True si elle est prouvée, False si la négation est
