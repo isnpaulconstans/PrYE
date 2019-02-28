@@ -62,6 +62,7 @@ class ErgoGui(tk.Tk):
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.pile = []
         self.selected_card = None
+        self.cards_played = 0
         self.affiche_cards(self.hands[self.num_player], 4)
 
         self.name = tk.Label(text="Ergo le jeu", font="Arial 16 italic")
@@ -165,6 +166,7 @@ class ErgoGui(tk.Tk):
         self.proof.reset_added()
         self.can.delete("pile")
         self.display_current_player()
+        self.cards_played = 0
 
     def affiche_cards(self, card_list, row):
         """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
@@ -216,8 +218,14 @@ class ErgoGui(tk.Tk):
                 self.selected_card = self.pile.pop()
                 self.can.dtag("selected", "pile")
             else:  # carte de la main
+                if self.cards_played == 2:
+                    messagebox.showwarning("2 cartes", "On ne peut pas jouer "
+                                           + "plus de deux cartes")
+                    self.can.dtag("selected")
+                    return
                 self.selected_card = self.hands[self.num_player].pop(col)
                 self.affiche_cards(self.hands[self.num_player], 4)
+                self.cards_played += 1
             self.can.tag_raise(num)  # pour passer en avant plan
 
     def move(self, event):
@@ -243,6 +251,7 @@ class ErgoGui(tk.Tk):
             self.can.delete("selected")
             self.affiche_cards(self.hands[self.num_player], 4)
             self.selected_card = None
+            self.cards_played -= 1
 
         if self.selected_card is None:
             return
