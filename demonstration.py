@@ -134,6 +134,7 @@ class FCN:
 
     def __to_fcn_npi(self):
         """Calcule et renvoie la Forme Normale Conjonctive en NPI.
+
         :return: fcn
         :rtype: list
         """
