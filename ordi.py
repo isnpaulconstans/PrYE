@@ -4,7 +4,7 @@
 Gestion du jeu de l'ordinateur.
 """
 
-from random import choice
+from random import choice, sample, randrange
 
 
 class Ordi:
@@ -23,7 +23,7 @@ class Ordi:
         self._proof = proof
         self._hand = hand
         self.__parenthèses()
-        self._hand = [card for card in self._hand if not card.is_special()]
+        self._hand = self._hand[:]
         self._coups = self.coups_possibles()
 
     def __parenthèses(self):
@@ -53,11 +53,15 @@ class Ordi:
           défausser)
         - index_premise est l'indice où insérer la carte dans la prémisse
 
+        -1 signifie qu'on peut défausser une carte
+
         :return: une liste de sextuplets
         :rtype: list
         """
         coups = []
         for index_hand1, card1 in enumerate(self._hand):
+            if card1.is_special():
+                continue
             for num_premise1, premise1 in enumerate(self._proof.premises):
                 for index_premise1 in range(len(premise1)+1):
                     premise1.insert(index_premise1, card1)
@@ -66,17 +70,19 @@ class Ordi:
                                       -1, -1, -1))
                     for index_hand2 in range(index_hand1+1, len(self._hand)):
                         card2 = self._hand[index_hand2]
+                        if card2.is_special():
+                            continue
                         for num_premise2, premise2 in enumerate(self._proof.premises):
                             for index_premise2 in range(len(premise2)+1):
                                 premise2.insert(index_premise2, card2)
-                                print(proof.premises, end='->')
+#                                print(proof.premises, end='->')
                                 if premise1.npi is not None and premise2.npi is not None:
-                                    print('OK')
+#                                    print('OK')
                                     coups.append((index_hand1, num_premise1,
                                                   index_premise1, index_hand2,
                                                   num_premise2, index_premise2))
-                                else:
-                                    print('FAUX')
+#                                else:
+#                                    print('FAUX')
                                 premise2.pop(index_premise2)
                     premise1.pop(index_premise1)
         return coups
@@ -86,12 +92,16 @@ class OrdiRandom(Ordi):
     def joue(self):
         """Joue un coup au hasard parmi les coups possibles. Si aucun n'est
         possible, jette deux cartes au hasard."""
-        if self._coups:
-            coup = choice(self._coups)
-        # TODO : choisir les éventuelles cartes à jeter
-
-
-
+        self._coups.append((-1,)*6)  # défausser deux cartes
+        (index_hand1, num_premise1,
+         index_premise1, index_hand2,
+         num_premise2, index_premise2) = choice(self._coups)
+        if index_hand1 == -1:
+            index_hand1, index_hand2 = sample(range(len(self._hand)), 2)
+        elif index_hand2 == -1:
+            index_hand2 = choice(range(len(self._hand)))
+        return (index_hand1, num_premise1, index_premise1, index_hand2,
+                num_premise2, index_premise2)
 
 
 if __name__ == "__main__":

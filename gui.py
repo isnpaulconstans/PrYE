@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import messagebox
 from cards import Proof, Deck
 from demonstration import ForceBrute, DPLL, FCN
-from ordi import Ordi
+from ordi import OrdiRandom
 
 # Constantes
 CARD_HEIGHT = 70
@@ -162,15 +162,34 @@ class ErgoGui(tk.Tk):
         # passe au joueur suivant.
         if self.deck.is_finished():
             self.fin_manche()
+        self.proof.reset_added()
+        self.cards_played = 0
+        self.can.delete("pile")
         self.num_player = (self.num_player + 1) % self.nb_player
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.affiche_cards(self.hands[self.num_player], 4)
-        self.proof.reset_added()
-        self.can.delete("pile")
         self.display_current_player()
-        self.cards_played = 0
-        ordi = Ordi(self.proof, self.hands[self.num_player])
-        print(ordi.coups_possibles())
+        if self.num_player != 0:
+            self.ordi_plays()
+
+    def ordi_plays(self):
+        hand = self.hands[self.num_player]
+        ordi = OrdiRandom(self.proof, hand)
+        coup = ordi.joue()
+        (index_hand1, num_premise1, index_premise1,
+         index_hand2, num_premise2, index_premise2) = coup
+        messagebox.showinfo("Joueur "+chr(ord('A')+self.num_player), str(coup))
+        card2 = hand.pop(index_hand2)
+        card1 = hand.pop(index_hand1)
+        if index_premise1 >= 0:
+            self.proof.insert(num_premise1, index_premise1, card1)
+            self.affiche_cards(self.proof.premises[num_premise1], num_premise1)
+        if index_premise2 >= 0:
+            self.proof.insert(num_premise2, index_premise2, card2)
+            self.affiche_cards(self.proof.premises[num_premise2], num_premise2)
+        self.affiche_cards(self.hands[self.num_player], 4)
+        messagebox.askyesno("ca marche ?")
+        self.play()
 
     def affiche_cards(self, card_list, row):
         """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
