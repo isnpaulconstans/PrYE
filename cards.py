@@ -97,6 +97,15 @@ class Card():
         """
         return self.__name == "Ergo"
 
+    def is_special(self):
+        """Indique si la carte est spéciale (Ergo, Fallacy, Justification,
+        TabulaRasa, Revolution, WildVar, WildOp).
+
+        :rtype: boolean
+        """
+        return self.name in ["Ergo", "Fallacy", "Justification", "TabulaRasa",
+                             "Revolution", "WildVar", "WildOp"]
+
     def turn_parenthesis(self):
         """Retourne la parenthèse, si c'en est une, ne fait rien sinon."""
         if self.__name == ")":
