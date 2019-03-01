@@ -4,6 +4,8 @@
 Gestion du jeu de l'ordinateur.
 """
 
+from random import choice
+
 
 class Ordi:
     """Classe abstraite gérant le jeu de l'odinateur"""
@@ -20,6 +22,22 @@ class Ordi:
         :rtype: Ordi"""
         self._proof = proof
         self._hand = hand
+        self.__parenthèses()
+        self._hand = [card for card in self._hand if not card.is_special()]
+        self._coups = self.coups_possibles()
+
+    def __parenthèses(self):
+        """Modifie la main pour avoir si possible au moins une parenthèse
+        ouvrante et une fermante."""
+        i_parenthesis = []  # indices des parenthèses
+        for i_card, card in enumerate(self._hand):
+            if card.is_open() or card.is_close():
+                i_parenthesis.append(i_card)
+        if len(i_parenthesis) < 2:
+            return
+        i1, i2 = i_parenthesis[:2]
+        if self._hand[i1].name == self._hand[i2].name:
+            self._hand[i2].turn_parenthesis()
 
     def joue(self):
         """Renvoie la prochaine carte à jouer."""
@@ -31,7 +49,8 @@ class Ordi:
         num_premise2, index_premise2) où
 
         - index_hand est l'indice dans la main de la carte à jouer
-        - num_premise est le numéro de la prémisse où jouer la carte
+        - num_premise est le numéro de la prémisse où jouer la carte (-1 pour
+          défausser)
         - index_premise est l'indice où insérer la carte dans la prémisse
 
         :return: une liste de sextuplets
@@ -39,19 +58,45 @@ class Ordi:
         """
         coups = []
         for index_hand1, card1 in enumerate(self._hand):
-            for index_hand2 in range(index_hand1+1, len(self._hand)):
-                card2 = self._hand[index_hand2]
-                for num_premise1, premise1 in enumerate(self._proof.premises):
-                    for num_premise2, premise2 in enumerate(self._proof.premises):
-                        for index_premise1 in range(len(premise1)):
-                            premise1.insert(index_premise1, card1)
-                            for index_premise2 in range(len(premise2)):
+            for num_premise1, premise1 in enumerate(self._proof.premises):
+                for index_premise1 in range(len(premise1)+1):
+                    premise1.insert(index_premise1, card1)
+                    if premise1.npi is not None:
+                        coups.append((index_hand1, num_premise1, index_premise1,
+                                      -1, -1, -1))
+                    for index_hand2 in range(index_hand1+1, len(self._hand)):
+                        card2 = self._hand[index_hand2]
+                        for num_premise2, premise2 in enumerate(self._proof.premises):
+                            for index_premise2 in range(len(premise2)+1):
                                 premise2.insert(index_premise2, card2)
+                                print(proof.premises, end='->')
                                 if premise1.npi is not None and premise2.npi is not None:
+                                    print('OK')
                                     coups.append((index_hand1, num_premise1,
                                                   index_premise1, index_hand2,
                                                   num_premise2, index_premise2))
+                                else:
+                                    print('FAUX')
                                 premise2.pop(index_premise2)
-                            premise1.pop(index_premise2)
+                    premise1.pop(index_premise1)
         return coups
 
+
+class OrdiRandom(Ordi):
+    def joue(self):
+        """Joue un coup au hasard parmi les coups possibles. Si aucun n'est
+        possible, jette deux cartes au hasard."""
+        if self._coups:
+            coup = choice(self._coups)
+        # TODO : choisir les éventuelles cartes à jeter
+
+
+
+
+
+if __name__ == "__main__":
+    from cards import Proof, Deck
+    deck = Deck()
+    proof = Proof()
+    hand = deck.draw(7)
+    ordi = Ordi(proof, hand)
