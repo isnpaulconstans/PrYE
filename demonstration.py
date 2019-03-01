@@ -289,15 +289,18 @@ class DPLL(Demonstration):
             if var is not None:
                 continue
             for valeur in (False, True):
-                model_tmp = model
+                model_tmp = model[:]
                 model_tmp[ivar] = valeur
                 clause_list_tmp = deepcopy(clause_list)
                 lit = ivar + 1 if valeur else -ivar-1
                 self.__propagation(clause_list_tmp, lit)
+                # si lit n'est pas satisfiable, non lit est démontré
                 if not self.dpll(clause_list_tmp, model_tmp):
                     model[ivar] = not valeur
                     self.__propagation(clause_list, -lit)
                     return self.dpll(clause_list, model)
+        # on ne peut rien conclure de plus, mais le modèle est satisfiable
+        return True
 
     def conclusion(self):
         """Détermine les variables "démontrées"
@@ -307,7 +310,7 @@ class DPLL(Demonstration):
                  soit True si elle est prouvée, False si la négation est
                  prouvée, on None si on ne peut rien conclure.
         :rtype: list ou NoneType"""
-        clause_list = self.__fcn.clause_list
+        clause_list = deepcopy(self.__fcn.clause_list)
         model = [None] * 4
         if not self.dpll(clause_list, model):
             return None
@@ -417,8 +420,10 @@ if __name__ == "__main__":
 #    print(card_list.fcn)
 #    _tests()
     p = Proof()
-    p.premises[0] = CardList([Card("NOT"), Card("("),
-                              Card("B"), Card("THEN"), Card("A"), Card(")"),
-                              Card("AND"), Card("C"), Card("OR"), Card("D"),
-                              Card("AND"), Card("B")])
+#    p.premises[0] = CardList([Card("NOT"), Card("("),
+#                              Card("B"), Card("THEN"), Card("A"), Card(")"),
+#                              Card("AND"), Card("C"), Card("OR"), Card("D"),
+#                              Card("AND"), Card("B")])
+    p.premises[0] = CardList([Card("A"), Card("OR"), Card("B")])
+    p.premises[1] = CardList([Card("A"), Card("OR"), Card("NOT"), Card("B")])
     demo = DPLL(p)
