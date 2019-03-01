@@ -195,7 +195,7 @@ class CardList(list):
         for i_card in range(len(self)-1):
             card1, card2 = self[i_card], self[i_card+1]
             if (card1.is_letter() or card1.is_close()) and \
-               (card2.is_letter() or card2.is_not()):
+               (card2.is_letter() or card2.is_not() or card2.is_open()):
                 return False
             if card1.is_operator() and \
                (card2.is_operator() or card2.is_close()):
