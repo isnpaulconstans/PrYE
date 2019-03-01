@@ -368,7 +368,8 @@ class Proof():
         return played == [True] * 4
 
     def score(self):
-        """
+        """Renvvoie le score associé à la preuve.
+
         :return: Le score correspondant à la preuve, c'est à dire le nombre de
                  cartes qui la compose.
         :rtype: int
@@ -401,14 +402,16 @@ class Deck(list):
 
     @classmethod
     def names(cls):
-        """
+        """Renvoie les noms des cartes du paquet.
+
         :return: Le nom des cartes du paquet
         :rtype: dict_keys
         """
         return cls.__NUMBER.keys()
 
     def draw(self, number):
-        """
+        """Tire number cartes
+
         :return: number cartes du paquet s'il en reste assez, la fin du
                  paquet ou une liste vide sinon.
         :rtype: list
