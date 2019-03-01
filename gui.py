@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import messagebox
 from cards import Proof, Deck
 from demonstration import ForceBrute, DPLL, FCN
+from ordi import Ordi
 
 # Constantes
 CARD_HEIGHT = 70
@@ -168,6 +169,8 @@ class ErgoGui(tk.Tk):
         self.can.delete("pile")
         self.display_current_player()
         self.cards_played = 0
+        ordi = Ordi(self.proof, self.hands[self.num_player])
+        print(ordi.coups_possibles())
 
     def affiche_cards(self, card_list, row):
         """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
