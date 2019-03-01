@@ -170,16 +170,16 @@ class FCN:
         return list(clause_set)
 
     def __to_clause_list(self):
-        """Calcule et renvoie la Forme Normale Conjonctive sous forme d'un
-        ensemble de clause, une clause étant représentée par un ensemble de
+        """Calcule et renvoie la Forme Normale Conjonctive sous forme d'une
+        liste de clauses, une clause étant représentée par une liste de
         littéraux. Chaque variable est représentée par un entier positif, et sa
         négation par l'entier opposé.
 
         Par exemple (A OU B) ET (NON B OU NON C) est représenté par
-        {{1,2}, {-2,-3}}.
+        [[1,2], [-2,-3]].
 
-        :return: fcn_set
-        :rtype: set
+        :return: clause_list
+        :rtype: list
         """
         self.__to_fcn_npi()
         self.__clause_list = []

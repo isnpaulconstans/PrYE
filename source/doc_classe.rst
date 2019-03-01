@@ -31,6 +31,11 @@ Module demonstration
 
 .. automodule:: demonstration
 
+.. autoclass:: FCN
+   :members:
+   :private-members:
+   :special-members:
+
 .. autoclass:: Demonstration
    :members:
    :private-members:
@@ -42,6 +47,21 @@ Module demonstration
    :special-members:
 
 .. autoclass:: ForceBrute
+   :members:
+   :private-members:
+   :special-members:
+
+Module ordi
+--------------------
+
+.. automodule:: ordi
+
+.. autoclass:: Ordi
+   :members:
+   :private-members:
+   :special-members:
+
+.. autoclass:: OrdiRandom
    :members:
    :private-members:
    :special-members:

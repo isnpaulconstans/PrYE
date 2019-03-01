@@ -4,7 +4,7 @@
 Gestion du jeu de l'ordinateur.
 """
 
-from random import choice, sample, randrange
+from random import choice, sample
 
 
 class Ordi:
