@@ -286,8 +286,9 @@ class DPLL(Demonstration):
         # On cherche une variable non encore déterminée et on cherche à la
         # déterminer par le principe du tiers exclu.
         for ivar, var in enumerate(model):
-            if var is not None:
+            if var is not 0:
                 continue
+            print(ivar, var)
             for valeur in (False, True):
                 model_tmp = model[:]
                 model_tmp[ivar] = valeur
@@ -299,6 +300,9 @@ class DPLL(Demonstration):
                     model[ivar] = not valeur
                     self.__propagation(clause_list, -lit)
                     return self.dpll(clause_list, model)
+            # rien de donne de contradiction : on ne peut rien conclure sur
+            # cette variable
+            model[ivar] = None
         # on ne peut rien conclure de plus, mais le modèle est satisfiable
         return True
 
@@ -311,7 +315,7 @@ class DPLL(Demonstration):
                  prouvée, on None si on ne peut rien conclure.
         :rtype: list ou NoneType"""
         clause_list = deepcopy(self.__fcn.clause_list)
-        model = [None] * 4
+        model = [0] * 4  # 0 signifie non encore testé
         if not self.dpll(clause_list, model):
             return None
         return model
@@ -424,6 +428,6 @@ if __name__ == "__main__":
 #                              Card("B"), Card("THEN"), Card("A"), Card(")"),
 #                              Card("AND"), Card("C"), Card("OR"), Card("D"),
 #                              Card("AND"), Card("B")])
-    p.premises[0] = CardList([Card("A"), Card("OR"), Card("B")])
+    p.premises[0] = CardList([Card("A"), Card("THEN"), Card("B")])
     p.premises[1] = CardList([Card("A"), Card("OR"), Card("NOT"), Card("B")])
     demo = DPLL(p)
