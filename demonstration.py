@@ -277,7 +277,7 @@ class DPLL(Demonstration):
                 model[abs(lit)-1] = (lit > 0)
                 self.__propagation(clause_list, lit)
                 break
-        # S'il n'y a plus de cluase, on a trouvé un modèle
+        # S'il n'y a plus de clause, on a trouvé un modèle
         if clause_list == []:
             return True
         # S'il y a une clause vide, la liste de clauses n'est pas satisfiable
@@ -289,7 +289,6 @@ class DPLL(Demonstration):
         for ivar, var in enumerate(model):
             if var is not 0:
                 continue
-            print(ivar, var)
             for valeur in (False, True):
                 model_tmp = model[:]
                 model_tmp[ivar] = valeur

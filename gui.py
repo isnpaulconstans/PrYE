@@ -178,9 +178,18 @@ class ErgoGui(tk.Tk):
         coup = ordi.joue()
         (index_hand1, num_premise1, index_premise1,
          index_hand2, num_premise2, index_premise2) = coup
-        messagebox.showinfo("Joueur "+chr(ord('A')+self.num_player), str(coup))
-        card2 = hand.pop(index_hand2)
+        messagebox.showinfo("Joueur "+chr(ord('A')+self.num_player),
+                            "{} sur {} en position {}".format(hand[index_hand1],
+                                                              num_premise1,
+                                                              index_premise1))
+        messagebox.showinfo("Joueur "+chr(ord('A')+self.num_player),
+                            "{} sur {} en position {}".format(hand[index_hand2],
+                                                              num_premise2,
+                                                              index_premise2))
         card1 = hand.pop(index_hand1)
+        if index_hand1<index_hand2:
+            index_hand2 -= 1
+        card2 = hand.pop(index_hand2)
         if index_premise1 >= 0:
             self.proof.insert(num_premise1, index_premise1, card1)
             self.affiche_cards(self.proof.premises[num_premise1], num_premise1)

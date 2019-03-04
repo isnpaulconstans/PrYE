@@ -40,7 +40,7 @@ class Ordi:
             self._hand[i2].turn_parenthesis()
 
     def joue(self):
-        """Renvoie la prochaine carte à jouer."""
+        """Renvoie les prochaines cartes à jouer."""
         raise NotImplementedError
 
     def coups_possibles(self):
@@ -91,15 +91,18 @@ class Ordi:
 class OrdiRandom(Ordi):
     def joue(self):
         """Joue un coup au hasard parmi les coups possibles. Si aucun n'est
-        possible, jette deux cartes au hasard."""
+        possible, jette deux cartes au hasard.
+        """
         self._coups.append((-1,)*6)  # défausser deux cartes
         (index_hand1, num_premise1,
          index_premise1, index_hand2,
          num_premise2, index_premise2) = choice(self._coups)
-        if index_hand1 == -1:
+        if index_hand1 == -1:  # deux cartes à défausser
             index_hand1, index_hand2 = sample(range(len(self._hand)), 2)
-        elif index_hand2 == -1:
-            index_hand2 = choice(range(len(self._hand)))
+        elif index_hand2 == -1:  # une seule carte à défausser
+            choix = list(range(len(self._hand)))  # choix possibles de carte2
+            choix.remove(index_hand1)
+            index_hand2 = choice(choix)
         return (index_hand1, num_premise1, index_premise1, index_hand2,
                 num_premise2, index_premise2)
 

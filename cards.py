@@ -203,7 +203,7 @@ class CardList(list):
             if card1.is_not() and \
                (card2.is_operator() or card2.is_close() or card2.is_not()):
                 return False
-            if card1.is_open() and card2.is_operator():
+            if card1.is_open() and (card2.is_operator() or card2.is_close()):
                 return False
         return not card2.is_operator()
 
