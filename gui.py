@@ -7,6 +7,7 @@ from tkinter import messagebox
 from cards import Proof, Deck
 from demonstration import ForceBrute, DPLL, FCN
 from ordi import OrdiRandom
+import time
 
 # Constantes
 CARD_HEIGHT = 70
@@ -31,6 +32,65 @@ IMAGE = {
     "Ergo": "carteCQFD.gif",
     "Back": "carteDos.gif"
     }
+    
+letE = [(1,3),(1,2),(1,1),(2,1),(3,1),(3,2),(4,1),(5,1),(5,2),(5,3)]    
+
+class ErgoGuiIntro(tk.Tk):
+    """Interface graphique fenetre acceuil avec animation 
+    et choix du mode de jeu"""
+    def __init__(self):
+        """Constructeur de la classe
+
+        :return: Objet ErgoGuiIntro
+        :rtype: ErgoGuiIntro
+        """
+        tk.Tk.__init__(self)
+        self.title("Ergo acceuil")
+        self.geometry("800x600")
+        self.resizable(width=False, height=False)
+        
+        self.__init_intro__()
+        self.__choice__()
+        self.x = 50
+        self.y = 50
+        self.flag = 1
+        
+
+        
+    def __init_intro__(self):
+        """ Creation de la fenetre d'animation """
+        self.canIntro = tk.Canvas(self, height=500, width=800,
+                             bg="skyblue")
+        self.canIntro.grid()
+        self.img = tk.PhotoImage(file="carteDos.gif")
+        self.idImg = self.canIntro.create_image(75,105,image=self.img)
+        
+    def rectangle(self,x,y):
+        self.canIntro.create_rectangle(x,y,x+50,y+70, fill="ivory")
+        
+    def animate(self, nbCarte):
+        """ deplace la carte sur canvas en suivant un chemin defini 
+        de façon récursive"""
+        if self.flag == 1:
+            if nbCarte == 0:
+                self.flag = 0
+            else:
+                x,y = self.canIntro.coords(self.idImg)
+                self.canIntro.coords(self.idImg,50*letE[nbCarte-1][1]-25,70*letE[nbCarte-1][0]-35)
+                self.rectangle(50*letE[nbCarte-1][1],70*letE[nbCarte-1][0])
+                self.after(100,lambda : self.animate(nbCarte-1))
+
+        
+    def __choice__(self):
+        """ Creation des boutons de choix du mode de jeu """
+        self.but_play_against_pc = tk.Button(text="Contre ordi",command = lambda : self.animate(len(letE)))
+        self.but_play_against_pc.grid()
+        self.but_play_multiplayers = tk.Button(text="Contre autres joueurs")
+        self.but_play_multiplayers.grid()
+    
+  
+        
+        
 
 
 class ErgoGui(tk.Tk):
@@ -372,5 +432,7 @@ class ErgoGui(tk.Tk):
 
 
 if __name__ == '__main__':
-    ergoGui = ErgoGui()
-    ergoGui.mainloop()
+#    ergoGui = ErgoGui()
+#    ergoGui.mainloop()
+    test = ErgoGuiIntro()
+    test.mainloop()
