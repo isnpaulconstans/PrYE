@@ -71,12 +71,17 @@ Module gui
 
 .. automodule:: gui
 
-.. autoclass:: ErgoGui
+.. autoclass:: ErgoCanvas
    :members:
    :private-members:
    :special-members:
 
 .. autoclass:: ErgoGuiIntro
+   :members:
+   :private-members:
+   :special-members:
+
+.. autoclass:: ErgoGui
    :members:
    :private-members:
    :special-members:
