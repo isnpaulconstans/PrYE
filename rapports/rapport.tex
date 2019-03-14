@@ -197,7 +197,7 @@ Même si l'algorithme précédent marche bien dans le contexte qui nous intéres
 	\PourCh{variable \texttt{var} non testée}{
 		$\texttt{model\_tmp}[\texttt{var}] \leftarrow $ Faux (resp. Vrai)\; 
 		\Si(\tcp*[f]{La négation est prouvée}){non DPLL(\texttt{clause\_list}, \texttt{model\_tmp})}{
-			$\texttt{model}[\texttt{var}] \leftarrow$ Faux (resp. Vrai) \;
+			$\texttt{model}[\texttt{var}] \leftarrow$ Vrai (resp. Faux) \;
 			supprimer toutes les clauses contenant $\neg \texttt{var}$ \;
 			supprimer \texttt{var} de toutes les clauses où il apparaît \;
 			\Retour{DPLL(\texttt{clause\_list}, \texttt{model})}
