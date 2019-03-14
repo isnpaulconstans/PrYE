@@ -76,3 +76,8 @@ Module gui
    :private-members:
    :special-members:
 
+.. autoclass:: ErgoGuiIntro
+   :members:
+   :private-members:
+   :special-members:
+

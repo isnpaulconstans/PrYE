@@ -137,10 +137,12 @@ Créer une \texttt{pile} vide\;
 
 \subsection{Évaluation de la preuve}
 
+\subsubsection{Force brute}
+
 Ici, mon idée a été d'attaquer le problème en force brute : tester tous les modèles possible (comme il y a 4 variables, il y a seulement $2^4=16$ possibilités) et pour chacun évaluer la preuve. Si le résultat est Vrai, c'est que le modèle est admissible et je le mémorise. Ensuite, je regarde pour chaque variable si elle a toujours la même valeur (Vrai ou Faux) dans tous les modèles admissibles. Si c'est la cas, la variable est prouvée ou niée.
 
 \medskip
-D'après le cours qu'on a eu pour l'instant sur la logique avec Line Jakubie-Jamet, et si j'ai bien compris, cette méthode constitue une preuve sémantique, mais c'est équivalent à une preuve syntaxique. Normalement, on devrait voir dans la suite du cours d'autres algorithmes pour répondre à ce problème (le teaser parle d'arbre sémantique, d'algorithme de Quine, d'algorithme de Davis et Putnam). Une évolution possible (intéressante ?) serait de programmer ces algorithmes.
+D'après le cours qu'on a eu pour l'instant sur la logique avec Line Jakubie-Jamet, cette méthode constitue une preuve sémantique, mais c'est équivalent à une preuve syntaxique.
 
 \medskip
 
@@ -169,14 +171,60 @@ Créer une pile vide\;
 }
 \end{algorithm}
 
-\section{Évolutions possibles}
+\subsubsection{Algorithme de Davis-Putnam-Logemann-Loveland (DPLL)}
+
+Même si l'algorithme précédent marche bien dans le contexte qui nous intéresse (4 variables propositionnelles), comme l'algorithme DPLL (algorithme \ref{algoDPLL}) nous a été présenté dans le cours de logique, j'ai voulu l'implémenter. Pour cela, il fallait commencer par transformer la preuve au format NPI en une Forme Conjonctive Normale (FCN) sous forme d'une liste de clauses. Cela se fait en 4 étapes :
+\begin{itemize}
+\item élimination des implications ($A \implies B \equiv \neg A \vee B$) ;
+\item utilisation des lois de Morgan ($\neg (A \vee B) \equiv \neg A \wedge \neg B$ et $\neg (A \wedge B) \equiv \neg A \vee \neg B$) ;
+\item élimination des doubles négations ($\neg \neg A \equiv A$) ;
+\item développement ($A \vee (B \wedge C) \equiv (A \vee B) \wedge (A \vee C)$).
+\end{itemize}
+
+\begin{algorithm}
+\caption{Algorithme de Davis-Putnam-Logemann-Loveland (DPLL)}
+\label{algoDPLL}
+\Entrees{Une liste de clauses \texttt{clause\_list} et un modèle partiel \texttt{model}}
+\Sortie{Vrai si on peut compléter le modèle partiel en un modèle complet, Faux sinon}
+\Trait{
+	\Tq{\texttt{clause\_list} contient une clause unitaire \texttt{[lit]}}{
+		ajouter la valeur de \texttt{lit} au modèle \;
+		supprimer toutes les clauses contenant \texttt{lit} \;
+		supprimer $\neg \texttt{lit}$ de toutes les clauses où il apparaît \;
+	}
+	\lSi{il ne reste plus de clause}{\Retour{Vrai}}
+	\lSi{\texttt{clause\_list} contient une clause vide}{\Retour{Faux}}
+	\PourCh{variable \texttt{var} non testée}{
+		$\texttt{model\_tmp}[\texttt{var}] \leftarrow $ Faux (resp. Vrai)\; 
+		\Si(\tcp*[f]{La négation est prouvée}){non DPLL(\texttt{clause\_list}, \texttt{model\_tmp})}{
+			$\texttt{model}[\texttt{var}] \leftarrow$ Faux (resp. Vrai) \;
+			supprimer toutes les clauses contenant $\neg \texttt{var}$ \;
+			supprimer \texttt{var} de toutes les clauses où il apparaît \;
+			\Retour{DPLL(\texttt{clause\_list}, \texttt{model})}
+		}
+	$\texttt{model}[\texttt{var}] \leftarrow None$ \tcp*{\texttt{var} est indécidable}
+	}
+	\Retour{Vrai} \tcp*{Toutes les variables on été testées}
+}
+
+\end{algorithm}
+
+\subsection{Jeu de l'ordinateur}
+
+Une première étape consiste, si on a au moins deux parenthèses en main, à se débrouiller pour en avoir au moins une ouvrante et une fermante.
+
+Ensuite, on détermine l'ensemble des coups possibles en essayant de poser chacune des cartes de la main à un endroit de la preuve.
+
+Pour l'instant, l'ordinateur choisit alors un coup au hasard parmi l'ensemble des coups possibles.
+
+\section{Évolutions à venir}
 
 \begin{itemize}
 \item Gérer les scores, et la fin de partie.
 \item Proposer au(x) joueur(s) de rentrer leurs noms.
 \item Pas mal de factorisations possibles dans ErgoGui (séparer le canvas dans une classe ErgoCanvas dédiée, fonctions de calcul pour passer des coordonnées dans le canvas à un numéro de prémisse et un numéro de colonne, \dots)
-\item Revoir l'algorithme d'évaluation de la preuve par d'autres méthodes ??
-\item Gérer le jeu de l'ordinateur.  Pour l'instant, je ne vois que la force brute (essayer chaque carte de la main à chaque position, et voir ce qui est prouvé). Ensuite, j'avais éventuellement pensé à un minimax en testant toutes les cartes qui n'ont pas encore été jouées, mais je pense que ça va faire trop de calculs. Peut-être qu'en faisant quelques parties, une stratégie se présentera\dots Sinon, il restera la solution de faire appel à un ami ?
+\item Gérer les cartes spéciales (Ergo, Tabula Rasa, \dots)
+\item Tester d'autres méthodes pour le jeu de l'ordinateur. Il faudrait en particulier attribuer un score à chaque coup en fonction de ce qui est prouvé. Ensuite, j'avais éventuellement pensé à un minimax en testant toutes les cartes qui n'ont pas encore été jouées, mais je pense que ça va faire trop de calculs. Peut-être qu'en faisant quelques parties, une stratégie se présentera\dots Sinon, il restera la solution de faire appel à un ami ?
 \end{itemize}
 
 \appendix
