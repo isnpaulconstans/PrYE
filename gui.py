@@ -8,7 +8,7 @@ from cards import Proof, Deck
 from demonstration import ForceBrute, DPLL, FCN
 from ordi import OrdiRandom
 
-
+#ess
 # Constantes
 CARD_HEIGHT = 70
 CARD_WIDTH = 50
@@ -32,17 +32,17 @@ IMAGE = {
     "Ergo": "carteCQFD.gif",
     "Back": "carteDos.gif"
     }
- 
-# definition du chemin des lettres de l'animation   
+
+# definition du chemin des lettres de l'animation
 letWay = [(1,15),(1,14),(1,13),(2,13),(3,13),(4,13),(5,13),(5,14),(5,15),
           (4,15),(3,15),(2,15),
         (1,11),(1,10),(1,9),(2,9),(3,9),(4,9),(5,9),(5,10),(5,11),(4,11),
         (3,11),
         (5,5),(4,5),(3,5),(2,5),(1,5),(1,6),(1,7),(2,7),(3,7),(4,6),(5,7),
-        (1,3),(1,2),(1,1),(2,1),(3,1),(3,2),(4,1),(5,1),(5,2),(5,3)]  
+        (1,3),(1,2),(1,1),(2,1),(3,1),(3,2),(4,1),(5,1),(5,2),(5,3)]
 
-class ErgoGuiIntro(tk.Tk):
-    """Interface graphique fenetre acceuil avec animation 
+class ErgoGuiIntro(tk.Toplevel):
+    """Interface graphique fenetre acceuil avec animation
     et choix du mode de jeu"""
     def __init__(self):
         """Constructeur de la classe
@@ -50,32 +50,34 @@ class ErgoGuiIntro(tk.Tk):
         :return: Objet ErgoGuiIntro
         :rtype: ErgoGuiIntro
         """
-        tk.Tk.__init__(self)
+        super().__init__()
         self.title("Ergo acceuil")
         self.geometry("850x600")
-        self.resizable(width=False, height=False)        
+        self.grab_set()
+        self.transient(self.master)
+        self.resizable(width=False, height=False)
         self.__init_intro__()
         self.button_choice()
         self.flag = 1
         self.pause = 150
-        self.animate_letter(len(letWay),letWay)
-       
+        self.animate_letter(len(letWay),  letWay)
+
     def __init_intro__(self):
         """ Creation de la fenetre d'animation """
         self.canIntro = tk.Canvas(self, height=500, width=850,
-                             bg="skyblue")
+                                  bg="skyblue")
         self.canIntro.grid()
-        self.img = tk.PhotoImage(file="carteDos.gif")
+        self.img = tk.PhotoImage(file="images/carteDos.gif")
         self.idImg = self.canIntro.create_image(425,465,image=self.img)
-        
+
     def rectangle(self,x,y):
         """ création d'un rectangle trace du passage de la carte """
         self.canIntro.create_rectangle(x,y,x+50,y+70, fill="ivory")
-        
+
     def animate_letter(self, nbCarte, lWay):
         """ deplace la carte sur le canvas en suivant un chemin defini ,
-        de façon récursive et laisse la trace du parcours 
-        
+        de façon récursive et laisse la trace du parcours
+
         :param nbCarte: nombre de cartes à afficher
         :type nbCarte: int
 
@@ -95,19 +97,23 @@ class ErgoGuiIntro(tk.Tk):
 
     def button_choice(self):
         """ Creation des boutons de choix du mode de jeu """
-        self.but_play_against_pc = tk.Button(text="Mode seul", bd=7, 
+        self.but_play_against_pc = tk.Button(self,text="Mode seul", bd=7,
                                              font="Arial 16",
                     command = lambda : self.animate_letter(len(letWay),letWay))
         self.but_play_against_pc.grid()
-        self.but_play_multiplayers = tk.Button(text="Mode multijoueurs", 
-                                               bd=7, font="Arial 16")
+        self.but_play_multiplayers = tk.Button(self,text="Mode multijoueurs",
+                                               bd=7, font="Arial 16",
+                                               command=self.choice)
         self.but_play_multiplayers.grid()
-    
-#    def choice(self):
-#        """ Ouverture de la fenetre de jeu """
+
+    def choice(self):
+        """ Ouverture de la fenetre de jeu """
+        self.master.deb_partie(4)
+        self.destroy()
+#        global ergoGui
 #        ergoGui = ErgoGui()
 #        ergoGui.mainloop()
-    
+
 
 
 class ErgoGui(tk.Tk):
@@ -119,6 +125,7 @@ class ErgoGui(tk.Tk):
         :rtype: ErgoGui
         """
         tk.Tk.__init__(self)
+        ess = ErgoGuiIntro()
         self.title("Ergo")
         self.geometry("1200x500")  # dimension fenetre jeu
         self.resizable(width=False, height=False)
@@ -133,6 +140,8 @@ class ErgoGui(tk.Tk):
         # initialisation du menu et canvas
         self.__init_menu__()
         self.__init_canvas__()
+
+    def deb_partie(self, nb_player):
 
         self.num_player = 0
         self.nb_player = 4
@@ -449,7 +458,7 @@ class ErgoGui(tk.Tk):
 
 
 if __name__ == '__main__':
-#    ergoGui = ErgoGui()
-#    ergoGui.mainloop()
-    test = ErgoGuiIntro()
-    test.mainloop()
+#    test = ErgoGuiIntro()
+#    test.mainloop()
+    ergoGui = ErgoGui()
+    ergoGui.mainloop()
