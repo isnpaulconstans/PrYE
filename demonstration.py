@@ -263,7 +263,10 @@ class DPLL(Demonstration):
                  Modifie la liste de clauses et le modèle partiel.
 
         :param clause_list: une liste de clauses
-        :param model: un modèle partiel
+        :type clause_list: list
+        :param model: un modèle partiel composé de 0 (non testé), None
+                      (indéfini), True ou False
+        :type model: list
         """
         # recherche de clauses unitaires
         unit_clause = True
@@ -303,7 +306,7 @@ class DPLL(Demonstration):
             # rien de donne de contradiction : on ne peut rien conclure sur
             # cette variable
             model[ivar] = None
-        # on ne peut rien conclure de plus, mais le modèle est satisfiable
+        # toutes les variables ont été testées
         return True
 
     def conclusion(self):
