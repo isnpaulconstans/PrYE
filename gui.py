@@ -7,7 +7,7 @@ from tkinter import messagebox
 from cards import Proof, Deck
 from demonstration import ForceBrute, DPLL, FCN
 from ordi import OrdiRandom
-import time
+
 
 # Constantes
 CARD_HEIGHT = 70
@@ -32,8 +32,14 @@ IMAGE = {
     "Ergo": "carteCQFD.gif",
     "Back": "carteDos.gif"
     }
-    
-letE = [(1,3),(1,2),(1,1),(2,1),(3,1),(3,2),(4,1),(5,1),(5,2),(5,3)]    
+ 
+# definition du chemin des lettres de l'animation   
+letWay = [(1,15),(1,14),(1,13),(2,13),(3,13),(4,13),(5,13),(5,14),(5,15),
+          (4,15),(3,15),(2,15),
+        (1,11),(1,10),(1,9),(2,9),(3,9),(4,9),(5,9),(5,10),(5,11),(4,11),
+        (3,11),
+        (5,5),(4,5),(3,5),(2,5),(1,5),(1,6),(1,7),(2,7),(3,7),(4,6),(5,7),
+        (1,3),(1,2),(1,1),(2,1),(3,1),(3,2),(4,1),(5,1),(5,2),(5,3)]  
 
 class ErgoGuiIntro(tk.Tk):
     """Interface graphique fenetre acceuil avec animation 
@@ -46,51 +52,62 @@ class ErgoGuiIntro(tk.Tk):
         """
         tk.Tk.__init__(self)
         self.title("Ergo acceuil")
-        self.geometry("800x600")
-        self.resizable(width=False, height=False)
-        
+        self.geometry("850x600")
+        self.resizable(width=False, height=False)        
         self.__init_intro__()
-        self.__choice__()
-        self.x = 50
-        self.y = 50
+        self.button_choice()
         self.flag = 1
-        
-
-        
+        self.pause = 150
+        self.animate_letter(len(letWay),letWay)
+       
     def __init_intro__(self):
         """ Creation de la fenetre d'animation """
-        self.canIntro = tk.Canvas(self, height=500, width=800,
+        self.canIntro = tk.Canvas(self, height=500, width=850,
                              bg="skyblue")
         self.canIntro.grid()
         self.img = tk.PhotoImage(file="carteDos.gif")
-        self.idImg = self.canIntro.create_image(75,105,image=self.img)
+        self.idImg = self.canIntro.create_image(425,465,image=self.img)
         
     def rectangle(self,x,y):
+        """ création d'un rectangle trace du passage de la carte """
         self.canIntro.create_rectangle(x,y,x+50,y+70, fill="ivory")
         
-    def animate(self, nbCarte):
-        """ deplace la carte sur canvas en suivant un chemin defini 
-        de façon récursive"""
-        if self.flag == 1:
-            if nbCarte == 0:
-                self.flag = 0
-            else:
-                x,y = self.canIntro.coords(self.idImg)
-                self.canIntro.coords(self.idImg,50*letE[nbCarte-1][1]-25,70*letE[nbCarte-1][0]-35)
-                self.rectangle(50*letE[nbCarte-1][1],70*letE[nbCarte-1][0])
-                self.after(100,lambda : self.animate(nbCarte-1))
-
+    def animate_letter(self, nbCarte, lWay):
+        """ deplace la carte sur le canvas en suivant un chemin defini ,
+        de façon récursive et laisse la trace du parcours 
         
-    def __choice__(self):
+        :param nbCarte: nombre de cartes à afficher
+        :type nbCarte: int
+
+        :param lWay: le chemin à suivre par la carte Ergo
+        :type lWay: list
+        """
+        if self.flag != 1:
+            return
+        if nbCarte == 0:
+            self.flag = 0
+            return
+        self.canIntro.coords(self.idImg,CARD_WIDTH*(lWay[nbCarte-1][1]+1)
+                -CARD_WIDTH/2,CARD_HEIGHT*lWay[nbCarte-1][0]+CARD_HEIGHT/2)
+        self.rectangle(50*lWay[nbCarte-1][1],70*lWay[nbCarte-1][0])
+        self.canIntro.tag_raise(self.idImg)
+        self.after(self.pause,lambda :self.animate_letter(nbCarte-1,lWay))
+
+    def button_choice(self):
         """ Creation des boutons de choix du mode de jeu """
-        self.but_play_against_pc = tk.Button(text="Contre ordi",command = lambda : self.animate(len(letE)))
+        self.but_play_against_pc = tk.Button(text="Mode seul", bd=7, 
+                                             font="Arial 16",
+                    command = lambda : self.animate_letter(len(letWay),letWay))
         self.but_play_against_pc.grid()
-        self.but_play_multiplayers = tk.Button(text="Contre autres joueurs")
+        self.but_play_multiplayers = tk.Button(text="Mode multijoueurs", 
+                                               bd=7, font="Arial 16")
         self.but_play_multiplayers.grid()
     
-  
-        
-        
+#    def choice(self):
+#        """ Ouverture de la fenetre de jeu """
+#        ergoGui = ErgoGui()
+#        ergoGui.mainloop()
+    
 
 
 class ErgoGui(tk.Tk):
