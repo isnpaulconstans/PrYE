@@ -8,7 +8,6 @@ from cards import Proof, Deck
 from demonstration import ForceBrute, DPLL, FCN
 from ordi import OrdiRandom
 
-#ess
 # Constantes
 CARD_HEIGHT = 70
 CARD_WIDTH = 50
@@ -115,6 +114,202 @@ class ErgoGuiIntro(tk.Toplevel):
 #        ergoGui.mainloop()
 
 
+class ErgoCanvas(tk.Canvas):
+    """Création du canvas de jeu avec les lignes des prémisses, les mains
+    et noms des joueurs et la pile"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, height=HEIGHT, width=WIDTH,
+                             bg=CARPET_COLOR)
+        self.photos = {name: tk.PhotoImage(file='images/'+IMAGE[name])
+                       for name in IMAGE}
+        self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
+        self.selected_card = None
+        self.pile = []
+        # liens bouttons souris
+        self.bind('<Button-1>', func=self.select)
+        self.bind('<Button1-Motion>', func=self.move)
+        self.bind("<ButtonRelease-1>", func=self.drop)
+        self.bind("<Button-3>", func=self.switch)
+        for i in range(4):
+            self.create_line(0, i*CARD_HEIGHT, WIDTH,
+                                 i*CARD_HEIGHT, fill="black")
+        for i in range(20):
+            self.create_line(i*CARD_WIDTH, 0, i*CARD_WIDTH,
+                                 4*CARD_HEIGHT, fill="red", dash=(4, 4))
+        self.create_rectangle(0, HEIGHT-CARD_HEIGHT-5,
+                                  WIDTH-2*CARD_WIDTH, HEIGHT,
+                                  width=5, outline="red")
+        self.create_rectangle(0, HEIGHT-2*CARD_HEIGHT-15,
+                                  WIDTH-2*CARD_WIDTH, HEIGHT-CARD_HEIGHT-10,
+                                  width=5, outline="red")
+        self.create_rectangle(WIDTH-2*CARD_WIDTH+5,
+                                  HEIGHT-2*CARD_HEIGHT-15,
+                                  WIDTH, HEIGHT,
+                                  width=5, outline="pink")
+        self.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
+                             text="Pile", font="Arial 16 italic", fill="blue")
+        # les lignes des prémisses
+        for i in range(4):
+            tk.Label(text="Prémisse "+str(i+1)).grid(row=i+1, column=2)
+        self.grid(row=1, column=1, rowspan=5)
+        # le dos de cartes
+        for (row, col) in [(0, 11), (1, 2), (1, 11)]:
+            xdeb = col * CARD_WIDTH + CARD_WIDTH // 2
+            y = 4 * (CARD_HEIGHT+2) + (CARD_HEIGHT + 10) * row + CARD_HEIGHT//2
+            for index in range(5):
+                x = xdeb + index * CARD_WIDTH
+                self.create_image(x, y, image=self.photos["Back"])
+        # les noms des joueurs
+        self.names = [self.create_text(CARD_WIDTH*(1 + 9 * (i % 2)),
+                                           (4 + i // 2) * CARD_HEIGHT + 50,
+                                           text="Joueur " + "ABCD"[i],
+                                           font="Arial 16 italic",
+                                           fill="blue")
+                      for i in range(4)]
+
+    def display_current_player(self, num_player, nb_player):
+        """ Affiche les numéros de joueurs en faisant tourner, le joueur
+        courant est toujours en haut à gauche. """
+        for i, player in enumerate(self.names):
+            self.itemconfig(player, text="Joueur " +
+                                "ABCD"[(num_player+i) % (nb_player)])
+
+    def affiche_cards(self, card_list, row):
+        """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
+        prémisses, 4 pour la main du joueur
+
+        :param card_list: la liste de cartes à afficher
+        :type card_list: list
+
+        :param row: le numéro de la ligne
+        :type row: int
+        """
+        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
+        for num in self.cards[row]:
+            if "selected" in self.gettags(num):
+                continue
+            self.delete(num)
+        self.cards[row] = []
+        for index, card in enumerate(card_list):
+            x = CARD_WIDTH // 2 + index * CARD_WIDTH
+            if row == 4:
+                x += 2 * CARD_WIDTH
+            self.cards[row].append(
+                self.create_image(x, y,
+                                      image=self.photos[card.name],
+                                      tag="card"
+                                     )
+                )
+    # TODO creer methode passage coord en col et row
+    def select(self, event):
+        """Selectionne une carte, la marque comme "selected", la met en avant
+        plan, et l'enlève de l'endroit où elle était (mains, prémisse ou pile).
+
+        :param event: événement
+        :type event: tkinter.Event
+        """
+        num = self.find_closest(event.x, event.y)
+        if "card" in self.gettags(num):
+            self.addtag_withtag("selected", num)
+            row = event.y//CARD_HEIGHT
+            col = event.x//CARD_WIDTH - 2 * (row == 4)
+            if 0 <= row < 4:  # un des premisses
+                self.selected_card = self.master.proof.pop(row, col)
+                if self.selected_card is None:  # impossible de la sélectionner
+                    self.dtag("selected")
+                    return
+                self.affiche_cards(self.master.proof.premises[row], row)
+            elif 4 <= row <= 5 and 18 <= col <= 19:  # Pile
+                self.selected_card = self.pile.pop()
+                self.dtag("selected", "pile")
+            else:  # carte de la main
+                if self.master.cards_played == 2:
+                    messagebox.showwarning("2 cartes", "On ne peut pas jouer "
+                                           + "plus de deux cartes")
+                    self.dtag("selected")
+                    return
+                self.selected_card = self.master.hands[self.master.num_player].pop(col)
+                self.affiche_cards(self.master.hands[self.master.num_player], 4)
+                self.master.cards_played += 1
+            self.tag_raise(num)  # pour passer en avant plan
+
+    def move(self, event):
+        """Déplace la carte marquée "selected".
+
+        :param event: événement
+        :type event: tkinter.Event
+        """
+        num = self.find_withtag("selected")
+        self.coords(num, event.x, event.y)
+
+    def drop(self, event):
+        """Place la carte marquée "selected" sur la grille, et l'ajoute au bon
+        endroit (prémisse, main ou pile) et enlève la marque "selected".
+        Si c'est impossible, la remet à la fin de la main.
+
+        :param event: événement
+        :type event: tkinter.Event
+        """
+        def restore():
+            """remet la carte dans la main du joueur."""
+            self.master.hands[self.master.num_player].append(self.selected_card)
+            self.delete("selected")
+            self.affiche_cards(self.master.hands[self.master.num_player], 4)
+            self.selected_card = None
+            self.master.cards_played -= 1
+
+        if self.selected_card is None:
+            return
+        row, col = event.y//CARD_HEIGHT, event.x//CARD_WIDTH
+        if 4 <= row <= 5 and 18 <= col <= 19:  # Pile
+            self.coords("selected", WIDTH-CARD_WIDTH, HEIGHT-CARD_HEIGHT/2)
+            self.pile.append(self.selected_card)
+            self.addtag_withtag("pile", "selected")
+            self.dtag("selected")
+            self.selected_card = None
+            return
+        if not (0 <= event.x <= WIDTH and 0 <= row < 4):  # une des premisses
+            restore()
+            return
+        if self.selected_card.is_ergo():
+            if not self.master.proof.is_all_correct():
+                messagebox.showwarning("Ergo", "Jeu invalide")
+                restore()
+                return
+            if not self.master.proof.all_cards_played():
+                messagebox.showwarning("Fin de manche", "Toutes les lettres " +
+                                       "doivent apparaître pour pouvoir " +
+                                       "mettre fin à la manche")
+                restore()
+                return
+            self.affiche_cards(self.master.proof.premises[-1]+[self.selected_card], 3)
+            self.delete("selected")
+            self.selected_card = None
+            self.master.fin_manche()
+            return
+        if self.master.proof.insert(row, col, self.selected_card):
+            self.delete("selected")
+            self.affiche_cards(self.master.proof.premises[row], row)
+            self.selected_card = None
+            return
+
+    def switch(self, event):
+        """Retourne la parenthèse si c'en est une, dans la main du joueur
+        courant.
+
+        :param event: événement
+        :type event: tkinter.Event
+        """
+        num = self.find_closest(event.x, event.y)
+        if "card" in self.gettags(num):
+            row = event.y//CARD_HEIGHT
+            col = event.x//CARD_WIDTH - 2
+            if row == 4 and 0 <= col < len(self.hands[self.num_player]):
+                card = self.master.hands[self.num_player][col]
+                card.turn_parenthesis()
+                self.affiche_cards(self.master.hands[self.master.num_player], 4)
+
+
 
 class ErgoGui(tk.Tk):
     """Interface graphique."""
@@ -134,12 +329,9 @@ class ErgoGui(tk.Tk):
         self.deck = Deck()
         self.demoDPLL = DPLL(self.proof)
         self.demoFB = ForceBrute(self.proof)
-        self.photos = {name: tk.PhotoImage(file='images/'+IMAGE[name])
-                       for name in IMAGE}
-        self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
         # initialisation du menu et canvas
         self.__init_menu__()
-        self.__init_canvas__()
+        self.can = ErgoCanvas(self)
 
     def deb_partie(self, nb_player):
 
@@ -147,10 +339,8 @@ class ErgoGui(tk.Tk):
         self.nb_player = 4
         self.hands = [self.deck.draw(5) for _ in range(4)]
         self.hands[self.num_player].extend(self.deck.draw(2))
-        self.pile = []
-        self.selected_card = None
         self.cards_played = 0
-        self.affiche_cards(self.hands[self.num_player], 4)
+        self.can.affiche_cards(self.hands[self.num_player], 4)
 
         self.name = tk.Label(text="Ergo le jeu", font="Arial 16 italic")
         self.name.grid(row=1, column=0)
@@ -159,11 +349,6 @@ class ErgoGui(tk.Tk):
         self.slogan.grid(row=6, column=1)
         self.but_play = tk.Button(text="jouer", command=self.play)
         self.but_play.grid(row=5, column=0)
-        # liens bouttons souris
-        self.can.bind('<Button-1>', func=self.select)
-        self.can.bind('<Button1-Motion>', func=self.move)
-        self.can.bind("<ButtonRelease-1>", func=self.drop)
-        self.can.bind("<Button-3>", func=self.switch)
         # TODO creer une méthode init_round
         # TODO gérer les scores
         # TODO créer une classe ErgoCanvas et y mettre tous le canvas
@@ -183,54 +368,6 @@ class ErgoGui(tk.Tk):
         # afficher le menu
         self.config(menu=self.barre_menu)
 
-    def __init_canvas__(self):
-        """Création du canvas de jeu avec les lignes des prémisses, les mains
-        et noms des joueurs et la pile"""
-        self.can = tk.Canvas(self, height=HEIGHT, width=WIDTH,
-                             bg=CARPET_COLOR)
-        for i in range(4):
-            self.can.create_line(0, i*CARD_HEIGHT, WIDTH,
-                                 i*CARD_HEIGHT, fill="black")
-        for i in range(20):
-            self.can.create_line(i*CARD_WIDTH, 0, i*CARD_WIDTH,
-                                 4*CARD_HEIGHT, fill="red", dash=(4, 4))
-        self.can.create_rectangle(0, HEIGHT-CARD_HEIGHT-5,
-                                  WIDTH-2*CARD_WIDTH, HEIGHT,
-                                  width=5, outline="red")
-        self.can.create_rectangle(0, HEIGHT-2*CARD_HEIGHT-15,
-                                  WIDTH-2*CARD_WIDTH, HEIGHT-CARD_HEIGHT-10,
-                                  width=5, outline="red")
-        self.can.create_rectangle(WIDTH-2*CARD_WIDTH+5,
-                                  HEIGHT-2*CARD_HEIGHT-15,
-                                  WIDTH, HEIGHT,
-                                  width=5, outline="pink")
-        self.can.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
-                             text="Pile", font="Arial 16 italic", fill="blue")
-        # les lignes des prémisses
-        for i in range(4):
-            tk.Label(text="Prémisse "+str(i+1)).grid(row=i+1, column=2)
-        self.can.grid(row=1, column=1, rowspan=5)
-        # le dos de cartes
-        for (row, col) in [(0, 11), (1, 2), (1, 11)]:
-            xdeb = col * CARD_WIDTH + CARD_WIDTH // 2
-            y = 4 * (CARD_HEIGHT+2) + (CARD_HEIGHT + 10) * row + CARD_HEIGHT//2
-            for index in range(5):
-                x = xdeb + index * CARD_WIDTH
-                self.can.create_image(x, y, image=self.photos["Back"])
-        # les noms des joueurs
-        self.names = [self.can.create_text(CARD_WIDTH*(1 + 9 * (i % 2)),
-                                           (4 + i // 2) * CARD_HEIGHT + 50,
-                                           text="Joueur " + "ABCD"[i],
-                                           font="Arial 16 italic",
-                                           fill="blue")
-                      for i in range(4)]
-
-    def display_current_player(self):
-        """ Affiche les numéros de joueurs en faisant tourner, le joueur
-        courant est toujours en haut à gauche. """
-        for i, player in enumerate(self.names):
-            self.can.itemconfig(player, text="Joueur " +
-                                "ABCD"[(self.num_player+i) % (self.nb_player)])
 
     def play(self):
         """Valide un coup si possible, et passe au joueur suivant"""
@@ -253,8 +390,8 @@ class ErgoGui(tk.Tk):
         self.can.delete("pile")
         self.num_player = (self.num_player + 1) % self.nb_player
         self.hands[self.num_player].extend(self.deck.draw(2))
-        self.affiche_cards(self.hands[self.num_player], 4)
-        self.display_current_player()
+        self.can.affiche_cards(self.hands[self.num_player], 4)
+        self.can.display_current_player(self.num_player, self.nb_player)
         if self.num_player != 0:
             self.ordi_plays()
 
@@ -278,149 +415,15 @@ class ErgoGui(tk.Tk):
         card2 = hand.pop(index_hand2)
         if index_premise1 >= 0:
             self.proof.insert(num_premise1, index_premise1, card1)
-            self.affiche_cards(self.proof.premises[num_premise1], num_premise1)
+            self.can.affiche_cards(self.proof.premises[num_premise1], num_premise1)
         if index_premise2 >= 0:
             self.proof.insert(num_premise2, index_premise2, card2)
-            self.affiche_cards(self.proof.premises[num_premise2], num_premise2)
-        self.affiche_cards(self.hands[self.num_player], 4)
+            self.can.affiche_cards(self.proof.premises[num_premise2], num_premise2)
+        self.can.affiche_cards(self.hands[self.num_player], 4)
         messagebox.askyesno("ca marche ?")
         self.play()
 
-    def affiche_cards(self, card_list, row):
-        """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
-        prémisses, 4 pour la main du joueur
 
-        :param card_list: la liste de cartes à afficher
-        :type card_list: list
-
-        :param row: le numéro de la ligne
-        :type row: int
-        """
-        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
-        for num in self.cards[row]:
-            if "selected" in self.can.gettags(num):
-                continue
-            self.can.delete(num)
-        self.cards[row] = []
-        for index, card in enumerate(card_list):
-            x = CARD_WIDTH // 2 + index * CARD_WIDTH
-            if row == 4:
-                x += 2 * CARD_WIDTH
-            self.cards[row].append(
-                self.can.create_image(x, y,
-                                      image=self.photos[card.name],
-                                      tag="card"
-                                     )
-                )
-
-    # TODO creer methode passage coord en col et row
-    def select(self, event):
-        """Selectionne une carte, la marque comme "selected", la met en avant
-        plan, et l'enlève de l'endroit où elle était (mains, prémisse ou pile).
-
-        :param event: événement
-        :type event: tkinter.Event
-        """
-        num = self.can.find_closest(event.x, event.y)
-        if "card" in self.can.gettags(num):
-            self.can.addtag_withtag("selected", num)
-            row = event.y//CARD_HEIGHT
-            col = event.x//CARD_WIDTH - 2 * (row == 4)
-            if 0 <= row < 4:  # un des premisses
-                self.selected_card = self.proof.pop(row, col)
-                if self.selected_card is None:  # impossible de la sélectionner
-                    self.can.dtag("selected")
-                    return
-                self.affiche_cards(self.proof.premises[row], row)
-            elif 4 <= row <= 5 and 18 <= col <= 19:  # Pile
-                self.selected_card = self.pile.pop()
-                self.can.dtag("selected", "pile")
-            else:  # carte de la main
-                if self.cards_played == 2:
-                    messagebox.showwarning("2 cartes", "On ne peut pas jouer "
-                                           + "plus de deux cartes")
-                    self.can.dtag("selected")
-                    return
-                self.selected_card = self.hands[self.num_player].pop(col)
-                self.affiche_cards(self.hands[self.num_player], 4)
-                self.cards_played += 1
-            self.can.tag_raise(num)  # pour passer en avant plan
-
-    def move(self, event):
-        """Déplace la carte marquée "selected".
-
-        :param event: événement
-        :type event: tkinter.Event
-        """
-        num = self.can.find_withtag("selected")
-        self.can.coords(num, event.x, event.y)
-
-    def drop(self, event):
-        """Place la carte marquée "selected" sur la grille, et l'ajoute au bon
-        endroit (prémisse, main ou pile) et enlève la marque "selected".
-        Si c'est impossible, la remet à la fin de la main.
-
-        :param event: événement
-        :type event: tkinter.Event
-        """
-        def restore():
-            """remet la carte dans la main du joueur."""
-            self.hands[self.num_player].append(self.selected_card)
-            self.can.delete("selected")
-            self.affiche_cards(self.hands[self.num_player], 4)
-            self.selected_card = None
-            self.cards_played -= 1
-
-        if self.selected_card is None:
-            return
-        row, col = event.y//CARD_HEIGHT, event.x//CARD_WIDTH
-        if 4 <= row <= 5 and 18 <= col <= 19:  # Pile
-            self.can.coords("selected", WIDTH-CARD_WIDTH, HEIGHT-CARD_HEIGHT/2)
-            self.pile.append(self.selected_card)
-            self.can.addtag_withtag("pile", "selected")
-            self.can.dtag("selected")
-            self.selected_card = None
-            return
-        if not (0 <= event.x <= WIDTH and 0 <= row < 4):  # une des premisses
-            restore()
-            return
-        if self.selected_card.is_ergo():
-            if not self.proof.is_all_correct():
-                messagebox.showwarning("Ergo", "Jeu invalide")
-                restore()
-                return
-            if not self.proof.all_cards_played():
-                messagebox.showwarning("Fin de manche", "Toutes les lettres " +
-                                       "doivent apparaître pour pouvoir " +
-                                       "mettre fin à la manche")
-                restore()
-                return
-            self.affiche_cards(self.proof.premises[-1]+[self.selected_card], 3)
-            self.can.delete("selected")
-            self.selected_card = None
-            self.fin_manche()
-            return
-        if self.proof.insert(row, col, self.selected_card):
-            self.can.delete("selected")
-            self.affiche_cards(self.proof.premises[row], row)
-            self.selected_card = None
-            return
-
-    def switch(self, event):
-        """Retourne la parenthèse si c'en est une, dans la main du joueur
-        courant.
-
-        :param event: événement
-        :type event: tkinter.Event
-        """
-        num = self.can.find_closest(event.x, event.y)
-        if "card" in self.can.gettags(num):
-            row = event.y//CARD_HEIGHT
-            col = event.x//CARD_WIDTH - 2
-            if row == 4 and 0 <= col < len(self.hands[self.num_player]):
-                card = self.hands[self.num_player][col]
-                card.turn_parenthesis()
-                self.affiche_cards(self.hands[self.num_player], 4)
 
     def fin_manche(self):
         """Fin de la manche, affichage des gagnants et du score."""
