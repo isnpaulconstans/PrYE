@@ -162,11 +162,19 @@ class ErgoCanvas(tk.Canvas):
                 self.create_image(x, y, image=self.photos["Back"])
         # les noms des joueurs
         self.names = [self.create_text(CARD_WIDTH*(1 + 9 * (i % 2)),
-                                       (4 + i // 2) * CARD_HEIGHT + 50,
+                                       4.5 * CARD_HEIGHT
+                                       + (i // 2) * (CARD_HEIGHT+10),
                                        text="Joueur " + "ABCD"[i],
                                        font="Arial 16 italic",
                                        fill="blue")
                       for i in range(4)]
+        self.scores = [self.create_text(CARD_WIDTH*(1 + 9 * (i % 2)),
+                                        4.85 * CARD_HEIGHT
+                                        + (i // 2) * (CARD_HEIGHT+10),
+                                        text=self.master.scores[i],
+                                        font="Arial 16 italic",
+                                        fill="blue")
+                       for i in range(4)]
 
     def display_current_player(self, num_player):
         """ Affiche les numéros de joueurs en faisant tourner, le joueur
@@ -178,6 +186,9 @@ class ErgoCanvas(tk.Canvas):
         for i, player in enumerate(self.names):
             self.itemconfig(player,
                             text="Joueur " + "ABCD"[(num_player+i) % 4])
+        for i, score in enumerate(self.scores):
+            self.itemconfig(score,
+                            text=self.master.scores[(num_player+i) % 4])
 
     def affiche_cards(self, loc, card_list, row=4):
         """affiche la liste de carte card_list dans la prémisse row ou dans le
@@ -393,6 +404,7 @@ class ErgoGui(tk.Tk):
         self.resizable(width=False, height=False)
         # initialisation du menu et canvas
         self.__init_menu__()
+        self.scores = [0]*4
         self.can = ErgoCanvas(self)
         tk.Label(text="Ergo le jeu", font="Arial 16 italic").grid(row=1,
                                                                   column=0)
@@ -481,18 +493,19 @@ class ErgoGui(tk.Tk):
     def fin_manche(self):
         """Fin de la manche, affichage des gagnants et du score."""
         # TODO faire plus propre
-        msg = ""
         prouve = self.demoFB.conclusion()
         if prouve is None:
-            msg += "La preuve contient une contradiction,\
+            msg = "La preuve contient une contradiction,\
                     personne ne marque de point"
         else:
-            msg += "Le(s) gagnant(s) est(sont) : "
+            score = self.proof.score()
+            msg = "Le(s) gagnant(s) est(sont) : "
             for index, val in enumerate(prouve):
                 if val:
                     msg += chr(ord('A')+index) + " "
+                    self.scores[index] += score
                 msg += "\n"
-            msg += "\nChacun marque {} points".format(self.proof.score())
+            msg += "\nChacun marque {} points".format(score)
         messagebox.showinfo("Fin de la manche", msg)
         self.init_round()
 
