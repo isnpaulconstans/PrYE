@@ -5,7 +5,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from cards import Proof, Deck
-from demonstration import ForceBrute, DPLL, FCN
+from demonstration import ForceBrute, DPLL
 from ordi import OrdiRandom
 
 # Constantes
@@ -33,12 +33,16 @@ IMAGE = {
     }
 
 # definition du chemin des lettres de l'animation
-letWay = [(1,15),(1,14),(1,13),(2,13),(3,13),(4,13),(5,13),(5,14),(5,15),
-          (4,15),(3,15),(2,15),
-        (1,11),(1,10),(1,9),(2,9),(3,9),(4,9),(5,9),(5,10),(5,11),(4,11),
-        (3,11),
-        (5,5),(4,5),(3,5),(2,5),(1,5),(1,6),(1,7),(2,7),(3,7),(4,6),(5,7),
-        (1,3),(1,2),(1,1),(2,1),(3,1),(3,2),(4,1),(5,1),(5,2),(5,3)]
+LETWAY = [(1, 15), (1, 14), (1, 13), (2, 13), (3, 13), (4, 13), (5, 13),
+          (5, 14), (5, 15), (4, 15), (3, 15), (2, 15),  # E
+          (1, 11), (1, 10), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (5, 10),
+          (5, 11), (4, 11), (3, 11),  # R
+          (5, 5), (4, 5), (3, 5), (2, 5), (1, 5), (1, 6), (1, 7), (2, 7),
+          (3, 7), (4, 6), (5, 7),  # G
+          (1, 3), (1, 2), (1, 1), (2, 1), (3, 1), (3, 2), (4, 1), (5, 1),
+          (5, 2), (5, 3)  # O
+          ]
+
 
 class ErgoGuiIntro(tk.Toplevel):
     """Interface graphique fenetre acceuil avec animation
@@ -59,59 +63,56 @@ class ErgoGuiIntro(tk.Toplevel):
         self.button_choice()
         self.flag = 1
         self.pause = 150
-        self.animate_letter(len(letWay),  letWay)
+        self.animate_letter(len(LETWAY), LETWAY)
 
     def __init_intro__(self):
         """ Creation de la fenetre d'animation """
-        self.canIntro = tk.Canvas(self, height=500, width=850,
-                                  bg="skyblue")
-        self.canIntro.grid()
+        self.can = tk.Canvas(self, height=500, width=850,
+                             bg="skyblue")
+        self.can.grid()
         self.img = tk.PhotoImage(file="images/carteDos.gif")
-        self.idImg = self.canIntro.create_image(425,465,image=self.img)
+        self.id_img = self.can.create_image(425, 465, image=self.img)
 
-    def rectangle(self,x,y):
+    def rectangle(self, x, y):
         """ création d'un rectangle trace du passage de la carte """
-        self.canIntro.create_rectangle(x,y,x+50,y+70, fill="ivory")
+        self.can.create_rectangle(x, y, x+50, y+70, fill="ivory")
 
-    def animate_letter(self, nbCarte, lWay):
+    def animate_letter(self, nb_cards, l_way):
         """ deplace la carte sur le canvas en suivant un chemin defini ,
         de façon récursive et laisse la trace du parcours
 
-        :param nbCarte: nombre de cartes à afficher
-        :type nbCarte: int
+        :param nb_cards: nombre de cartes à afficher
+        :type nb_cards: int
 
-        :param lWay: le chemin à suivre par la carte Ergo
-        :type lWay: list
+        :param l_way: le chemin à suivre par la carte Ergo
+        :type l_way: list
         """
         if self.flag != 1:
             return
-        if nbCarte == 0:
+        if nb_cards == 0:
             self.flag = 0
             return
-        self.canIntro.coords(self.idImg,CARD_WIDTH*(lWay[nbCarte-1][1]+1)
-                -CARD_WIDTH/2,CARD_HEIGHT*lWay[nbCarte-1][0]+CARD_HEIGHT/2)
-        self.rectangle(50*lWay[nbCarte-1][1],70*lWay[nbCarte-1][0])
-        self.canIntro.tag_raise(self.idImg)
-        self.after(self.pause,lambda :self.animate_letter(nbCarte-1,lWay))
+        self.can.coords(self.id_img,
+                        CARD_WIDTH*(l_way[nb_cards-1][1]+1)-CARD_WIDTH/2,
+                        CARD_HEIGHT*l_way[nb_cards-1][0]+CARD_HEIGHT/2)
+        self.rectangle(50*l_way[nb_cards-1][1], 70*l_way[nb_cards-1][0])
+        self.can.tag_raise(self.id_img)
+        self.after(self.pause, lambda: self.animate_letter(nb_cards-1, l_way))
 
     def button_choice(self):
         """ Creation des boutons de choix du mode de jeu """
-        self.but_play_against_pc = tk.Button(self,text="Mode seul", bd=7,
-                                             font="Arial 16",
-                    command = lambda : self.animate_letter(len(letWay),letWay))
-        self.but_play_against_pc.grid()
-        self.but_play_multiplayers = tk.Button(self,text="Mode multijoueurs",
-                                               bd=7, font="Arial 16",
-                                               command=self.choice)
-        self.but_play_multiplayers.grid()
+        tk.Button(self, text="Mode seul", bd=7, font="Arial 16",
+                  command=lambda: self.choice(1)
+                  ).grid()
+        tk.Button(self, text="Mode multijoueurs", bd=7, font="Arial 16",
+                  command=lambda: self.choice(4)
+                  ).grid()
 
-    def choice(self):
-        """ Ouverture de la fenetre de jeu """
-        self.master.deb_partie(4)
+    def choice(self, nb_player):
+        """Lance la fenetre de jeu """
+        self.master.nb_player = nb_player
+        self.master.init_round()
         self.destroy()
-#        global ergoGui
-#        ergoGui = ErgoGui()
-#        ergoGui.mainloop()
 
 
 class ErgoCanvas(tk.Canvas):
@@ -119,7 +120,7 @@ class ErgoCanvas(tk.Canvas):
     et noms des joueurs et la pile"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, height=HEIGHT, width=WIDTH,
-                             bg=CARPET_COLOR)
+                         bg=CARPET_COLOR)
         self.photos = {name: tk.PhotoImage(file='images/'+IMAGE[name])
                        for name in IMAGE}
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
@@ -132,22 +133,22 @@ class ErgoCanvas(tk.Canvas):
         self.bind("<Button-3>", func=self.switch)
         for i in range(4):
             self.create_line(0, i*CARD_HEIGHT, WIDTH,
-                                 i*CARD_HEIGHT, fill="black")
+                             i*CARD_HEIGHT, fill="black")
         for i in range(20):
             self.create_line(i*CARD_WIDTH, 0, i*CARD_WIDTH,
-                                 4*CARD_HEIGHT, fill="red", dash=(4, 4))
+                             4*CARD_HEIGHT, fill="red", dash=(4, 4))
         self.create_rectangle(0, HEIGHT-CARD_HEIGHT-5,
-                                  WIDTH-2*CARD_WIDTH, HEIGHT,
-                                  width=5, outline="red")
+                              WIDTH-2*CARD_WIDTH, HEIGHT,
+                              width=5, outline="red")
         self.create_rectangle(0, HEIGHT-2*CARD_HEIGHT-15,
-                                  WIDTH-2*CARD_WIDTH, HEIGHT-CARD_HEIGHT-10,
-                                  width=5, outline="red")
+                              WIDTH-2*CARD_WIDTH, HEIGHT-CARD_HEIGHT-10,
+                              width=5, outline="red")
         self.create_rectangle(WIDTH-2*CARD_WIDTH+5,
-                                  HEIGHT-2*CARD_HEIGHT-15,
-                                  WIDTH, HEIGHT,
-                                  width=5, outline="pink")
+                              HEIGHT-2*CARD_HEIGHT-15,
+                              WIDTH, HEIGHT,
+                              width=5, outline="pink")
         self.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
-                             text="Pile", font="Arial 16 italic", fill="blue")
+                         text="Pile", font="Arial 16 italic", fill="blue")
         # les lignes des prémisses
         for i in range(4):
             tk.Label(text="Prémisse "+str(i+1)).grid(row=i+1, column=2)
@@ -161,18 +162,22 @@ class ErgoCanvas(tk.Canvas):
                 self.create_image(x, y, image=self.photos["Back"])
         # les noms des joueurs
         self.names = [self.create_text(CARD_WIDTH*(1 + 9 * (i % 2)),
-                                           (4 + i // 2) * CARD_HEIGHT + 50,
-                                           text="Joueur " + "ABCD"[i],
-                                           font="Arial 16 italic",
-                                           fill="blue")
+                                       (4 + i // 2) * CARD_HEIGHT + 50,
+                                       text="Joueur " + "ABCD"[i],
+                                       font="Arial 16 italic",
+                                       fill="blue")
                       for i in range(4)]
 
-    def display_current_player(self, num_player, nb_player):
+    def display_current_player(self, num_player):
         """ Affiche les numéros de joueurs en faisant tourner, le joueur
-        courant est toujours en haut à gauche. """
+        courant est toujours en haut à gauche.
+
+        :param num_player: le numéro du joueur courant
+        :type num_player: int
+        """
         for i, player in enumerate(self.names):
-            self.itemconfig(player, text="Joueur " +
-                                "ABCD"[(num_player+i) % (nb_player)])
+            self.itemconfig(player,
+                            text="Joueur " + "ABCD"[(num_player+i) % 4])
 
     def affiche_cards(self, card_list, row):
         """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
@@ -194,12 +199,46 @@ class ErgoCanvas(tk.Canvas):
             x = CARD_WIDTH // 2 + index * CARD_WIDTH
             if row == 4:
                 x += 2 * CARD_WIDTH
-            self.cards[row].append(
-                self.create_image(x, y,
-                                      image=self.photos[card.name],
-                                      tag="card"
-                                     )
-                )
+            card_image = self.create_image(x, y,
+                                           image=self.photos[card.name],
+                                           tag="card")
+            self.cards[row].append(card_image)
+
+    def reset(self):
+        """remise à zéro de l'affichage."""
+        for row in self.cards:
+            while row:
+                self.delete(row.pop())
+
+    def row_col2x_y(row, col):
+        pass
+
+    @staticmethod
+    def x_y2row_col(x, y):
+        """Transforme les coordonnées dans le canvas en numéro de ligne et de
+        colonne.
+
+        :param x: abscisse
+        :type x: int
+        :param y: ordonnée
+        :type x: int
+
+        :return: loc, row, col où
+
+                 * loc est "premise", "hand" ou "pile"
+                 * row est le numéro de la prémisse
+                 * col est la position dans la prémisse
+        """
+        row = y//CARD_HEIGHT
+        col = x//CARD_WIDTH - 2 * (row == 4)
+        if 0 <= row < 4:
+            loc = "premise"
+        elif 4 <= row <= 5 and 18 <= col <= 19:
+            loc = "pile"
+        else:
+            loc = "hand"
+        return loc, row, col
+
     # TODO creer methode passage coord en col et row
     def select(self, event):
         """Selectionne une carte, la marque comme "selected", la met en avant
@@ -211,15 +250,14 @@ class ErgoCanvas(tk.Canvas):
         num = self.find_closest(event.x, event.y)
         if "card" in self.gettags(num):
             self.addtag_withtag("selected", num)
-            row = event.y//CARD_HEIGHT
-            col = event.x//CARD_WIDTH - 2 * (row == 4)
-            if 0 <= row < 4:  # un des premisses
+            loc, row, col = self.x_y2row_col(event.x, event.y)
+            if loc == "premise":
                 self.selected_card = self.master.proof.pop(row, col)
                 if self.selected_card is None:  # impossible de la sélectionner
                     self.dtag("selected")
                     return
                 self.affiche_cards(self.master.proof.premises[row], row)
-            elif 4 <= row <= 5 and 18 <= col <= 19:  # Pile
+            elif loc == "pile":
                 self.selected_card = self.pile.pop()
                 self.dtag("selected", "pile")
             else:  # carte de la main
@@ -228,8 +266,9 @@ class ErgoCanvas(tk.Canvas):
                                            + "plus de deux cartes")
                     self.dtag("selected")
                     return
-                self.selected_card = self.master.hands[self.master.num_player].pop(col)
-                self.affiche_cards(self.master.hands[self.master.num_player], 4)
+                hand = self.master.hands[self.master.num_player]
+                self.selected_card = hand.pop(col)
+                self.affiche_cards(hand, 4)
                 self.master.cards_played += 1
             self.tag_raise(num)  # pour passer en avant plan
 
@@ -252,23 +291,24 @@ class ErgoCanvas(tk.Canvas):
         """
         def restore():
             """remet la carte dans la main du joueur."""
-            self.master.hands[self.master.num_player].append(self.selected_card)
+            hand = self.master.hands[self.master.num_player]
+            hand.append(self.selected_card)
             self.delete("selected")
-            self.affiche_cards(self.master.hands[self.master.num_player], 4)
+            self.affiche_cards(hand, 4)
             self.selected_card = None
             self.master.cards_played -= 1
 
         if self.selected_card is None:
             return
-        row, col = event.y//CARD_HEIGHT, event.x//CARD_WIDTH
-        if 4 <= row <= 5 and 18 <= col <= 19:  # Pile
+        loc, row, col = self.x_y2row_col(event.x, event.y)
+        if loc == "pile":
             self.coords("selected", WIDTH-CARD_WIDTH, HEIGHT-CARD_HEIGHT/2)
             self.pile.append(self.selected_card)
             self.addtag_withtag("pile", "selected")
             self.dtag("selected")
             self.selected_card = None
             return
-        if not (0 <= event.x <= WIDTH and 0 <= row < 4):  # une des premisses
+        if loc != "premise":
             restore()
             return
         if self.selected_card.is_ergo():
@@ -282,7 +322,8 @@ class ErgoCanvas(tk.Canvas):
                                        "mettre fin à la manche")
                 restore()
                 return
-            self.affiche_cards(self.master.proof.premises[-1]+[self.selected_card], 3)
+            cards = self.master.proof.premises[-1]+[self.selected_card]
+            self.affiche_cards(cards, 3)
             self.delete("selected")
             self.selected_card = None
             self.master.fin_manche()
@@ -304,11 +345,11 @@ class ErgoCanvas(tk.Canvas):
         if "card" in self.gettags(num):
             row = event.y//CARD_HEIGHT
             col = event.x//CARD_WIDTH - 2
-            if row == 4 and 0 <= col < len(self.hands[self.num_player]):
-                card = self.master.hands[self.num_player][col]
+            hand = self.master.hands[self.master.num_player]
+            if row == 4 and 0 <= col < len(hand):
+                card = hand[col]
                 card.turn_parenthesis()
-                self.affiche_cards(self.master.hands[self.master.num_player], 4)
-
+                self.affiche_cards(hand, 4)
 
 
 class ErgoGui(tk.Tk):
@@ -320,38 +361,35 @@ class ErgoGui(tk.Tk):
         :rtype: ErgoGui
         """
         tk.Tk.__init__(self)
-        ess = ErgoGuiIntro()
+        ErgoGuiIntro()
         self.title("Ergo")
         self.geometry("1200x500")  # dimension fenetre jeu
         self.resizable(width=False, height=False)
-
-        self.proof = Proof()
-        self.deck = Deck()
-        self.demoDPLL = DPLL(self.proof)
-        self.demoFB = ForceBrute(self.proof)
         # initialisation du menu et canvas
         self.__init_menu__()
         self.can = ErgoCanvas(self)
+        tk.Label(text="Ergo le jeu", font="Arial 16 italic").grid(row=1,
+                                                                  column=0)
+        tk.Label(text="Prouve que tu existes ...",
+                 font="Arial 28 italic").grid(row=6, column=1)
+        tk.Button(text="jouer", command=self.play).grid(row=5, column=0)
 
-    def deb_partie(self, nb_player):
-
+    def init_round(self):
+        """Inialise un début de tour."""
+        self.deck = Deck()
+        self.can.reset()
+        self.proof = Proof()
+        self.demoDPLL = DPLL(self.proof)
+        self.demoFB = ForceBrute(self.proof)
         self.num_player = 0
-        self.nb_player = 4
+        self.can.display_current_player(self.num_player)
+        self.ordi_player = [False]*self.nb_player + [True]*(4-self.nb_player)
         self.hands = [self.deck.draw(5) for _ in range(4)]
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.cards_played = 0
         self.can.affiche_cards(self.hands[self.num_player], 4)
 
-        self.name = tk.Label(text="Ergo le jeu", font="Arial 16 italic")
-        self.name.grid(row=1, column=0)
-        self.slogan = tk.Label(text="Prouve que tu existes ...",
-                               font="Arial 28 italic")
-        self.slogan.grid(row=6, column=1)
-        self.but_play = tk.Button(text="jouer", command=self.play)
-        self.but_play.grid(row=5, column=0)
-        # TODO creer une méthode init_round
         # TODO gérer les scores
-        # TODO créer une classe ErgoCanvas et y mettre tous le canvas
 
     def __init_menu__(self):
         """creation de la barre de menu qui permet d'afficher l'aide,
@@ -368,9 +406,8 @@ class ErgoGui(tk.Tk):
         # afficher le menu
         self.config(menu=self.barre_menu)
 
-
     def play(self):
-        """Valide un coup si possible, et passe au joueur suivant"""
+        """Valide un coup si possible, et passe au joueur suivant."""
         if len(self.hands[self.num_player]) != 5:
             messagebox.showwarning("Ergo",
                                    "Il faut garder 5 cartes pour valider.")
@@ -378,52 +415,41 @@ class ErgoGui(tk.Tk):
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
-        # TEST
-#        print(self.demo._proof.premises, self.demo._proof.npi, self.demo._proof.modif)
-        print(self.demoDPLL.conclusion(), "|=", self.demoFB.conclusion())
-#        print(self.demoDPLL._DPLL__clause_list, "|=", self.demoFB.conclusion())
         # passe au joueur suivant.
         if self.deck.is_finished():
             self.fin_manche()
         self.proof.reset_added()
         self.cards_played = 0
         self.can.delete("pile")
-        self.num_player = (self.num_player + 1) % self.nb_player
+        self.num_player = (self.num_player + 1) % 4
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.can.affiche_cards(self.hands[self.num_player], 4)
-        self.can.display_current_player(self.num_player, self.nb_player)
-        if self.num_player != 0:
+        self.can.display_current_player(self.num_player)
+        if self.ordi_player[self.num_player]:
             self.ordi_plays()
 
     def ordi_plays(self):
+        """Fait jouer l'ordinateur."""
         hand = self.hands[self.num_player]
+        name = "Joueur " + chr(ord('A') + self.num_player)
+        play = "Joue {} sur la ligne {} en position {}"
+        drop = "Jette le {}"
         ordi = OrdiRandom(self.proof, hand)
         coup = ordi.joue()
-        (index_hand1, num_premise1, index_premise1,
-         index_hand2, num_premise2, index_premise2) = coup
-        messagebox.showinfo("Joueur "+chr(ord('A')+self.num_player),
-                            "{} sur {} en position {}".format(hand[index_hand1],
-                                                              num_premise1,
-                                                              index_premise1))
-        messagebox.showinfo("Joueur "+chr(ord('A')+self.num_player),
-                            "{} sur {} en position {}".format(hand[index_hand2],
-                                                              num_premise2,
-                                                              index_premise2))
-        card1 = hand.pop(index_hand1)
-        if index_hand1<index_hand2:
-            index_hand2 -= 1
-        card2 = hand.pop(index_hand2)
-        if index_premise1 >= 0:
-            self.proof.insert(num_premise1, index_premise1, card1)
-            self.can.affiche_cards(self.proof.premises[num_premise1], num_premise1)
-        if index_premise2 >= 0:
-            self.proof.insert(num_premise2, index_premise2, card2)
-            self.can.affiche_cards(self.proof.premises[num_premise2], num_premise2)
+        for (i_hand, num_premise, index_premise) in coup:
+            card = hand.pop(i_hand)
+            if index_premise == -1:
+                messagebox.showinfo(name, drop.format(card))
+            else:
+                self.proof.insert(num_premise, index_premise, card)
+                self.can.affiche_cards(self.proof.premises[num_premise],
+                                       num_premise)
+                messagebox.showinfo(name,
+                                    play.format(card,
+                                                num_premise,
+                                                index_premise))
         self.can.affiche_cards(self.hands[self.num_player], 4)
-        messagebox.askyesno("ca marche ?")
         self.play()
-
-
 
     def fin_manche(self):
         """Fin de la manche, affichage des gagnants et du score."""
@@ -441,10 +467,11 @@ class ErgoGui(tk.Tk):
                 msg += "\n"
             msg += "\nChacun marque {} points".format(self.proof.score())
         messagebox.showinfo("Fin de la manche", msg)
+        self.init_round()
 
     def version(self):
         """Affiche la version du jeu"""
-        messagebox.showinfo("Ergo", "Version Alpha 21/01/19")
+        messagebox.showinfo("Ergo", "Version Beta 17/03/19")
 
     def rules(self):
         """Affiche les règles du jeu à partir du fichier regles_ergo.txt"""
@@ -461,7 +488,5 @@ class ErgoGui(tk.Tk):
 
 
 if __name__ == '__main__':
-#    test = ErgoGuiIntro()
-#    test.mainloop()
     ergoGui = ErgoGui()
     ergoGui.mainloop()

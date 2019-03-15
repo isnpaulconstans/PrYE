@@ -437,10 +437,6 @@ class Deck(list):
         :type card: Card"""
         self.append(card)
 
-    def reset(self):
-        """Réinitialise le paquet de cartes."""
-        self.__init__()
-
     def is_finished(self):
         """Indique si la paquet est terminé.
 
