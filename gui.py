@@ -179,26 +179,28 @@ class ErgoCanvas(tk.Canvas):
             self.itemconfig(player,
                             text="Joueur " + "ABCD"[(num_player+i) % 4])
 
-    def affiche_cards(self, card_list, row):
-        """affiche la liste de carte card_list à la ligne row (0 à 3 pour les
-        prémisses, 4 pour la main du joueur
+    def affiche_cards(self, loc, card_list, row=4):
+        """affiche la liste de carte card_list dans la prémisse row ou dans le
+        main du joueur
 
+        :param loc: la localisation ("premise" ou "hand")
+        :type loc: str
         :param card_list: la liste de cartes à afficher
         :type card_list: list
-
         :param row: le numéro de la ligne
         :type row: int
         """
-        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
+#        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
         for num in self.cards[row]:
             if "selected" in self.gettags(num):
                 continue
             self.delete(num)
         self.cards[row] = []
-        for index, card in enumerate(card_list):
-            x = CARD_WIDTH // 2 + index * CARD_WIDTH
-            if row == 4:
-                x += 2 * CARD_WIDTH
+        for col, card in enumerate(card_list):
+            x, y = self.row_col2x_y(loc, row, col)
+#            x = CARD_WIDTH // 2 + index * CARD_WIDTH
+#            if row == 4:
+#                x += 2 * CARD_WIDTH
             card_image = self.create_image(x, y,
                                            image=self.photos[card.name],
                                            tag="card")
@@ -210,8 +212,29 @@ class ErgoCanvas(tk.Canvas):
             while row:
                 self.delete(row.pop())
 
-    def row_col2x_y(row, col):
-        pass
+    @staticmethod
+    def row_col2x_y(loc, row=4, col=0):
+        """Renvoie les coordonnées du centre d'une cartes située à la colonne
+        col de la prémisse row, ou de la main, ou sur la pile.
+
+        :param loc: "premise", "hand" ou "pile"
+        :type loc: str
+        :param row: numéro de la prémisse
+        :type row: int
+        :param col: position dans la prémisse
+        :type row: int
+
+        :return: les coordonnées (x, y) dans le canvas
+        :rtype: tuple
+        """
+        if loc == "pile":
+            return (WIDTH - CARD_WIDTH, HEIGHT - CARD_HEIGHT//2-10)
+        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1)
+        x = CARD_WIDTH // 2 + col * CARD_WIDTH
+        if loc == "hand":
+            y += 4
+            x += 2 * CARD_WIDTH
+        return (x, y)
 
     @staticmethod
     def x_y2row_col(x, y):
@@ -256,7 +279,7 @@ class ErgoCanvas(tk.Canvas):
                 if self.selected_card is None:  # impossible de la sélectionner
                     self.dtag("selected")
                     return
-                self.affiche_cards(self.master.proof.premises[row], row)
+                self.affiche_cards(loc, self.master.proof.premises[row], row)
             elif loc == "pile":
                 self.selected_card = self.pile.pop()
                 self.dtag("selected", "pile")
@@ -268,7 +291,7 @@ class ErgoCanvas(tk.Canvas):
                     return
                 hand = self.master.hands[self.master.num_player]
                 self.selected_card = hand.pop(col)
-                self.affiche_cards(hand, 4)
+                self.affiche_cards("hand", hand)
                 self.master.cards_played += 1
             self.tag_raise(num)  # pour passer en avant plan
 
@@ -294,7 +317,7 @@ class ErgoCanvas(tk.Canvas):
             hand = self.master.hands[self.master.num_player]
             hand.append(self.selected_card)
             self.delete("selected")
-            self.affiche_cards(hand, 4)
+            self.affiche_cards("hand", hand)
             self.selected_card = None
             self.master.cards_played -= 1
 
@@ -302,7 +325,8 @@ class ErgoCanvas(tk.Canvas):
             return
         loc, row, col = self.x_y2row_col(event.x, event.y)
         if loc == "pile":
-            self.coords("selected", WIDTH-CARD_WIDTH, HEIGHT-CARD_HEIGHT/2)
+            x, y = self.row_col2x_y("pile")
+            self.coords("selected", x, y)
             self.pile.append(self.selected_card)
             self.addtag_withtag("pile", "selected")
             self.dtag("selected")
@@ -323,14 +347,14 @@ class ErgoCanvas(tk.Canvas):
                 restore()
                 return
             cards = self.master.proof.premises[-1]+[self.selected_card]
-            self.affiche_cards(cards, 3)
+            self.affiche_cards(loc, cards, 3)
             self.delete("selected")
             self.selected_card = None
             self.master.fin_manche()
             return
         if self.master.proof.insert(row, col, self.selected_card):
             self.delete("selected")
-            self.affiche_cards(self.master.proof.premises[row], row)
+            self.affiche_cards(loc, self.master.proof.premises[row], row)
             self.selected_card = None
             return
 
@@ -343,13 +367,15 @@ class ErgoCanvas(tk.Canvas):
         """
         num = self.find_closest(event.x, event.y)
         if "card" in self.gettags(num):
-            row = event.y//CARD_HEIGHT
-            col = event.x//CARD_WIDTH - 2
+            loc, row, col = self.x_y2row_col(event.x, event.y)
+#            row = event.y//CARD_HEIGHT
+#            col = event.x//CARD_WIDTH - 2
             hand = self.master.hands[self.master.num_player]
-            if row == 4 and 0 <= col < len(hand):
-                card = hand[col]
-                card.turn_parenthesis()
-                self.affiche_cards(hand, 4)
+            if loc != "hand" or not (0 <= col < len(hand)):
+                return
+            card = hand[col]
+            card.turn_parenthesis()
+            self.affiche_cards("hand", hand)
 
 
 class ErgoGui(tk.Tk):
@@ -387,7 +413,7 @@ class ErgoGui(tk.Tk):
         self.hands = [self.deck.draw(5) for _ in range(4)]
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.cards_played = 0
-        self.can.affiche_cards(self.hands[self.num_player], 4)
+        self.can.affiche_cards("hand", self.hands[self.num_player])
 
         # TODO gérer les scores
 
@@ -423,7 +449,7 @@ class ErgoGui(tk.Tk):
         self.can.delete("pile")
         self.num_player = (self.num_player + 1) % 4
         self.hands[self.num_player].extend(self.deck.draw(2))
-        self.can.affiche_cards(self.hands[self.num_player], 4)
+        self.can.affiche_cards("hand", self.hands[self.num_player])
         self.can.display_current_player(self.num_player)
         if self.ordi_player[self.num_player]:
             self.ordi_plays()
@@ -442,13 +468,14 @@ class ErgoGui(tk.Tk):
                 messagebox.showinfo(name, drop.format(card))
             else:
                 self.proof.insert(num_premise, index_premise, card)
-                self.can.affiche_cards(self.proof.premises[num_premise],
+                self.can.affiche_cards("premise",
+                                       self.proof.premises[num_premise],
                                        num_premise)
                 messagebox.showinfo(name,
                                     play.format(card,
                                                 num_premise,
                                                 index_premise))
-        self.can.affiche_cards(self.hands[self.num_player], 4)
+        self.can.affiche_cards("hand", self.hands[self.num_player])
         self.play()
 
     def fin_manche(self):
