@@ -9,10 +9,11 @@ from demonstration import ForceBrute, DPLL
 from ordi import OrdiRandom
 
 # Constantes
-CARD_HEIGHT = 70
-CARD_WIDTH = 50
-HEIGHT = 6 * CARD_HEIGHT + 20
-WIDTH = 1000
+CARD_HEIGHT = 70 + 1
+CARD_WIDTH = 50 + 1
+LINE_WIDTH = 5
+#HEIGHT = 6 * CARD_HEIGHT + 20
+#WIDTH = 23 * CARD_WIDTH
 
 CARPET_COLOR = "ivory"
 
@@ -75,7 +76,7 @@ class ErgoGuiIntro(tk.Toplevel):
 
     def rectangle(self, x, y):
         """ création d'un rectangle trace du passage de la carte """
-        self.can.create_rectangle(x, y, x+50, y+70, fill="ivory")
+        self.can.create_rectangle(x, y, x+CARD_WIDTH, y+CARD_HEIGHT, fill="ivory")
 
     def animate_letter(self, nb_cards, l_way):
         """ deplace la carte sur le canvas en suivant un chemin defini ,
@@ -95,7 +96,7 @@ class ErgoGuiIntro(tk.Toplevel):
         self.can.coords(self.id_img,
                         CARD_WIDTH*(l_way[nb_cards-1][1]+1)-CARD_WIDTH/2,
                         CARD_HEIGHT*l_way[nb_cards-1][0]+CARD_HEIGHT/2)
-        self.rectangle(50*l_way[nb_cards-1][1], 70*l_way[nb_cards-1][0])
+        self.rectangle(CARD_WIDTH*l_way[nb_cards-1][1], CARD_HEIGHT*l_way[nb_cards-1][0])
         self.can.tag_raise(self.id_img)
         self.after(self.pause, lambda: self.animate_letter(nb_cards-1, l_way))
 
@@ -119,7 +120,10 @@ class ErgoCanvas(tk.Canvas):
     """Création du canvas de jeu avec les lignes des prémisses, les mains
     et noms des joueurs et la pile"""
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs, height=HEIGHT, width=WIDTH,
+        self.height = 6 * CARD_HEIGHT + 3 * LINE_WIDTH
+        self.width = 23 * CARD_WIDTH
+        super().__init__(*args, **kwargs,
+                         height=self.height, width=self.width,
                          bg=CARPET_COLOR)
         self.photos = {name: tk.PhotoImage(file='images/'+IMAGE[name])
                        for name in IMAGE}
@@ -131,40 +135,47 @@ class ErgoCanvas(tk.Canvas):
         self.bind('<Button1-Motion>', func=self.move)
         self.bind("<ButtonRelease-1>", func=self.drop)
         self.bind("<Button-3>", func=self.switch)
-        for i in range(4):
-            self.create_line(0, i*CARD_HEIGHT, WIDTH,
-                             i*CARD_HEIGHT, fill="black")
-        for i in range(20):
-            self.create_line(i*CARD_WIDTH, 0, i*CARD_WIDTH,
-                             4*CARD_HEIGHT, fill="red", dash=(4, 4))
-        self.create_rectangle(0, HEIGHT-CARD_HEIGHT-5,
-                              WIDTH-2*CARD_WIDTH, HEIGHT,
-                              width=5, outline="red")
-        self.create_rectangle(0, HEIGHT-2*CARD_HEIGHT-15,
-                              WIDTH-2*CARD_WIDTH, HEIGHT-CARD_HEIGHT-10,
-                              width=5, outline="red")
-        self.create_rectangle(WIDTH-2*CARD_WIDTH+5,
-                              HEIGHT-2*CARD_HEIGHT-15,
-                              WIDTH, HEIGHT,
-                              width=5, outline="pink")
-        self.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
+        # prémisses
+        for i in range(5):
+            self.create_line(0, i*CARD_HEIGHT, self.width, i*CARD_HEIGHT,
+                             fill="black")
+        for i in range(23):
+            self.create_line(i*CARD_WIDTH, 0, i*CARD_WIDTH, 4*CARD_HEIGHT,
+                             fill="red", dash=(4, 4))
+        # mains
+        self.create_rectangle(LINE_WIDTH//2,
+                              4*CARD_HEIGHT+LINE_WIDTH//2+1,
+                              self.width-3*CARD_WIDTH-LINE_WIDTH//2,
+                              self.height-(CARD_HEIGHT-1)-1.5*LINE_WIDTH,
+                              width=LINE_WIDTH, outline="red")
+        self.create_rectangle(LINE_WIDTH//2,
+                              self.height-(CARD_HEIGHT-1)-1.5*LINE_WIDTH,
+                              self.width-3*CARD_WIDTH-LINE_WIDTH//2,
+                              self.height-LINE_WIDTH//2,
+                              width=LINE_WIDTH, outline="red")
+        self.create_rectangle(self.width-3*CARD_WIDTH+LINE_WIDTH//2+1,
+                              4*CARD_HEIGHT+LINE_WIDTH//2+1,
+                              self.width-LINE_WIDTH//2,
+                              self.height-LINE_WIDTH//2,
+                              width=LINE_WIDTH, outline="pink")
+        self.create_text(21.5*CARD_WIDTH, 4.5*CARD_HEIGHT,
                          text="Pile", font="Arial 16 italic", fill="blue")
         # le dos de cartes
-        for (row, col) in [(0, 11), (1, 2), (1, 11)]:
+        for (row, col) in [(0, 12), (1, 2), (1, 12)]:
             xdeb = col * CARD_WIDTH + CARD_WIDTH // 2
-            y = 4 * (CARD_HEIGHT+2) + (CARD_HEIGHT + 10) * row + CARD_HEIGHT//2
+            y = 4.5 * CARD_HEIGHT + (CARD_HEIGHT + LINE_WIDTH) * row +LINE_WIDTH+1
             for index in range(5):
                 x = xdeb + index * CARD_WIDTH
                 self.create_image(x, y, image=self.photos["Back"])
         # les noms des joueurs
-        self.names = [self.create_text(CARD_WIDTH*(1 + 9 * (i % 2)),
+        self.names = [self.create_text(CARD_WIDTH*(1 + 10 * (i % 2)),
                                        4.5 * CARD_HEIGHT
                                        + (i // 2) * (CARD_HEIGHT+10),
                                        text=self.master.player_names[i],
                                        font="Arial 16 italic",
                                        fill="blue")
                       for i in range(4)]
-        self.scores = [self.create_text(CARD_WIDTH*(1 + 9 * (i % 2)),
+        self.scores = [self.create_text(CARD_WIDTH*(1 + 10 * (i % 2)),
                                         4.85 * CARD_HEIGHT
                                         + (i // 2) * (CARD_HEIGHT+10),
                                         text=self.master.scores[i],
@@ -219,8 +230,7 @@ class ErgoCanvas(tk.Canvas):
             while row:
                 self.delete(row.pop())
 
-    @staticmethod
-    def row_col2x_y(loc, row=4, col=0):
+    def row_col2x_y(self, loc, row=4, col=0):
         """Renvoie les coordonnées du centre d'une cartes située à la colonne
         col de la prémisse row, ou de la main, ou sur la pile.
 
@@ -235,16 +245,16 @@ class ErgoCanvas(tk.Canvas):
         :rtype: tuple
         """
         if loc == "pile":
-            return (WIDTH - CARD_WIDTH, HEIGHT - CARD_HEIGHT//2-10)
-        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1)
+            return (self.width - 1.5*CARD_WIDTH,
+                    self.height - CARD_HEIGHT)
+        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT)+1
         x = CARD_WIDTH // 2 + col * CARD_WIDTH
         if loc == "hand":
-            y += 4
+            y += LINE_WIDTH+1
             x += 2 * CARD_WIDTH
         return (x, y)
 
-    @staticmethod
-    def x_y2row_col(x, y):
+    def x_y2row_col(self, x, y):
         """Transforme les coordonnées dans le canvas en numéro de ligne et de
         colonne.
 
@@ -260,13 +270,14 @@ class ErgoCanvas(tk.Canvas):
                  * col est la position dans la prémisse
         """
         row = y//CARD_HEIGHT
-        col = x//CARD_WIDTH - 2 * (row == 4)
+        col = x//CARD_WIDTH
         if 0 <= row < 4:
             loc = "premise"
-        elif 4 <= row <= 5 and 18 <= col <= 19:
+        elif 4 <= row <= 5 and 20 <= col <= 22:
             loc = "pile"
         else:
             loc = "hand"
+            col -= 2
         return loc, row, col
 
     # TODO creer methode passage coord en col et row
@@ -396,7 +407,7 @@ class ErgoGui(tk.Tk):
         tk.Tk.__init__(self)
         ErgoGuiIntro()
         self.title("Ergo")
-        self.geometry("1200x500")  # dimension fenetre jeu
+#        self.geometry("1500x500")  # dimension fenetre jeu
         self.resizable(width=False, height=False)
         # initialisation du menu et canvas
         self.__init_menu__()
@@ -411,6 +422,7 @@ class ErgoGui(tk.Tk):
         tk.Label(text="Prouve que tu existes ...",
                  font="Arial 28 italic").grid(row=7, column=1)
         tk.Button(text="jouer", command=self.play).grid(row=5, column=0)
+        print(self.geometry())
 
     def init_round(self):
         """Inialise un début de tour."""
