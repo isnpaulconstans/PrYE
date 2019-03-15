@@ -149,10 +149,6 @@ class ErgoCanvas(tk.Canvas):
                               width=5, outline="pink")
         self.create_text(18*CARD_WIDTH+50, 4*CARD_HEIGHT+50,
                          text="Pile", font="Arial 16 italic", fill="blue")
-        # les lignes des prémisses
-        for i in range(4):
-            tk.Label(text="Prémisse "+str(i+1)).grid(row=i+1, column=2)
-        self.grid(row=1, column=1, rowspan=5)
         # le dos de cartes
         for (row, col) in [(0, 11), (1, 2), (1, 11)]:
             xdeb = col * CARD_WIDTH + CARD_WIDTH // 2
@@ -164,7 +160,7 @@ class ErgoCanvas(tk.Canvas):
         self.names = [self.create_text(CARD_WIDTH*(1 + 9 * (i % 2)),
                                        4.5 * CARD_HEIGHT
                                        + (i // 2) * (CARD_HEIGHT+10),
-                                       text="Joueur " + "ABCD"[i],
+                                       text=self.master.player_names[i],
                                        font="Arial 16 italic",
                                        fill="blue")
                       for i in range(4)]
@@ -185,7 +181,7 @@ class ErgoCanvas(tk.Canvas):
         """
         for i, player in enumerate(self.names):
             self.itemconfig(player,
-                            text="Joueur " + "ABCD"[(num_player+i) % 4])
+                            text=self.master.player_names[(num_player+i) % 4])
         for i, score in enumerate(self.scores):
             self.itemconfig(score,
                             text=self.master.scores[(num_player+i) % 4])
@@ -405,11 +401,15 @@ class ErgoGui(tk.Tk):
         # initialisation du menu et canvas
         self.__init_menu__()
         self.scores = [0]*4
+        self.player_names = ["Joueur "+chr(ord('A')+i) for i in range(4)]
         self.can = ErgoCanvas(self)
-        tk.Label(text="Ergo le jeu", font="Arial 16 italic").grid(row=1,
+        self.can.grid(row=0, column=1, rowspan=7)
+        for i in range(4):
+            tk.Label(text="Prémisse "+str(i+1)).grid(row=i, column=2)
+        tk.Label(text="Ergo le jeu", font="Arial 16 italic").grid(row=0,
                                                                   column=0)
         tk.Label(text="Prouve que tu existes ...",
-                 font="Arial 28 italic").grid(row=6, column=1)
+                 font="Arial 28 italic").grid(row=7, column=1)
         tk.Button(text="jouer", command=self.play).grid(row=5, column=0)
 
     def init_round(self):
