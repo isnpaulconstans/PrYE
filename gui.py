@@ -12,8 +12,6 @@ from ordi import OrdiRandom
 CARD_HEIGHT = 70 + 1
 CARD_WIDTH = 50 + 1
 LINE_WIDTH = 5
-#HEIGHT = 6 * CARD_HEIGHT + 20
-#WIDTH = 23 * CARD_WIDTH
 
 CARPET_COLOR = "ivory"
 
@@ -76,7 +74,8 @@ class ErgoGuiIntro(tk.Toplevel):
 
     def rectangle(self, x, y):
         """ création d'un rectangle trace du passage de la carte """
-        self.can.create_rectangle(x, y, x+CARD_WIDTH, y+CARD_HEIGHT, fill="ivory")
+        self.can.create_rectangle(x, y, x+CARD_WIDTH, y+CARD_HEIGHT,
+                                  fill="ivory")
 
     def animate_letter(self, nb_cards, l_way):
         """ deplace la carte sur le canvas en suivant un chemin defini ,
@@ -96,7 +95,8 @@ class ErgoGuiIntro(tk.Toplevel):
         self.can.coords(self.id_img,
                         CARD_WIDTH*(l_way[nb_cards-1][1]+1)-CARD_WIDTH/2,
                         CARD_HEIGHT*l_way[nb_cards-1][0]+CARD_HEIGHT/2)
-        self.rectangle(CARD_WIDTH*l_way[nb_cards-1][1], CARD_HEIGHT*l_way[nb_cards-1][0])
+        self.rectangle(CARD_WIDTH*l_way[nb_cards-1][1],
+                       CARD_HEIGHT*l_way[nb_cards-1][0])
         self.can.tag_raise(self.id_img)
         self.after(self.pause, lambda: self.animate_letter(nb_cards-1, l_way))
 
@@ -163,7 +163,7 @@ class ErgoCanvas(tk.Canvas):
         # le dos de cartes
         for (row, col) in [(0, 12), (1, 2), (1, 12)]:
             xdeb = col * CARD_WIDTH + CARD_WIDTH // 2
-            y = 4.5 * CARD_HEIGHT + (CARD_HEIGHT + LINE_WIDTH) * row +LINE_WIDTH+1
+            y = 4.5*CARD_HEIGHT + (CARD_HEIGHT + LINE_WIDTH)*row + LINE_WIDTH+1
             for index in range(5):
                 x = xdeb + index * CARD_WIDTH
                 self.create_image(x, y, image=self.photos["Back"])
@@ -280,7 +280,6 @@ class ErgoCanvas(tk.Canvas):
             col -= 2
         return loc, row, col
 
-    # TODO creer methode passage coord en col et row
     def select(self, event):
         """Selectionne une carte, la marque comme "selected", la met en avant
         plan, et l'enlève de l'endroit où elle était (mains, prémisse ou pile).
@@ -422,7 +421,6 @@ class ErgoGui(tk.Tk):
         tk.Label(text="Prouve que tu existes ...",
                  font="Arial 28 italic").grid(row=7, column=1)
         tk.Button(text="jouer", command=self.play).grid(row=5, column=0)
-        print(self.geometry())
 
     def init_round(self):
         """Inialise un début de tour."""
@@ -438,8 +436,6 @@ class ErgoGui(tk.Tk):
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.cards_played = 0
         self.can.affiche_cards("hand", self.hands[self.num_player])
-
-        # TODO gérer les scores
 
     def __init_menu__(self):
         """creation de la barre de menu qui permet d'afficher l'aide,
