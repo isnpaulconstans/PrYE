@@ -3,7 +3,6 @@
 \begin{class}{Card}{0, 0}
 \attribute{name : str}
 \attribute{PRIORITY : dict}
-\attribute{NUMBER : dict}
 \operation{\_\_init\_\_(name : str)}
 \operation{priority() -> int}
 \operation{is\_letter() -> boolean}
@@ -11,19 +10,20 @@
 \operation{is\_open() -> boolean}
 \operation{is\_close() -> boolean}
 \operation{is\_not() -> boolean}
+\operation{is\_ergo() -> boolean}
+\operation{is\_special() -> boolean}
 \operation{turn\_parenthesis()}
 \operation{\_\_repr\_\_() -> str}
 \end{class}
 
 \begin{class}[text width=7cm]{CardList[list]}{0, -8}
 \attribute{npi : list of Card or None}
+\attribute{modif : bool}
 \operation{\_\_init\_\_(*args)}
 \operation{append(card : Card)}
 \operation{insert(index : int, card : Card)}
 \operation{pop(index = -1 : int) -> Card}
 \operation{is\_syntactically\_correct() -> boolean}
-\operation{to\_npi() -> list of Card or None}
-\operation{evalue(interpretation : list) -> boolean}
 \end{class}
 
 \draw[dashed,-latex] ({CardList[list]}) -- node[right, midway]{utilise} (Card);
@@ -31,58 +31,138 @@
 \begin{class}[text width=9cm]{Proof}{0, -14}
 \attribute{premises : list of CardList}
 \attribute{currently\_added : list of (premise : int, index : int)}
+\attribute{modif : bool}
+\attribute{npi : list of Card or None}
 \operation{\_\_init\_\_()}
 \operation{insert(premise : int, index : int, card : Card)}
 \operation{pop(premise : int, index : int) -> Card}
 \operation{reset\_added()}
 \operation{is\_all\_correct() -> boolean}
 \operation{all\_cards\_played() -> boolean}
-\operation{conclusion() -> None | list of (True|False|None)}
 \operation{score() -> int}
 \end{class}
 
 \draw[dashed,-latex] (Proof) --node[right, midway]{utilise} ({CardList[list]});
 
 \begin{class}[text width=7cm]{Deck[list]}{10,0}
+\attribute{NUMBER : dict}
 \operation{\_\_init\_\_()}
+\operation{names() -> dict}
 \operation{draw(number : int) -> list of Card}
 \operation{append(card : Card)}
-\operation{reset()}
 \operation{is\_finished() -> boolean}
 \end{class}
 
 \draw[dashed,-latex] ({Deck[list]}) --node[above, midway]{utilise} (Card);
 
-\begin{class}[text width=9cm]{ErgoGui[Tk]}{10,-5}
+\begin{class}[text width=8cm]{ErgoGuiIntro[Toplevel]}{10,-19}%{31,0}
+\attribute{flag : int}
+\attribute{pause : int}
 \attribute{can : tk.Canvas}
+\attribute{img : tk.PhotoImage}
+\attribute{img\_id : int}
+\operation{\_\_init\_\_()}
+\operation{\_\_init\_intro\_\_()}
+\operation{rectangle(x : int, y : int)}
+\operation{animate\_letter(nb\_cards : int, l\_way : list)}
+\operation{button\_choice()}
+\operation{choice(nb\_player : int)}
+\operation{destroy()}
+\end{class}
+
+\begin{class}[text width=10cm]{ErgoCanvas[Canvas]}{21,0}
+\attribute{height : int}
+\attribute{width : int}
+\attribute{photos : dict}
+\attribute{cards : list}
+\attribute{selected\_card : Card}
+\attribute{pile : list}
+\attribute{names : list}
+\operation{\_\_init\_\_(*args, **kwargs)}
+\operation{display\_current\_player(num\_player : int)}
+\operation{affiche\_cards(loc : str, card\_list : list of Card, row : int)}
+\operation{reset()}
+\operation{row\_col2x\_y(loc : str, row : int, col : int}
+\operation{x\_y2row\_col(x : int, y : int}
+\operation{select(event : tk.Event)}
+\operation{move(event : tk.Event)}
+\operation{drop(event : tk.Event)}
+\operation{switch(event : tk.Event)}
+\end{class}
+
+\begin{class}[text width=9cm]{ErgoGui[Tk]}{10,-5}
+\attribute{can : ErgoCanvas}
 \attribute{barre\_menu : tk.Menu}
 \attribute{proof : Proof}
 \attribute{deck : Deck}
+\attribute{demo : Demonstration}
+\attribute{ordi\_player : list}
 \attribute{photos : dict of tk.PhotoImage}
 \attribute{cards : list of list of Card}
 \attribute{hands : list of list of Card}
 \attribute{pile : list of Card}
 \attribute{num\_player : int}
 \attribute{nb\_player : int}
-\attribute{selected\_card : None | Card}
+\attribute{player\_names : list}
+\attribute{scores : list}
+\attribute{cards\_played : int}
 \operation{\_\_init\_\_()}
 \operation{\_\_init\_menu\_\_()}
-\operation{\_\_init\_canvas\_\_()}
-\operation{display\_current\_player(num\_player : int)}
 \operation{play()}
-\operation{affiche\_cards(card\_list : list of Card, row : int)}
-\operation{select(event : tk.Event)}
-\operation{move(event : tk.Event)}
-\operation{drop(event : tk.Event)}
-\operation{switch(event : tk.Event)}
+\operation{ordi\_plays()}
 \operation{fin\_manche(event : tk.Event)}
 \operation{version()}
 \operation{rules()}
 \operation{quitter()}
 \end{class}
 
+\begin{class}[text width=9cm]{ForceBrute}{20,-14}
+\operation{to\_bin(n : int) -> list}
+\operation{evalue(interpretation : list) -> bool}
+\operation{conclusion() -> list}
+\end{class}
+
+\begin{class}[text width=9cm]{DPLL}{30.5,-14}
+\attribute{fcn : FCN}
+\attribute{clause\_list : list}
+\operation{propagation(clause\_list : list, lit : int)}
+\operation{dpll(clause\_list : list, model : list) -> bool}
+\operation{conclusion() -> list}
+\end{class}
+
+
+\begin{class}[text width=9cm]{FCN}{30.5,-18}
+\attribute{proof : Proof}
+\attribute{fcn\_npi : list}
+\attribute{clause\_list : list}
+\operation{\_\_init\_\_()}
+\operation{get\_proposition() -> list}
+\operation{insert\_not()}
+\operation{elim\_then()}
+\operation{morgan()}
+\operation{elim\_not()}
+\operation{develop()}
+\operation{to\_fcn\_npi() -> list}
+\operation{npi\_to\_list(clause\_npi : list) -> list}
+\operation{to\_clause\_list() -> list}
+\end{class}
+
+\begin{class}[text width=9cm]{Demonstration}{21,-10}
+\attribute{proof : Proof}
+\operation{conclusion() : list ou NoneType}
+\end{class}
+
 \draw[dashed,-latex] (ErgoGui[Tk]) --node[right, midway]{utilise} ({Deck[list]});
 \draw[dashed,-latex] (ErgoGui[Tk]) --node[above, midway]{utilise} (Proof);
+\draw[dashed,-latex] (ErgoGui[Tk]) --node[above, midway]{utilise} (ErgoCanvas[Canvas]);
+\draw[dashed,-latex] (ErgoGui[Tk]) --node[above, midway]{utilise} (Demonstration);
+\draw[dashed,-latex] (ErgoGui[Tk]) --node[above, midway]{utilise} (ErgoGuiIntro[Toplevel]);
+
+\draw[-,-latex] (DPLL) --node[above, midway]{implémente} (Demonstration);
+\draw[-,-latex] (ForceBrute) --node[above, midway]{implémente} (Demonstration);
+\draw[dashed,-latex] (DPLL) --node[left, midway]{utilise} (FCN);
+
+
 \end{tikzpicture}
 
 

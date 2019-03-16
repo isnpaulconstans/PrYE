@@ -19,6 +19,19 @@
   \vskip 1.5em}
 \makeatother
 
+% a3_landascape environment
+\newenvironment{a3_landscape}
+    {\newpage
+    \pdfpagewidth=2\pdfpagewidth
+    \hsize=2\hsize
+    \textwidth=2\textwidth
+    \headwidth=\textwidth}
+    {\newpage
+    \pdfpagewidth=.5\pdfpagewidth
+    \hsize=.5\hsize
+    \textwidth=.5\textwidth
+    \headwidth=\textwidth}
+
 
 \begin{document}
 
@@ -233,9 +246,9 @@ Pour l'instant, l'ordinateur choisit alors un coup au hasard parmi l'ensemble de
 \end{itemize}
 
 \appendix
-
+\begin{a3_landscape}
 \section{Diagramme des classes}
-
 \input{"diagramme des classes"}
+\end{a3_landscape}
 \end{document}
 
