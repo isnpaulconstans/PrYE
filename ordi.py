@@ -88,6 +88,7 @@ class Ordi:
 
 
 class OrdiRandom(Ordi):
+    """Implémentation de Ordi."""
     def joue(self):
         """Joue un coup au hasard parmi les coups possibles. Si aucun n'est
         possible, jette deux cartes au hasard.

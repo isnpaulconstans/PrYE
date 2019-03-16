@@ -54,7 +54,6 @@ class ErgoGuiIntro(tk.Toplevel):
         """
         super().__init__()
         self.title("Ergo acceuil")
-        self.geometry("850x600")
         self.grab_set()
         self.transient(self.master)
         self.resizable(width=False, height=False)
@@ -66,7 +65,7 @@ class ErgoGuiIntro(tk.Toplevel):
 
     def __init_intro__(self):
         """ Creation de la fenetre d'animation """
-        self.can = tk.Canvas(self, height=500, width=850,
+        self.can = tk.Canvas(self, height=7*CARD_HEIGHT, width=17*CARD_WIDTH,
                              bg="skyblue")
         self.can.grid()
         self.img = tk.PhotoImage(file="images/carteDos.gif")
@@ -114,6 +113,10 @@ class ErgoGuiIntro(tk.Toplevel):
         self.master.nb_player = nb_player
         self.master.init_round()
         self.destroy()
+
+    def destroy(self):
+        self.master.init_round()
+        super().destroy()
 
 
 class ErgoCanvas(tk.Canvas):
@@ -383,16 +386,15 @@ class ErgoCanvas(tk.Canvas):
         :type event: tkinter.Event
         """
         num = self.find_closest(event.x, event.y)
-        if "card" in self.gettags(num):
-            loc, row, col = self.x_y2row_col(event.x, event.y)
-#            row = event.y//CARD_HEIGHT
-#            col = event.x//CARD_WIDTH - 2
-            hand = self.master.hands[self.master.num_player]
-            if loc != "hand" or not (0 <= col < len(hand)):
-                return
-            card = hand[col]
-            card.turn_parenthesis()
-            self.affiche_cards("hand", hand)
+        if "card" not in self.gettags(num):
+            return
+        loc, row, col = self.x_y2row_col(event.x, event.y)
+        hand = self.master.hands[self.master.num_player]
+        if loc != "hand" or not (0 <= col < len(hand)):
+            return
+        card = hand[col]
+        card.turn_parenthesis()
+        self.affiche_cards("hand", hand)
 
 
 class ErgoGui(tk.Tk):
@@ -409,6 +411,7 @@ class ErgoGui(tk.Tk):
 #        self.geometry("1500x500")  # dimension fenetre jeu
         self.resizable(width=False, height=False)
         # initialisation du menu et canvas
+        self.nb_player = 1
         self.__init_menu__()
         self.scores = [0]*4
         self.player_names = ["Joueur "+chr(ord('A')+i) for i in range(4)]

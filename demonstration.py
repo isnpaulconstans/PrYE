@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """Gestion des démonstrations"""
 
-from cards import Card, CardList, Proof
 from copy import deepcopy
+from cards import Card, CardList, Proof
 
 
 class FCN:
@@ -233,6 +233,7 @@ class DPLL(Demonstration):
 
     @property
     def clause_list(self):
+        """getter pour clause_list."""
         if self._proof.modif:
             self.__clause_list = self.__fcn.clause_list
         return self.__clause_list
