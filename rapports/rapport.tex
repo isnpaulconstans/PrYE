@@ -88,7 +88,7 @@ En cas de sortie prématurée du programme, il arrive (principalement avec Pyscr
 
 \smallskip
 
-Notre classe ErgoGui gère toute la partie graphique du jeu.
+La classe ErgoGui gère le jeu en lui même et la gestion du Canvas est déléguée à la classe ErgoCanvas. 
 
 La gestion du jeu se fait à la souris. On peut attraper (bouton gauche), déplacer (bouton gauche maintenu) et déposer (bouton gauche relâché) la carte à l'aide des méthodes select(), move() et drop().
 
@@ -97,6 +97,14 @@ Le bouton droit permet, associé à la méthode switch, si la carte est une pare
 Il y a eu un problème de définition du deck : quand nous avons réalisé la méthode permettant de retourner les parenthèses, la modification s'appliquait à toutes les parenthèses du même type. Une liste en compréhension a résolu le problème.
 
 Les règles du jeux sont dans un fichier texte. Lors de l'appel de la méthode nous faisons une lecture du fichier puis un affichage dans une fenêtre messagebox.
+
+Avec les nouvelles fonctionnalités qui permettent de choisir soit le mode multijoueur ou de jouer contre l'ordinateur une nouvelle classe ErgoGuiIntro a été créée. 
+
+Elle permet de créer une fenêtre d’accueil avec une animation au démarrage. La méthode animate\_letter permet de simuler une distribution des cartes suivant la forme des lettres du nom du jeu ERGO.
+
+Deux boutons permettent d'accéder au jeu dans le mode choisi.
+
+  
 
 
 \section{Algorithmes utilisés}
@@ -220,9 +228,6 @@ Pour l'instant, l'ordinateur choisit alors un coup au hasard parmi l'ensemble de
 \section{Évolutions à venir}
 
 \begin{itemize}
-\item Gérer les scores, et la fin de partie.
-\item Proposer au(x) joueur(s) de rentrer leurs noms.
-\item Pas mal de factorisations possibles dans ErgoGui (séparer le canvas dans une classe ErgoCanvas dédiée, fonctions de calcul pour passer des coordonnées dans le canvas à un numéro de prémisse et un numéro de colonne, \dots)
 \item Gérer les cartes spéciales (Ergo, Tabula Rasa, \dots)
 \item Tester d'autres méthodes pour le jeu de l'ordinateur. Il faudrait en particulier attribuer un score à chaque coup en fonction de ce qui est prouvé. Ensuite, j'avais éventuellement pensé à un minimax en testant toutes les cartes qui n'ont pas encore été jouées, mais je pense que ça va faire trop de calculs. Peut-être qu'en faisant quelques parties, une stratégie se présentera\dots Sinon, il restera la solution de faire appel à un ami ?
 \end{itemize}
