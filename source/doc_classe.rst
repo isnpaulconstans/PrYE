@@ -4,22 +4,28 @@ Documentation des modules
 Module cards
 ------------
 
-.. automodule:: cards
+.. automodule:: Card
 
 .. autoclass:: Card
    :members:
    :private-members:
    :special-members:
 
+.. automodule:: CardList
+
 .. autoclass:: CardList
    :members:
    :private-members:
    :special-members:
 
+.. automodule:: Proof
+
 .. autoclass:: Proof
    :members:
    :private-members:
    :special-members:
+
+.. automodule:: Deck
 
 .. autoclass:: Deck
    :members:
@@ -29,22 +35,28 @@ Module cards
 Module demonstration
 --------------------
 
-.. automodule:: demonstration
+.. automodule:: FCN
 
 .. autoclass:: FCN
    :members:
    :private-members:
    :special-members:
 
+.. automodule:: Demonstration
+
 .. autoclass:: Demonstration
    :members:
    :private-members:
    :special-members:
 
+.. automodule:: DPLL
+
 .. autoclass:: DPLL
    :members:
    :private-members:
    :special-members:
+
+.. automodule:: ForceBrute
 
 .. autoclass:: ForceBrute
    :members:
@@ -52,14 +64,16 @@ Module demonstration
    :special-members:
 
 Module ordi
---------------------
+-----------
 
-.. automodule:: ordi
+.. automodule:: Ordi
 
 .. autoclass:: Ordi
    :members:
    :private-members:
    :special-members:
+
+.. automodule:: OrdiRandom
 
 .. autoclass:: OrdiRandom
    :members:
@@ -69,19 +83,27 @@ Module ordi
 Module gui
 ----------
 
-.. automodule:: gui
+.. automodule:: ErgoCanvas
 
 .. autoclass:: ErgoCanvas
    :members:
    :private-members:
    :special-members:
 
-.. autoclass:: ErgoGuiIntro
+.. automodule:: ErgoIntro
+
+.. autoclass:: ErgoIntro
    :members:
    :private-members:
    :special-members:
 
-.. autoclass:: ErgoGui
+
+Module main
+-----------
+
+.. automodule:: Main
+
+.. autoclass:: Main
    :members:
    :private-members:
    :special-members:
