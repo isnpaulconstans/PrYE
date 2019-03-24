@@ -4,132 +4,20 @@
 
 import tkinter as tk
 from tkinter import messagebox
-from cards import Proof, Deck
-from demonstration import ForceBrute, DPLL
-from ordi import OrdiRandom
-
-# Constantes
-CARD_HEIGHT = 70 + 1
-CARD_WIDTH = 50 + 1
-LINE_WIDTH = 5
-
-CARPET_COLOR = "ivory"
-
-# images cartes
-IMAGE = {
-    "THEN": "carteImp.gif",
-    "A": "carteA.gif",
-    "B": "carteB.gif",
-    "C": "carteC.gif",
-    "D": "carteD.gif",
-    "AND": "carteEt.gif",
-    "OR": "carteOu.gif",
-    "NOT": "carteNeg.gif",
-    "(": "carteOpenParenthesis.gif",
-    ")": "carteCloseParenthesis.gif",
-    "Ergo": "carteCQFD.gif",
-    "Back": "carteDos.gif"
-    }
-
-# definition du chemin des lettres de l'animation
-LETWAY = [(1, 15), (1, 14), (1, 13), (2, 13), (3, 13), (4, 13), (5, 13),
-          (5, 14), (5, 15), (4, 15), (3, 15), (2, 15),  # E
-          (1, 11), (1, 10), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (5, 10),
-          (5, 11), (4, 11), (3, 11),  # R
-          (5, 5), (4, 5), (3, 5), (2, 5), (1, 5), (1, 6), (1, 7), (2, 7),
-          (3, 7), (4, 6), (5, 7),  # G
-          (1, 3), (1, 2), (1, 1), (2, 1), (3, 1), (3, 2), (4, 1), (5, 1),
-          (5, 2), (5, 3)  # O
-          ]
-
-
-class ErgoGuiIntro(tk.Toplevel):
-    """Interface graphique fenetre acceuil avec animation
-    et choix du mode de jeu"""
-    def __init__(self):
-        """Constructeur de la classe
-
-        :return: Objet ErgoGuiIntro
-        :rtype: ErgoGuiIntro
-        """
-        super().__init__()
-        self.title("Ergo acceuil")
-        self.grab_set()
-        self.transient(self.master)
-        self.resizable(width=False, height=False)
-        self.__init_intro__()
-        self.button_choice()
-        self.flag = 1
-        self.pause = 150
-        self.animate_letter(len(LETWAY), LETWAY)
-
-    def __init_intro__(self):
-        """ Creation de la fenetre d'animation """
-        self.can = tk.Canvas(self, height=7*CARD_HEIGHT, width=17*CARD_WIDTH,
-                             bg="skyblue")
-        self.can.grid()
-        self.img = tk.PhotoImage(file="images/carteDos.gif")
-        self.id_img = self.can.create_image(425, 465, image=self.img)
-
-    def rectangle(self, x, y):
-        """ création d'un rectangle trace du passage de la carte """
-        self.can.create_rectangle(x, y, x+CARD_WIDTH, y+CARD_HEIGHT,
-                                  fill="ivory")
-
-    def animate_letter(self, nb_cards, l_way):
-        """ deplace la carte sur le canvas en suivant un chemin defini ,
-        de façon récursive et laisse la trace du parcours
-
-        :param nb_cards: nombre de cartes à afficher
-        :type nb_cards: int
-
-        :param l_way: le chemin à suivre par la carte Ergo
-        :type l_way: list
-        """
-        if self.flag != 1:
-            return
-        if nb_cards == 0:
-            self.flag = 0
-            return
-        self.can.coords(self.id_img,
-                        CARD_WIDTH*(l_way[nb_cards-1][1]+1)-CARD_WIDTH/2,
-                        CARD_HEIGHT*l_way[nb_cards-1][0]+CARD_HEIGHT/2)
-        self.rectangle(CARD_WIDTH*l_way[nb_cards-1][1],
-                       CARD_HEIGHT*l_way[nb_cards-1][0])
-        self.can.tag_raise(self.id_img)
-        self.after(self.pause, lambda: self.animate_letter(nb_cards-1, l_way))
-
-    def button_choice(self):
-        """ Creation des boutons de choix du mode de jeu """
-        tk.Button(self, text="Mode seul", bd=7, font="Arial 16",
-                  command=lambda: self.choice(1)
-                  ).grid()
-        tk.Button(self, text="Mode multijoueurs", bd=7, font="Arial 16",
-                  command=lambda: self.choice(4)
-                  ).grid()
-
-    def choice(self, nb_player):
-        """Lance la fenetre de jeu """
-        self.master.nb_player = nb_player
-        self.master.init_round()
-        self.destroy()
-
-    def destroy(self):
-        self.master.init_round()
-        super().destroy()
+from Constantes import Constantes as Cst
 
 
 class ErgoCanvas(tk.Canvas):
     """Création du canvas de jeu avec les lignes des prémisses, les mains
     et noms des joueurs et la pile"""
     def __init__(self, *args, **kwargs):
-        self.height = 6 * CARD_HEIGHT + 3 * LINE_WIDTH
-        self.width = 23 * CARD_WIDTH
+        self.height = 6 * Cst.CARD_HEIGHT + 3 * Cst.LINE_WIDTH
+        self.width = 23 * Cst.CARD_WIDTH
         super().__init__(*args, **kwargs,
                          height=self.height, width=self.width,
-                         bg=CARPET_COLOR)
-        self.photos = {name: tk.PhotoImage(file='images/'+IMAGE[name])
-                       for name in IMAGE}
+                         bg=Cst.CARPET_COLOR)
+        self.photos = {name: tk.PhotoImage(file='images/'+Cst.IMAGE[name])
+                       for name in Cst.IMAGE}
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
         self.selected_card = None
         self.pile = []
@@ -140,47 +28,50 @@ class ErgoCanvas(tk.Canvas):
         self.bind("<Button-3>", func=self.switch)
         # prémisses
         for i in range(5):
-            self.create_line(0, i*CARD_HEIGHT, self.width, i*CARD_HEIGHT,
+            self.create_line(0, i*Cst.CARD_HEIGHT,
+                             self.width, i*Cst.CARD_HEIGHT,
                              fill="black")
         for i in range(23):
-            self.create_line(i*CARD_WIDTH, 0, i*CARD_WIDTH, 4*CARD_HEIGHT,
+            self.create_line(i*Cst.CARD_WIDTH, 0,
+                             i*Cst.CARD_WIDTH, 4*Cst.CARD_HEIGHT,
                              fill="red", dash=(4, 4))
         # mains
-        self.create_rectangle(LINE_WIDTH//2,
-                              4*CARD_HEIGHT+LINE_WIDTH//2+1,
-                              self.width-3*CARD_WIDTH-LINE_WIDTH//2,
-                              self.height-(CARD_HEIGHT-1)-1.5*LINE_WIDTH,
-                              width=LINE_WIDTH, outline="red")
-        self.create_rectangle(LINE_WIDTH//2,
-                              self.height-(CARD_HEIGHT-1)-1.5*LINE_WIDTH,
-                              self.width-3*CARD_WIDTH-LINE_WIDTH//2,
-                              self.height-LINE_WIDTH//2,
-                              width=LINE_WIDTH, outline="red")
-        self.create_rectangle(self.width-3*CARD_WIDTH+LINE_WIDTH//2+1,
-                              4*CARD_HEIGHT+LINE_WIDTH//2+1,
-                              self.width-LINE_WIDTH//2,
-                              self.height-LINE_WIDTH//2,
-                              width=LINE_WIDTH, outline="pink")
-        self.create_text(21.5*CARD_WIDTH, 4.5*CARD_HEIGHT,
+        self.create_rectangle(Cst.LINE_WIDTH//2,
+                              4*Cst.CARD_HEIGHT+Cst.LINE_WIDTH//2+1,
+                              self.width-3*Cst.CARD_WIDTH-Cst.LINE_WIDTH//2,
+                              self.height-(Cst.CARD_HEIGHT-1)-1.5*Cst.LINE_WIDTH,
+                              width=Cst.LINE_WIDTH, outline="red")
+        self.create_rectangle(Cst.LINE_WIDTH//2,
+                              self.height-(Cst.CARD_HEIGHT-1)-1.5*Cst.LINE_WIDTH,
+                              self.width-3*Cst.CARD_WIDTH-Cst.LINE_WIDTH//2,
+                              self.height-Cst.LINE_WIDTH//2,
+                              width=Cst.LINE_WIDTH, outline="red")
+        self.create_rectangle(self.width-3*Cst.CARD_WIDTH+Cst.LINE_WIDTH//2+1,
+                              4*Cst.CARD_HEIGHT+Cst.LINE_WIDTH//2+1,
+                              self.width-Cst.LINE_WIDTH//2,
+                              self.height-Cst.LINE_WIDTH//2,
+                              width=Cst.LINE_WIDTH, outline="pink")
+        self.create_text(21.5*Cst.CARD_WIDTH, 4.5*Cst.CARD_HEIGHT,
                          text="Pile", font="Arial 16 italic", fill="blue")
         # le dos de cartes
         for (row, col) in [(0, 12), (1, 2), (1, 12)]:
-            xdeb = col * CARD_WIDTH + CARD_WIDTH // 2
-            y = 4.5*CARD_HEIGHT + (CARD_HEIGHT + LINE_WIDTH)*row + LINE_WIDTH+1
+            xdeb = col * Cst.CARD_WIDTH + Cst.CARD_WIDTH // 2
+            y = 4.5*Cst.CARD_HEIGHT + (Cst.CARD_HEIGHT
+                                       + Cst.LINE_WIDTH)*row + Cst.LINE_WIDTH+1
             for index in range(5):
-                x = xdeb + index * CARD_WIDTH
+                x = xdeb + index * Cst.CARD_WIDTH
                 self.create_image(x, y, image=self.photos["Back"])
         # les noms des joueurs
-        self.names = [self.create_text(CARD_WIDTH*(1 + 10 * (i % 2)),
-                                       4.5 * CARD_HEIGHT
-                                       + (i // 2) * (CARD_HEIGHT+10),
+        self.names = [self.create_text(Cst.CARD_WIDTH*(1 + 10 * (i % 2)),
+                                       4.5 * Cst.CARD_HEIGHT
+                                       + (i // 2) * (Cst.CARD_HEIGHT+10),
                                        text=self.master.player_names[i],
                                        font="Arial 16 italic",
                                        fill="blue")
                       for i in range(4)]
-        self.scores = [self.create_text(CARD_WIDTH*(1 + 10 * (i % 2)),
-                                        4.85 * CARD_HEIGHT
-                                        + (i // 2) * (CARD_HEIGHT+10),
+        self.scores = [self.create_text(Cst.CARD_WIDTH*(1 + 10 * (i % 2)),
+                                        4.85 * Cst.CARD_HEIGHT
+                                        + (i // 2) * (Cst.CARD_HEIGHT+10),
                                         text=self.master.scores[i],
                                         font="Arial 16 italic",
                                         fill="blue")
@@ -211,7 +102,6 @@ class ErgoCanvas(tk.Canvas):
         :param row: le numéro de la ligne
         :type row: int
         """
-#        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT+1) + 4 * (row == 4)
         for num in self.cards[row]:
             if "selected" in self.gettags(num):
                 continue
@@ -219,9 +109,6 @@ class ErgoCanvas(tk.Canvas):
         self.cards[row] = []
         for col, card in enumerate(card_list):
             x, y = self.row_col2x_y(loc, row, col)
-#            x = CARD_WIDTH // 2 + index * CARD_WIDTH
-#            if row == 4:
-#                x += 2 * CARD_WIDTH
             card_image = self.create_image(x, y,
                                            image=self.photos[card.name],
                                            tag="card")
@@ -248,13 +135,13 @@ class ErgoCanvas(tk.Canvas):
         :rtype: tuple
         """
         if loc == "pile":
-            return (self.width - 1.5*CARD_WIDTH,
-                    self.height - CARD_HEIGHT)
-        y = CARD_HEIGHT//2 + row * (CARD_HEIGHT)+1
-        x = CARD_WIDTH // 2 + col * CARD_WIDTH
+            return (self.width - 1.5*Cst.CARD_WIDTH,
+                    self.height - Cst.CARD_HEIGHT)
+        y = Cst.CARD_HEIGHT//2 + row * (Cst.CARD_HEIGHT)+1
+        x = Cst.CARD_WIDTH // 2 + col * Cst.CARD_WIDTH
         if loc == "hand":
-            y += LINE_WIDTH+1
-            x += 2 * CARD_WIDTH
+            y += Cst.LINE_WIDTH+1
+            x += 2 * Cst.CARD_WIDTH
         return (x, y)
 
     def x_y2row_col(self, x, y):
@@ -272,8 +159,8 @@ class ErgoCanvas(tk.Canvas):
                  * row est le numéro de la prémisse
                  * col est la position dans la prémisse
         """
-        row = y//CARD_HEIGHT
-        col = x//CARD_WIDTH
+        row = y//Cst.CARD_HEIGHT
+        col = x//Cst.CARD_WIDTH
         if 0 <= row < 4:
             loc = "premise"
         elif 4 <= row <= 5 and 20 <= col <= 22:
