@@ -20,7 +20,7 @@ class Ordi:
         :rtype: Ordi"""
         self._proof = proof
         self._hand = hand
-        self.__parenthèses()
+        self.__parenthèses()  # modifie hand
         self._hand = self._hand[:]
         self._coups = self.coups_possibles()
 

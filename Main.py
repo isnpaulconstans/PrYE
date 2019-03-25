@@ -22,7 +22,6 @@ class Main(tk.Tk):
         :rtype: ErgoGui
         """
         tk.Tk.__init__(self)
-        ErgoIntro()
         self.title("Ergo")
 #        self.geometry("1500x500")  # dimension fenetre jeu
         self.resizable(width=False, height=False)
@@ -40,6 +39,7 @@ class Main(tk.Tk):
         tk.Label(text="Prouve que tu existes ...",
                  font="Arial 28 italic").grid(row=7, column=1)
         tk.Button(text="jouer", command=self.play).grid(row=5, column=0)
+        ErgoIntro()
 
     def init_round(self):
         """Inialise un début de tour."""
