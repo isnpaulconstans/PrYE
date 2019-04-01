@@ -28,7 +28,7 @@ class Main(tk.Tk):
         # initialisation du menu et canvas
         self.nb_player = 1
         self.__init_menu__()
-        self.scores = [0]*4
+        self.scores = [0] * 4
         self.player_names = ["Joueur "+chr(ord('A')+i) for i in range(4)]
         self.can = ErgoCanvas(self)
         self.can.grid(row=0, column=1, rowspan=7)
@@ -49,6 +49,7 @@ class Main(tk.Tk):
         self.demoDPLL = DPLL(self.proof)
         self.demoFB = ForceBrute(self.proof)
         self.num_player = 0
+        self.fallacy = [0] * 4
         self.can.display_current_player(self.num_player)
         self.ordi_player = [False]*self.nb_player + [True]*(4-self.nb_player)
         self.hands = [self.deck.draw(5) for _ in range(4)]
@@ -72,7 +73,7 @@ class Main(tk.Tk):
         self.config(menu=self.barre_menu)
 
     def play(self):
-        """Valide un coup si possible, et passe au joueur suivant."""
+        """Valide un coup si possible."""
         if len(self.hands[self.num_player]) != 5:
             messagebox.showwarning("Ergo",
                                    "Il faut garder 5 cartes pour valider.")
@@ -86,6 +87,12 @@ class Main(tk.Tk):
         self.proof.reset_added()
         self.cards_played = 0
         self.can.delete("pile")
+        self.next_player()
+
+    def next_player(self):
+        """Passe au joueur suivant."""
+        if self.fallacy[self.num_player] > 0:
+            self.fallacy[self.num_player] -= 1
         self.num_player = (self.num_player + 1) % 4
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.can.affiche_cards("hand", self.hands[self.num_player])
@@ -126,12 +133,11 @@ class Main(tk.Tk):
                     personne ne marque de point"
         else:
             score = self.proof.score()
-            msg = "Le(s) gagnant(s) est(sont) : "
+            msg = "Le(s) gagnant(s) est(sont) : \n"
             for index, val in enumerate(prouve):
                 if val:
                     msg += chr(ord('A')+index) + " "
                     self.scores[index] += score
-                msg += "\n"
             msg += "\nChacun marque {} points".format(score)
         messagebox.showinfo("Fin de la manche", msg)
         self.init_round()

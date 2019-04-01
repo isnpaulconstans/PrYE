@@ -63,15 +63,17 @@ class ErgoCanvas(tk.Canvas):
                 self.create_image(x, y, image=self.photos["Back"])
         # les noms des joueurs
         self.names = [self.create_text(Cst.CARD_WIDTH*(1 + 10 * (i % 2)),
-                                       4.5 * Cst.CARD_HEIGHT
-                                       + (i // 2) * (Cst.CARD_HEIGHT+10),
+                                       4.25 * Cst.CARD_HEIGHT
+                                       + (i // 2) * (Cst.CARD_HEIGHT +
+                                                     Cst.LINE_WIDTH),
                                        text=self.master.player_names[i],
                                        font="Arial 16 italic",
                                        fill="blue")
                       for i in range(4)]
         self.scores = [self.create_text(Cst.CARD_WIDTH*(1 + 10 * (i % 2)),
-                                        4.85 * Cst.CARD_HEIGHT
-                                        + (i // 2) * (Cst.CARD_HEIGHT+10),
+                                        4.6 * Cst.CARD_HEIGHT
+                                        + (i // 2) * (Cst.CARD_HEIGHT +
+                                                      Cst.LINE_WIDTH),
                                         text=self.master.scores[i],
                                         font="Arial 16 italic",
                                         fill="blue")
@@ -90,6 +92,23 @@ class ErgoCanvas(tk.Canvas):
         for i, score in enumerate(self.scores):
             self.itemconfig(score,
                             text=self.master.scores[(num_player+i) % 4])
+        for i in range(4):
+            fallacy = self.master.fallacy[(num_player+i) % 4]
+            tag = "fallacy" + str(i)
+            self.delete(tag)
+            if fallacy == 0:
+                continue
+            text = str(fallacy) + " tour" + ("s" if fallacy > 1 else "")
+            x1 = Cst.CARD_WIDTH*(.25 + 10 * (i % 2))
+            y1 = 4.75 * Cst.CARD_HEIGHT + (i // 2) * (Cst.CARD_HEIGHT +
+                                                      Cst.LINE_WIDTH)
+            self.create_oval(x1, y1, x1+20, y1+20,
+                             outline='red', width=4, tag=tag)
+            self.create_line(x1, y1+20, x1+20, y1, fill='red',
+                             width=4, tag=tag)
+            self.create_text(x1+55, y1+10,
+                             text=text, font="Arial 14 italic", fill="red",
+                             tag=tag)
 
     def affiche_cards(self, loc, card_list, row=4):
         """affiche la liste de carte card_list dans la prémisse row ou dans le
@@ -156,8 +175,8 @@ class ErgoCanvas(tk.Canvas):
         :return: loc, row, col où
 
                  * loc est "premise", "hand" ou "pile"
-                 * row est le numéro de la prémisse
-                 * col est la position dans la prémisse
+                 * row est le numéro de la prémisse ou de la main
+                 * col est la position dans la prémisse ou la main
         """
         row = y//Cst.CARD_HEIGHT
         col = x//Cst.CARD_WIDTH
@@ -167,7 +186,8 @@ class ErgoCanvas(tk.Canvas):
             loc = "pile"
         else:
             loc = "hand"
-            col -= 2
+            row = (row - 4) * 2 + col // 10
+            col = col % 10 - 2
         return loc, row, col
 
     def select(self, event):
@@ -219,10 +239,10 @@ class ErgoCanvas(tk.Canvas):
         :param event: événement
         :type event: tkinter.Event
         """
-        def restore():
+        def restore(index=7):
             """remet la carte dans la main du joueur."""
             hand = self.master.hands[self.master.num_player]
-            hand.append(self.selected_card)
+            hand.insert(index, self.selected_card)
             self.delete("selected")
             self.affiche_cards("hand", hand)
             self.selected_card = None
@@ -239,7 +259,12 @@ class ErgoCanvas(tk.Canvas):
             self.dtag("selected")
             self.selected_card = None
             return
-        if loc != "premise":
+        if loc == "hand":
+            restore(col if row == 0 else 7)
+            return
+        if self.master.fallacy[self.master.num_player] > 0:
+            messagebox.showwarning("Fallacy", "Impossible d'ajouter une carte"
+                                   + "à la preuve")
             restore()
             return
         if self.selected_card.is_ergo():
