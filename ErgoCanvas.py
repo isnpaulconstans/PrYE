@@ -260,11 +260,23 @@ class ErgoCanvas(tk.Canvas):
             self.selected_card = None
             return
         if loc == "hand":
+            if self.selected_card.is_fallacy() and row > 0:
+                self.master.fallacy[(self.master.num_player+row) % 4] = 3
+                self.delete("selected")
+                self.selected_card = None
+                self.display_current_player(self.master.num_player)
+                return
+            if self.selected_card.is_justification() and row == 0:
+                self.master.fallacy[self.master.num_player] = 0
+                self.delete("selected")
+                self.selected_card = None
+                self.display_current_player(self.master.num_player)
+                return
             restore(col if row == 0 else 7)
             return
         if self.master.fallacy[self.master.num_player] > 0:
             messagebox.showwarning("Fallacy", "Impossible d'ajouter une carte"
-                                   + "à la preuve")
+                                   + " à la preuve")
             restore()
             return
         if self.selected_card.is_ergo():

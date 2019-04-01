@@ -20,13 +20,19 @@ class Constantes():
         "(": "carteOpenParenthesis.gif",
         ")": "carteCloseParenthesis.gif",
         "Ergo": "carteCQFD.gif",
+        "Fallacy": "carteFallacy.gif",
+        "Justification": "carteJustification.gif",
+        # "TabulaRasa": "carteTabulaRasa.gif",
+        # "Revolution": "carteRevolution.gif",
+        # "WildVar": "carteWildVar.gif",
+        # WildOp": "cartWildOpe.gif",
         "Back": "carteDos.gif"
         }
     # Le nombre de cartes de chaque type
     NUMBER = {"A": 4, "B": 4, "C": 4, "D": 4,
               "AND": 4, "OR": 4, "THEN": 4,
               "NOT": 6, "(": 4, ")": 4,
-              # "Fallacy": 3, "Justification": 3,
+              "Fallacy": 3, "Justification": 3,
               # "TabulaRasa": 1, "Revolution": 1,
               # "WildVar": 1, "WildOp": 1,
               "Ergo": 3,

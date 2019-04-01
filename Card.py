@@ -97,6 +97,20 @@ class Card():
         """
         return self.__name == "Ergo"
 
+    def is_fallacy(self):
+        """Indique si la carte est "Fallacy".
+
+         :rtype: boolean
+        """
+        return self.__name == "Fallacy"
+
+    def is_justification(self):
+        """Indique si la carte est "Justification".
+
+         :rtype: boolean
+        """
+        return self.__name == "Justification"
+
     def is_special(self):
         """Indique si la carte est spéciale (Ergo, Fallacy, Justification,
         TabulaRasa, Revolution, WildVar, WildOp).
