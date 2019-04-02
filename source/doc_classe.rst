@@ -1,8 +1,8 @@
 Documentation des modules
 =========================
 
-Module cards
-------------
+Modules cartes
+--------------
 
 .. automodule:: Card
 
@@ -32,8 +32,8 @@ Module cards
    :private-members:
    :special-members:
 
-Module demonstration
---------------------
+Modules démonstrations
+----------------------
 
 .. automodule:: FCN
 
@@ -63,8 +63,8 @@ Module demonstration
    :private-members:
    :special-members:
 
-Module ordi
------------
+Modules jeu de l'ordianteur
+---------------------------
 
 .. automodule:: Ordi
 
@@ -80,8 +80,8 @@ Module ordi
    :private-members:
    :special-members:
 
-Module gui
-----------
+Modules interfaces graphiques
+-----------------------------
 
 .. automodule:: ErgoCanvas
 
@@ -98,8 +98,8 @@ Module gui
    :special-members:
 
 
-Module main
------------
+Module principal
+----------------
 
 .. automodule:: Main
 
