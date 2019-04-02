@@ -277,7 +277,7 @@ class ErgoCanvas(tk.Canvas):
             restore(col if row == 0 else 7)
             return
         if self.selected_card.is_tabula_rasa():
-            card = self.master.proof.pop(row, col)
+            card = self.master.proof.pop(row, col, recent=False)
             if card is None:  # impossible de la sélectionner
                 restore()
                 return
@@ -285,6 +285,7 @@ class ErgoCanvas(tk.Canvas):
             self.master.deck.append(card)
             self.delete("selected")
             self.selected_card = None
+            return
         if self.master.fallacy[self.master.num_player] > 0:
             messagebox.showwarning("Fallacy", "Impossible d'ajouter une carte"
                                    + " à la preuve")

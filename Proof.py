@@ -81,28 +81,31 @@ class Proof():
         self.currently_added.append((premise, index))
         return True
 
-    def pop(self, premise, index):
-        """Enlève la carte en position index de la prémisse premise à
-        condition qu'elle vienne d'être ajoutée.
+    def pop(self, premise, index, recent=True):
+        """Enlève la carte en position index de la prémisse premise.
+        Si recent=True, ne renvoie la carte que si elle vienne d'être ajoutée.
 
         :param premise: le numéro de la prémisse
         :type premise: int
         :param index: la position dans la prémisse de la carte à supprimer
         :type index: int
+        :param recent: indique si on ne doit renvoyer que les cartes qui
+                       viennent d'être jouées
+        :type recent: bool
         :return: la carte en question ou None si on ne peut pas l'enlever.
         :rtype: Card ou NoneType"""
         try:
             self.currently_added.remove((premise, index))
         except ValueError:
-            return None
+            if recent or index >= len(self.premises[premise]):
+                return None
         self.__modif = True
         if self.currently_added != []:
             (premise1, index1) = self.currently_added.pop()
             if premise1 == premise and index1 >= index:
                 index1 -= 1
             self.currently_added.append((premise1, index1))
-        card = self.premises[premise].pop(index)
-        return card
+        return self.premises[premise].pop(index)
 
     def reset_added(self):
         """Remise à zéro de currently_added pour le prochain tour."""
