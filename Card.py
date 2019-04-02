@@ -111,6 +111,13 @@ class Card():
         """
         return self.__name == "Justification"
 
+    def is_tabula_rasa(self):
+        """Indique si la carte est "Justification".
+
+         :rtype: boolean
+        """
+        return self.__name == "TabulaRasa"
+
     def is_special(self):
         """Indique si la carte est spéciale (Ergo, Fallacy, Justification,
         TabulaRasa, Revolution, WildVar, WildOp).

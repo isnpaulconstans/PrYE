@@ -16,8 +16,8 @@ class ErgoCanvas(tk.Canvas):
         super().__init__(*args, **kwargs,
                          height=self.height, width=self.width,
                          bg=Cst.CARPET_COLOR)
-        self.photos = {name: tk.PhotoImage(file='images/'+Cst.IMAGE[name])
-                       for name in Cst.IMAGE}
+        self.photos = {name: tk.PhotoImage(file='images/carte'+name+'.png')
+                       for name in Cst.card_names() + ['Back']}
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
         self.selected_card = None
         self.pile = []
@@ -242,6 +242,8 @@ class ErgoCanvas(tk.Canvas):
         def restore(index=7):
             """remet la carte dans la main du joueur."""
             hand = self.master.hands[self.master.num_player]
+            if index < 0:
+                index = 0
             hand.insert(index, self.selected_card)
             self.delete("selected")
             self.affiche_cards("hand", hand)
@@ -274,6 +276,15 @@ class ErgoCanvas(tk.Canvas):
                 return
             restore(col if row == 0 else 7)
             return
+        if self.selected_card.is_tabula_rasa():
+            card = self.master.proof.pop(row, col)
+            if card is None:  # impossible de la sélectionner
+                restore()
+                return
+            self.affiche_cards(loc, self.master.proof.premises[row], row)
+            self.master.deck.append(card)
+            self.delete("selected")
+            self.selected_card = None
         if self.master.fallacy[self.master.num_player] > 0:
             messagebox.showwarning("Fallacy", "Impossible d'ajouter une carte"
                                    + " à la preuve")
@@ -296,6 +307,7 @@ class ErgoCanvas(tk.Canvas):
             self.selected_card = None
             self.master.fin_manche()
             return
+
         if self.master.proof.insert(row, col, self.selected_card):
             self.delete("selected")
             self.affiche_cards(loc, self.master.proof.premises[row], row)

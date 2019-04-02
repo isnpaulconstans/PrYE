@@ -43,7 +43,7 @@ class ErgoIntro(tk.Toplevel):
                              width=17*Cst.CARD_WIDTH,
                              bg="skyblue")
         self.can.grid()
-        self.img = tk.PhotoImage(file="images/carteDos.gif")
+        self.img = tk.PhotoImage(file="images/carteBack.png")
         self.id_img = self.can.create_image(425, 465, image=self.img)
 
     def rectangle(self, x, y):

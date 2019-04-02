@@ -37,7 +37,7 @@ class Deck(list):
 
         :param card: la carte à ajouter
         :type card: Card"""
-        self.append(card)
+        self.insert(0, card)
 
     def is_finished(self):
         """Indique si la paquet est terminé.
