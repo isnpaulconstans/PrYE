@@ -38,11 +38,11 @@ class Card():
         """
         return self.__name
 
-#    @name.setter
-#    def name(self, name):
-#        """setter"""
-#        assert name in Deck.names()
-#        self.__name = name
+    @name.setter
+    def name(self, name):
+        """setter"""
+        assert name in Cst.card_names()
+        self.__name = name
 
     def priority(self):
         """
@@ -124,6 +124,27 @@ class Card():
          :rtype: boolean
         """
         return self.__name == "Revolution"
+
+    def is_wild(self):
+        """Indique si la carte est un joker (WildVar, WildOp).
+
+        :rtype: boolean
+        """
+        return self.name in ["WildVar", "WildOp"]
+
+    def is_wildvar(self):
+        """Indique si la carte est "WildVar".
+
+        :rtype: boolean
+        """
+        return self.name == "WildVar"
+
+    def is_wildop(self):
+        """Indique si la carte est WildOp.
+
+        :rtype: boolean
+        """
+        return self.name == "WildOp"
 
     def is_special(self):
         """Indique si la carte est spéciale (Ergo, Fallacy, Justification,

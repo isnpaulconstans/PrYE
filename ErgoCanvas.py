@@ -372,12 +372,37 @@ class ErgoCanvas(tk.Canvas):
             self.selected_card = None
             self.master.fin_manche()
             return
-
+        if self.selected_card.is_wild():
+            option = ['A', 'B', 'C', 'D'] if self.selected_card.is_wildvar() \
+                     else ['THEN', 'OR', 'AND']
+            self.selected_card.name = self.choice(option)
         if self.master.proof.insert(row, col, self.selected_card):
             self.delete("selected")
             self.affiche_cards(loc, self.master.proof.premises[row], row)
             self.selected_card = None
             return
+
+    def choice(self, options):
+        """Permet de choisir le carte qui doit remplacer une wildCard.
+
+        :param options: les choix possibles
+        :type options: list
+        :return: le nom de la carte
+        :rtype: str
+        """
+        fen = tk.Toplevel()
+        fen.title("Wild Card")
+        fen.grab_set()
+        tk.Label(fen, text="Choisissez le symbole :", font="Arial 16",
+                 ).grid(row=0, column=0, columnspan=len(options))
+        var = tk.IntVar()
+        for index, option in enumerate(options):
+            tk.Radiobutton(fen, text=option, variable=var, value=index
+                           ).grid(row=1, column=index, padx=5, pady=20)
+        tk.Button(fen, text="OK", command=fen.destroy
+                  ).grid(row=2, column=0, columnspan=len(options))
+        self.wait_window(fen)
+        return options[var.get()]
 
     def switch(self, event):
         """Retourne la parenthèse si c'en est une, dans la main du joueur
