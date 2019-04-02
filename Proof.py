@@ -54,6 +54,24 @@ class Proof():
         self.__npi.extend([Card("AND") for _ in range(nb_premises-1)])
         return self.__npi
 
+    def change(self, premise, index, card):
+        """Change la carte dans la prémisse premise en position index pour
+        mettre card à la place.
+
+        :param premise: le numéro de la prémisse
+        :type premise: int
+        :param index: la position de la carte à changer dans la prémisse
+        :type index: int
+        :param card: la carte à mettre
+        :type card: Card
+        :return: la carte qu'il y avait avant modification.
+        :rtype: card
+        """
+        self.__modif = True
+        old_card = self.premises[premise][index]
+        self.premises[premise][index] = card
+        return old_card
+
     def insert(self, premise, index, card):
         """Insère la carte card dans la prémisse premise en position index
         et actualise currently_added.

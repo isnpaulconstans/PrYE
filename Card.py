@@ -118,6 +118,13 @@ class Card():
         """
         return self.__name == "TabulaRasa"
 
+    def is_revolution(self):
+        """Indique si la carte est "Revolution".
+
+         :rtype: boolean
+        """
+        return self.__name == "Revolution"
+
     def is_special(self):
         """Indique si la carte est spéciale (Ergo, Fallacy, Justification,
         TabulaRasa, Revolution, WildVar, WildOp).

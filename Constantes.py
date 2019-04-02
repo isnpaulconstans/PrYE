@@ -33,7 +33,7 @@ class Constantes():
               "AND": 4, "OR": 4, "THEN": 4,
               "NOT": 6, "(": 4, ")": 4,
               "Fallacy": 3, "Justification": 3,
-              "TabulaRasa": 1,# "Revolution": 1,
+              "TabulaRasa": 1, "Revolution": 10,
               # "WildVar": 1, "WildOp": 1,
               "Ergo": 3,
              }

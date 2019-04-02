@@ -21,11 +21,7 @@ class ErgoCanvas(tk.Canvas):
         self.cards = [[] for _ in range(5)]  # les 5 lignes de cartes
         self.selected_card = None
         self.pile = []
-        # liens bouttons souris
-        self.bind('<Button-1>', func=self.select)
-        self.bind('<Button1-Motion>', func=self.move)
-        self.bind("<ButtonRelease-1>", func=self.drop)
-        self.bind("<Button-3>", func=self.switch)
+        self.init_bind()
         # prémisses
         for i in range(5):
             self.create_line(0, i*Cst.CARD_HEIGHT,
@@ -78,6 +74,13 @@ class ErgoCanvas(tk.Canvas):
                                         font="Arial 16 italic",
                                         fill="blue")
                        for i in range(4)]
+
+    def init_bind(self):
+        """Initialise la gestion des événements souris."""
+        self.bind('<Button-1>', func=self.select)
+        self.bind('<Button1-Motion>', func=self.move)
+        self.bind("<ButtonRelease-1>", func=self.drop)
+        self.bind("<Button-3>", func=self.switch)
 
     def display_current_player(self, num_player):
         """ Affiche les numéros de joueurs en faisant tourner, le joueur
@@ -190,6 +193,52 @@ class ErgoCanvas(tk.Canvas):
             col = col % 10 - 2
         return loc, row, col
 
+    def select_revolution(self, event):
+        """Selectionne les cartes à échnager après avoir joué la carte
+        Revolution.
+
+        :param event: événement
+        :type event: tkinter.Event
+        """
+        num = self.find_closest(event.x, event.y)
+        if "card" not in self.gettags(num):
+            if messagebox.askyesno("Revolution", "Voulez-vous annuler ?"):
+                self.init_bind()
+                self.restore()
+            return
+        loc, row, col = self.x_y2row_col(event.x, event.y)
+        if loc != "premise":
+            return
+        card = self.master.proof.premises[row][col]
+        letter = card.is_letter()
+        if not letter and not card.is_operator():
+            return
+        if self.revolution_card1 is None:
+            self.revolution_card1 = (card, row, col)
+            messagebox.showinfo("Revolution",
+                                "Carte {} sélectionnée.".format(card))
+            return
+        card1, row1, col1 = self.revolution_card1
+        letter1 = card1.is_letter()
+        if letter1 != letter:
+            messagebox.showerror("Revolution", "On ne peut échanger que deux"
+                                 + " cartes du même type"
+                                 + " (lettre ou opérateur).\n"
+                                 + "Recommencez.")
+            self.revolution_card1 = None
+            return
+        if not messagebox.askyesno("Revolution",
+                                   "Échangeer {} et {} ?".format(card1, card)):
+            self.init_bind()
+            self.restore()
+            return
+        self.selected_card = None
+        self.master.proof.change(row, col, card1)
+        self.master.proof.change(row1, col1, card)
+        self.affiche_cards(loc, self.master.proof.premises[row], row)
+        self.affiche_cards(loc, self.master.proof.premises[row1], row1)
+        self.init_bind()
+
     def select(self, event):
         """Selectionne une carte, la marque comme "selected", la met en avant
         plan, et l'enlève de l'endroit où elle était (mains, prémisse ou pile).
@@ -198,29 +247,30 @@ class ErgoCanvas(tk.Canvas):
         :type event: tkinter.Event
         """
         num = self.find_closest(event.x, event.y)
-        if "card" in self.gettags(num):
-            self.addtag_withtag("selected", num)
-            loc, row, col = self.x_y2row_col(event.x, event.y)
-            if loc == "premise":
-                self.selected_card = self.master.proof.pop(row, col)
-                if self.selected_card is None:  # impossible de la sélectionner
-                    self.dtag("selected")
-                    return
-                self.affiche_cards(loc, self.master.proof.premises[row], row)
-            elif loc == "pile":
-                self.selected_card = self.pile.pop()
-                self.dtag("selected", "pile")
-            else:  # carte de la main
-                if self.master.cards_played == 2:
-                    messagebox.showwarning("2 cartes", "On ne peut pas jouer "
-                                           + "plus de deux cartes")
-                    self.dtag("selected")
-                    return
-                hand = self.master.hands[self.master.num_player]
-                self.selected_card = hand.pop(col)
-                self.affiche_cards("hand", hand)
-                self.master.cards_played += 1
-            self.tag_raise(num)  # pour passer en avant plan
+        if "card" not in self.gettags(num):
+            return
+        self.addtag_withtag("selected", num)
+        loc, row, col = self.x_y2row_col(event.x, event.y)
+        if loc == "premise":
+            self.selected_card = self.master.proof.pop(row, col)
+            if self.selected_card is None:  # impossible de la sélectionner
+                self.dtag("selected")
+                return
+            self.affiche_cards(loc, self.master.proof.premises[row], row)
+        elif loc == "pile":
+            self.selected_card = self.pile.pop()
+            self.dtag("selected", "pile")
+        else:  # carte de la main
+            if self.master.cards_played == 2:
+                messagebox.showwarning("2 cartes", "On ne peut pas jouer "
+                                       + "plus de deux cartes")
+                self.dtag("selected")
+                return
+            hand = self.master.hands[self.master.num_player]
+            self.selected_card = hand.pop(col)
+            self.affiche_cards("hand", hand)
+            self.master.cards_played += 1
+        self.tag_raise(num)  # pour passer en avant plan
 
     def move(self, event):
         """Déplace la carte marquée "selected".
@@ -231,25 +281,30 @@ class ErgoCanvas(tk.Canvas):
         num = self.find_withtag("selected")
         self.coords(num, event.x, event.y)
 
+    def restore(self, index=7):
+        """remet la carte sélectionnée dans la main du joueur.
+
+        :param index: position où insérer la carte (si index <0, insère au
+                      début)
+        :type index: int
+        """
+        hand = self.master.hands[self.master.num_player]
+        if index < 0:
+            index = 0
+        hand.insert(index, self.selected_card)
+        self.delete("selected")
+        self.affiche_cards("hand", hand)
+        self.selected_card = None
+        self.master.cards_played -= 1
+
     def drop(self, event):
         """Place la carte marquée "selected" sur la grille, et l'ajoute au bon
         endroit (prémisse, main ou pile) et enlève la marque "selected".
-        Si c'est impossible, la remet à la fin de la main.
+        Si c'est impossible, la remet dans la main.
 
         :param event: événement
         :type event: tkinter.Event
         """
-        def restore(index=7):
-            """remet la carte dans la main du joueur."""
-            hand = self.master.hands[self.master.num_player]
-            if index < 0:
-                index = 0
-            hand.insert(index, self.selected_card)
-            self.delete("selected")
-            self.affiche_cards("hand", hand)
-            self.selected_card = None
-            self.master.cards_played -= 1
-
         if self.selected_card is None:
             return
         loc, row, col = self.x_y2row_col(event.x, event.y)
@@ -274,33 +329,42 @@ class ErgoCanvas(tk.Canvas):
                 self.selected_card = None
                 self.display_current_player(self.master.num_player)
                 return
-            restore(col if row == 0 else 7)
+            self.restore(col if row == 0 else 7)
             return
         if self.selected_card.is_tabula_rasa():
             card = self.master.proof.pop(row, col, recent=False)
             if card is None:  # impossible de la sélectionner
-                restore()
+                self.restore()
                 return
             self.affiche_cards(loc, self.master.proof.premises[row], row)
             self.master.deck.append(card)
             self.delete("selected")
             self.selected_card = None
             return
+        if self.selected_card.is_revolution():
+            messagebox.showinfo("Revolution", "Sélectionnez deux cartes à"
+                                + " échanger.")
+            self.revolution_card1 = None
+            self.bind('<Button-1>', func=self.select_revolution)
+            self.unbind('<Button1-Motion>')
+            self.unbind("<ButtonRelease-1>")
+            self.delete("selected")
+            return
         if self.master.fallacy[self.master.num_player] > 0:
             messagebox.showwarning("Fallacy", "Impossible d'ajouter une carte"
                                    + " à la preuve")
-            restore()
+            self.restore()
             return
         if self.selected_card.is_ergo():
             if not self.master.proof.is_all_correct():
                 messagebox.showwarning("Ergo", "Jeu invalide")
-                restore()
+                self.restore()
                 return
             if not self.master.proof.all_cards_played():
                 messagebox.showwarning("Fin de manche", "Toutes les lettres " +
                                        "doivent apparaître pour pouvoir " +
                                        "mettre fin à la manche")
-                restore()
+                self.restore()
                 return
             cards = self.master.proof.premises[-1]+[self.selected_card]
             self.affiche_cards(loc, cards, 3)
