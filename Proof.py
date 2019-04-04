@@ -68,9 +68,7 @@ class Proof():
         :rtype: card
         """
         self.__modif = True
-        old_card = self.premises[premise][index]
-        self.premises[premise][index] = card
-        return old_card
+        return self.premises[premise].change(index, card)
 
     def insert(self, premise, index, card):
         """Insère la carte card dans la prémisse premise en position index

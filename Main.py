@@ -47,6 +47,7 @@ class Main(tk.Tk):
         self.can.reset()
         self.proof = Proof()
         self.demoDPLL = DPLL(self.proof)
+        # XXX comparaison de DPLL et FB
         self.demoFB = ForceBrute(self.proof)
         self.num_player = 0
         self.fallacy = [0] * 4
@@ -82,6 +83,8 @@ class Main(tk.Tk):
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
         # passe au joueur suivant.
+        # XXX comparaison FB DPLL
+        print(self.demoDPLL.conclusion(), self.demoFB.conclusion())
         if self.deck.is_finished():
             self.fin_manche()
         self.proof.reset_added()
@@ -127,7 +130,7 @@ class Main(tk.Tk):
     def fin_manche(self):
         """Fin de la manche, affichage des gagnants et du score."""
         # TODO faire plus propre
-        prouve = self.demoFB.conclusion()
+        prouve = self.demoDPLL.conclusion()
         if prouve is None:
             msg = "La preuve contient une contradiction,\
                     personne ne marque de point"

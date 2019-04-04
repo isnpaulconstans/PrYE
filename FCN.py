@@ -26,8 +26,8 @@ class FCN:
         :return: fcn_lst
         :rtype: list
         """
-        if not self._proof.modif:
-            return self.__clause_list
+#        if not self._proof.modif:
+#            return self.__clause_list
         return self.__to_clause_list()
 
     def __get_proposition(self):
@@ -191,3 +191,16 @@ class FCN:
             if clause is not None:
                 self.__clause_list.append(clause)
         return self.__clause_list
+
+
+if __name__ == '__main__':
+    from Proof import Proof
+    from CardList import CardList
+    proof = Proof()
+    proof.premises=[CardList([Card('A'), Card('THEN'), Card('B'), Card('THEN'), Card('C')]),
+                    CardList([Card('NOT'), Card('C')]),
+                    CardList(),
+                    CardList()]
+    print(proof.npi)
+    fcn = FCN(proof)
+    print(fcn.clause_list)

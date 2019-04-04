@@ -80,3 +80,17 @@ class ForceBrute(Demonstration):
                 if result[i_lettre] != interpretation[i_lettre]:
                     result[i_lettre] = None
         return result
+
+
+if __name__ == '__main__':
+    from Card import Card
+    from CardList import CardList
+    from Proof import Proof
+    proof = Proof()
+    proof.premises=[CardList([Card('A'), Card('THEN'), Card('B'), Card('THEN'), Card('C')]),
+                    CardList([Card('NOT'), Card('C')]),
+                    CardList(),
+                    CardList()]
+    print(proof.npi)
+    fb = ForceBrute(proof)
+    print(fb.conclusion())

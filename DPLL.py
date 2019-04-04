@@ -24,9 +24,10 @@ class DPLL(Demonstration):
     @property
     def clause_list(self):
         """getter pour clause_list."""
-        if self._proof.modif:
-            self.__clause_list = self.__fcn.clause_list
-        return self.__clause_list
+#        if self._proof.modif:
+#            self.__clause_list = self.__fcn.clause_list
+#        return self.__clause_list
+        return self.__fcn.clause_list
 
     @staticmethod
     def __propagation(clause_list, lit):
@@ -113,3 +114,17 @@ class DPLL(Demonstration):
         if not self.dpll(clause_list, model):
             return None
         return model
+
+
+if __name__ == '__main__':
+    from Card import Card
+    from CardList import CardList
+    from Proof import Proof
+    proof = Proof()
+    proof.premises=[CardList([Card('A'), Card('THEN'), Card('B'), Card('THEN'), Card('C')]),
+                    CardList([Card('NOT'), Card('C')]),
+                    CardList(),
+                    CardList()]
+    print(proof.npi)
+    dpll = DPLL(proof)
+    print(dpll.conclusion())

@@ -332,6 +332,7 @@ class ErgoCanvas(tk.Canvas):
             self.restore(col if row == 0 else 7)
             return
         if self.selected_card.is_tabula_rasa():
+            # TODO revenir en arrière si impossible
             card = self.master.proof.pop(row, col, recent=False)
             if card is None:  # impossible de la sélectionner
                 self.restore()

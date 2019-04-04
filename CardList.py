@@ -27,6 +27,21 @@ class CardList(list):
         """
         return self.__modif
 
+    def change(self, index, card):
+        """Change la carte en position index pour mettre card à la place.
+
+        :param index: la position de la carte à changer dans la prémisse
+        :type index: int
+        :param card: la carte à mettre
+        :type card: Card
+        :return: la carte qu'il y avait avant modification.
+        :rtype: card
+        """
+        self.__modif = True
+        old_card = self[index]
+        self[index] = card
+        return old_card
+
     def append(self, card):
         """Ajoute la carte card à la  fin de la liste.
 
