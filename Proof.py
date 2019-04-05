@@ -70,9 +70,9 @@ class Proof():
         self.__modif = True
         return self.premises[premise].change(index, card)
 
-    def insert(self, premise, index, card):
+    def insert(self, premise, index, card, new=True):
         """Insère la carte card dans la prémisse premise en position index
-        et actualise currently_added.
+        et actualise currently_added si recent=True.
 
         :param premise: le numéro de la prémisse
         :type premise: int
@@ -80,21 +80,34 @@ class Proof():
         :type index: int
         :param card: la carte à insérer
         :type card: Card
-        :return: True si l'insertion est possible, False sinon.
+        :param recent: indique s'il s'agit de l'ajout d'une nouvelle carte ou
+                       de l'annulation d'un Tabula Rasa
+        :type recent: bool
+        :return: si new : True si l'insertion est possible, False sinon.
+                 si not new : le numéro de la prémisse modifiée.
         :rtype: boolean
         """
-        if len(self.currently_added) >= 2:
+        if new and len(self.currently_added) >= 2:
             return False
         self.__modif = True
+        if not new:
+            for (premise1, index1, mod) in reversed(self.currently_added):
+                if not mod:
+                    premise, index = premise1, index1
+                    self.currently_added.remove((premise, index, False))
+                    break
+            else:
+                return False
         self.premises[premise].insert(index, card)
         if index >= len(self.premises[premise]):
             index = len(self.premises[premise])-1
-        if self.currently_added != []:
-            (premise1, index1) = self.currently_added.pop()
+        for i, (premise1, index1, mod) in enumerate(self.currently_added):
             if premise1 == premise and index1 >= index:
                 index1 += 1
-            self.currently_added.append((premise1, index1))
-        self.currently_added.append((premise, index))
+                self.currently_added[i] = (premise1, index1, mod)
+        if not new:
+            return premise
+        self.currently_added.append((premise, index, True))
         return True
 
     def pop(self, premise, index, recent=True):
@@ -106,21 +119,28 @@ class Proof():
         :param index: la position dans la prémisse de la carte à supprimer
         :type index: int
         :param recent: indique si on ne doit renvoyer que les cartes qui
-                       viennent d'être jouées
+                       viennent d'être jouées ou s'il s'agit d'un Tabula Rasa
         :type recent: bool
         :return: la carte en question ou None si on ne peut pas l'enlever.
         :rtype: Card ou NoneType"""
-        try:
-            self.currently_added.remove((premise, index))
-        except ValueError:
-            if recent or index >= len(self.premises[premise]):
-                return None
+        present = (premise, index, True) in self.currently_added
+        if (present and not recent) or (not present and recent) \
+                                    or index >= len(self.premises[premise]):
+            return None
+        if recent:
+            self.currently_added.remove((premise, index, True))
+#        try:
+#            self.currently_added.remove((premise, index, recent))
+#        except ValueError:
+#            if recent or index >= len(self.premises[premise]):
+#                return None
         self.__modif = True
-        if self.currently_added != []:
-            (premise1, index1) = self.currently_added.pop()
-            if premise1 == premise and index1 >= index:
+        for i, (premise1, index1, mod) in enumerate(self.currently_added):
+            if premise1 == premise and index1 > index:
                 index1 -= 1
-            self.currently_added.append((premise1, index1))
+                self.currently_added[i] = (premise1, index1, mod)
+        if not recent:
+            self.currently_added.append((premise, index, False))
         return self.premises[premise].pop(index)
 
     def reset_added(self):

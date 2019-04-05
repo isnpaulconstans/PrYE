@@ -5,6 +5,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from Constantes import Constantes as Cst
+from Card import Card
 
 
 class ErgoCanvas(tk.Canvas):
@@ -160,7 +161,7 @@ class ErgoCanvas(tk.Canvas):
             return (self.width - 1.5*Cst.CARD_WIDTH,
                     self.height - Cst.CARD_HEIGHT)
         y = Cst.CARD_HEIGHT//2 + row * (Cst.CARD_HEIGHT)+1
-        x = Cst.CARD_WIDTH // 2 + col * Cst.CARD_WIDTH
+        x = Cst.CARD_WIDTH // 2 + col * Cst.CARD_WIDTH+1
         if loc == "hand":
             y += Cst.LINE_WIDTH+1
             x += 2 * Cst.CARD_WIDTH
@@ -183,14 +184,16 @@ class ErgoCanvas(tk.Canvas):
         """
         row = y//Cst.CARD_HEIGHT
         col = x//Cst.CARD_WIDTH
-        if 0 <= row < 4:
+        if 0 <= row < 4 and 0 <= col < 22:
             loc = "premise"
         elif 4 <= row <= 5 and 20 <= col <= 22:
             loc = "pile"
-        else:
+        elif 4 <= row <= 5 and 0 <= col < 22:
             loc = "hand"
             row = (row - 4) * 2 + col // 10
             col = col % 10 - 2
+        else:
+            loc = 'out'
         return loc, row, col
 
     def select_revolution(self, event):
@@ -262,8 +265,9 @@ class ErgoCanvas(tk.Canvas):
             self.dtag("selected", "pile")
         else:  # carte de la main
             if self.master.cards_played == 2:
-                messagebox.showwarning("2 cartes", "On ne peut pas jouer "
-                                       + "plus de deux cartes")
+                messagebox.showwarning("2 cartes",
+                                       "On ne peut pas jouer plus de deux" +
+                                       " cartes")
                 self.dtag("selected")
                 return
             hand = self.master.hands[self.master.num_player]
@@ -308,6 +312,9 @@ class ErgoCanvas(tk.Canvas):
         if self.selected_card is None:
             return
         loc, row, col = self.x_y2row_col(event.x, event.y)
+        if loc == 'out':
+            self.restore()
+            return
         if loc == "pile":
             x, y = self.row_col2x_y("pile")
             self.coords("selected", x, y)
@@ -323,7 +330,7 @@ class ErgoCanvas(tk.Canvas):
                 self.selected_card = None
                 self.display_current_player(self.master.num_player)
                 return
-            if self.selected_card.is_justification() and row == 0:
+            if self.selected_card.is_justification() and row == 0 and col < 0:
                 self.master.fallacy[self.master.num_player] = 0
                 self.delete("selected")
                 self.selected_card = None
@@ -332,19 +339,23 @@ class ErgoCanvas(tk.Canvas):
             self.restore(col if row == 0 else 7)
             return
         if self.selected_card.is_tabula_rasa():
-            # TODO revenir en arrière si impossible
             card = self.master.proof.pop(row, col, recent=False)
             if card is None:  # impossible de la sélectionner
                 self.restore()
                 return
+            messagebox.showinfo("Tabula Rasa",
+                                "{} effacée. Esc pour annuler".format(card))
+            self.master.bind('<Escape>', self.undo)
             self.affiche_cards(loc, self.master.proof.premises[row], row)
+
             self.master.deck.append(card)
             self.delete("selected")
             self.selected_card = None
             return
         if self.selected_card.is_revolution():
-            messagebox.showinfo("Revolution", "Sélectionnez deux cartes à"
-                                + " échanger.")
+            messagebox.showinfo("Revolution",
+                                "Sélectionnez deux cartes à échanger.\n" +
+                                "Cliquez n'importe où pour annuler.")
             self.revolution_card1 = None
             self.bind('<Button-1>', func=self.select_revolution)
             self.unbind('<Button1-Motion>')
@@ -377,11 +388,29 @@ class ErgoCanvas(tk.Canvas):
             option = ['A', 'B', 'C', 'D'] if self.selected_card.is_wildvar() \
                      else ['THEN', 'OR', 'AND']
             self.selected_card.name = self.choice(option)
+        if self.selected_card.is_special():
+            self.restore()
+            return
         if self.master.proof.insert(row, col, self.selected_card):
             self.delete("selected")
             self.affiche_cards(loc, self.master.proof.premises[row], row)
             self.selected_card = None
             return
+
+    def undo(self, event):
+        """Annule un effacement par Tabula Rasa.
+
+        :param event: événement
+        :type event: tkinter.Event
+        """
+        card = self.master.deck.pop()
+        row = self.master.proof.insert(None, None, card, new=False)
+        self.affiche_cards('premise', self.master.proof.premises[row], row)
+        hand = self.master.hands[self.master.num_player]
+        hand.append(Card("TabulaRasa"))
+        self.affiche_cards("hand", hand)
+        self.master.cards_played -= 1
+        self.master.unbind('<Escape>')
 
     def choice(self, options):
         """Permet de choisir le carte qui doit remplacer une wildCard.
@@ -394,7 +423,7 @@ class ErgoCanvas(tk.Canvas):
         fen = tk.Toplevel()
         fen.title("Wild Card")
         fen.grab_set()
-        tk.Label(fen, text="Choisissez le symbole :", font="Arial 16",
+        tk.Label(fen, text="Choisissez le symbole :", font="Arial 14",
                  ).grid(row=0, column=0, columnspan=len(options))
         var = tk.IntVar()
         for index, option in enumerate(options):

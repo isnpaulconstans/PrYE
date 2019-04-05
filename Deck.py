@@ -17,7 +17,7 @@ class Deck(list):
         """
         super().__init__()
         for carte, number in Cst.NUMBER.items():
-            self.extend([Card(carte) for _ in range(number)])
+            super().extend([Card(carte) for _ in range(number)])
         shuffle(self)
 
     def draw(self, number):
@@ -29,15 +29,22 @@ class Deck(list):
         """
         res = []
         while len(res) < number and self != []:
-            res.append(self.pop())
+            res.append(super().pop())
         return res
 
     def append(self, card):
-        """Ajoute une carte (possible avec Tabula Rasa).
+        """Ajoute une carte à la fin du paquet (possible avec Tabula Rasa).
 
         :param card: la carte à ajouter
         :type card: Card"""
-        self.insert(0, card)
+        super().insert(0, card)
+
+    def pop(self):
+        """Récupère la dernière carte (pour annuler un Tabula Rasa).
+
+        :return: la dernière carte du paquet
+        :type card: Card"""
+        return super().pop(0)
 
     def is_finished(self):
         """Indique si la paquet est terminé.
