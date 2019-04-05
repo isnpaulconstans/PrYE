@@ -77,22 +77,28 @@ class Main(tk.Tk):
 
     def play(self):
         """Valide un coup si possible."""
-        if len(self.hands[self.num_player]) != 5:
+        if self.cards_played != 2:
             messagebox.showwarning("Ergo",
-                                   "Il faut garder 5 cartes pour valider.")
+                                   "Il faut jouer 2 cartes pour valider.")
             return
+#        if len(self.hands[self.num_player]) != 5:
+#            messagebox.showwarning("Ergo",
+#                                   "Il faut garder 5 cartes pour valider.")
+#            return
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
         # passe au joueur suivant.
         # XXX comparaison FB DPLL
         print(self.demoDPLL.conclusion(), self.demoFB.conclusion())
-        if self.deck.is_finished():
-            self.fin_manche()
         self.proof.reset_added()
         self.cards_played = 0
+        self.unbind("<Escape>")
         self.can.delete("pile")
-        self.next_player()
+        if self.deck.is_finished():
+            self.fin_manche()
+        else:
+            self.next_player()
 
     def next_player(self):
         """Passe au joueur suivant."""
