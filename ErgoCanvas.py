@@ -423,12 +423,12 @@ class ErgoCanvas(tk.Canvas):
         fen = tk.Toplevel()
         fen.title("Wild Card")
         fen.grab_set()
-        tk.Label(fen, text="Choisissez le symbole :", font="Arial 14",
-                 ).grid(row=0, column=0, columnspan=len(options))
+        tk.Label(fen, text="Choisissez le symbole :", #font="Arial 14",
+                 ).grid(row=0, column=0, columnspan=len(options), pady=10)
         var = tk.IntVar()
         for index, option in enumerate(options):
             tk.Radiobutton(fen, text=option, variable=var, value=index
-                           ).grid(row=1, column=index, padx=5, pady=20)
+                           ).grid(row=1, column=index, padx=5, pady=10)
         tk.Button(fen, text="OK", command=fen.destroy
                   ).grid(row=2, column=0, columnspan=len(options))
         self.wait_window(fen)

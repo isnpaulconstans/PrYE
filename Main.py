@@ -28,7 +28,7 @@ class Main(tk.Tk):
         # initialisation du menu et canvas
         self.nb_player = 1
         self.__init_menu__()
-        self.scores = [0] * 4
+        self.scores = [50] * 4
         self.player_names = ["Joueur "+chr(ord('A')+i) for i in range(4)]
         self.can = ErgoCanvas(self)
         self.can.grid(row=0, column=1, rowspan=7)
@@ -114,7 +114,7 @@ class Main(tk.Tk):
     def ordi_plays(self):
         """Fait jouer l'ordinateur."""
         hand = self.hands[self.num_player]
-        name = "Joueur " + chr(ord('A') + self.num_player)
+        name = "Joueur " + self.player_names[self.num_player]
         play = "Joue {} sur la ligne {} en position {}"
         drop = "Jette le {}"
         ordi = OrdiRandom(self.proof, hand)
@@ -147,10 +147,25 @@ class Main(tk.Tk):
             msg = "Le(s) gagnant(s) est(sont) : \n"
             for index, val in enumerate(prouve):
                 if val:
-                    msg += chr(ord('A')+index) + " "
+                    msg += self.player_names[index] + " "
                     self.scores[index] += score
             msg += "\nChacun marque {} points".format(score)
+        self.can.display_current_player(self.num_player)
         messagebox.showinfo("Fin de la manche", msg)
+        score_max = max(self.scores)
+        if score_max >= 50:
+            winers = []
+            for index, score in enumerate(self.scores):
+                if score == score_max:
+                    winers.append(self.player_names[index])
+            msg = ""
+            for name in winers:
+                msg += name + ' '
+            msg += "\nBravo, vous avez gagné !"
+            messagebox.showinfo("Fin de la partie", msg)
+            self.quit()
+            self.destroy()
+            return
         self.init_round()
 
     def version(self):
