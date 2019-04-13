@@ -133,6 +133,7 @@ class Main(tk.Tk):
                                                 num_premise,
                                                 index_premise))
         self.can.affiche_cards("hand", self.hands[self.num_player])
+        self.cards_played = 2
         self.play()
 
     def fin_manche(self):
