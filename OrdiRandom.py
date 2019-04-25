@@ -17,9 +17,13 @@ class OrdiRandom(Ordi):
         self._coups.append(((-1,)*3, (-1,)*3))  # défausser deux cartes
         ((i_hand1, num_premise1, index_premise1),
          (i_hand2, num_premise2, index_premise2)) = choice(self._coups)
-        if i_hand1 == -1:  # deux cartes à défausser
+        if i_hand1 == i_hand2 == -1:
             i_hand1, i_hand2 = sample(range(len(self._hand)), 2)
-        elif i_hand2 == -1:  # une seule carte à défausser
+        elif i_hand1 == -1 or i_hand2 == -1:
+            if i_hand1 == -1:
+                (i_hand1, num_premise1, index_premise1) = (i_hand2,
+                                                           num_premise2,
+                                                           index_premise2)
             choix = list(range(len(self._hand)))  # choix possibles de carte2
             choix.remove(i_hand1)
             i_hand2 = choice(choix)
