@@ -23,11 +23,10 @@ class Main(tk.Tk):
         """
         tk.Tk.__init__(self)
         self.title("Ergo")
-#        self.geometry("1500x500")  # dimension fenetre jeu
         self.resizable(width=False, height=False)
-        # initialisation du menu et canvas
         self.nb_player = 1
         self.__init_menu__()
+        # XXX tests de fin de partie
         self.scores = [50] * 4
         self.player_names = ["Joueur "+chr(ord('A')+i) for i in range(4)]
         self.can = ErgoCanvas(self)
@@ -39,8 +38,6 @@ class Main(tk.Tk):
         tk.Label(text="Prouve que tu existes ...",
                  font="Arial 28 italic").grid(row=7, column=1)
         tk.Button(text="jouer", command=self.play).grid(row=5, column=0)
-#        self.but_undo = tk.Button(text="annuler", command=self.can.undo)
-#        self.but_undo.grid_configure(row=6, column=0)
         ErgoIntro()
 
     def init_round(self):
