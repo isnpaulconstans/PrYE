@@ -28,6 +28,16 @@ class Card():
         """
         assert name in Cst.card_names()
         self.__name = name
+        self.__wild = self.is_wild()
+
+    @property
+    def wild(self):
+        """getter
+
+        :return: indique si la carte est ou a été un joker (WildVar, WildOp).
+        :rtype: boolean
+        """
+        return self.__wild
 
     @property
     def name(self):

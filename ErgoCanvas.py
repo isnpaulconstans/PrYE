@@ -293,8 +293,11 @@ class ErgoCanvas(tk.Canvas):
         :type index: int
         """
         hand = self.master.hands[self.master.num_player]
+        card = self.selected_card
         if index < 0:
             index = 0
+        if card.wild and not card.is_wild():
+            card.name = "WildVar" if card.is_letter() else "WildOp"
         hand.insert(index, self.selected_card)
         self.delete("selected")
         self.affiche_cards("hand", hand)
