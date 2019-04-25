@@ -88,20 +88,19 @@ class Main(tk.Tk):
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
-        # passe au joueur suivant.
+        self.next_player()
+
+    def next_player(self):
+        """Passe au joueur suivant."""
+        if self.deck.is_finished():
+            self.fin_manche()
+            return
         # XXX comparaison FB DPLL
         print(self.demoDPLL.conclusion(), self.demoFB.conclusion())
         self.proof.reset_added()
         self.cards_played = 0
         self.unbind("<Escape>")
         self.can.delete("pile")
-        if self.deck.is_finished():
-            self.fin_manche()
-        else:
-            self.next_player()
-
-    def next_player(self):
-        """Passe au joueur suivant."""
         if self.fallacy[self.num_player] > 0:
             self.fallacy[self.num_player] -= 1
         self.num_player = (self.num_player + 1) % 4
@@ -114,7 +113,7 @@ class Main(tk.Tk):
     def ordi_plays(self):
         """Fait jouer l'ordinateur."""
         hand = self.hands[self.num_player]
-        name = "Joueur " + self.player_names[self.num_player]
+        name = self.player_names[self.num_player]
         play = "Joue {} sur la ligne {} en position {}"
         drop = "Jette le {}"
         ordi = OrdiRandom(self.proof, hand)
@@ -133,8 +132,7 @@ class Main(tk.Tk):
                                                 num_premise,
                                                 index_premise))
         self.can.affiche_cards("hand", self.hands[self.num_player])
-        self.cards_played = 2
-        self.play()
+        self.next_player()
 
     def fin_manche(self):
         """Fin de la manche, affichage des gagnants et du score."""
@@ -155,23 +153,27 @@ class Main(tk.Tk):
         messagebox.showinfo("Fin de la manche", msg)
         score_max = max(self.scores)
         if score_max >= 50:
-            winers = []
-            for index, score in enumerate(self.scores):
-                if score == score_max:
-                    winers.append(self.player_names[index])
-            msg = ""
-            for name in winers:
-                msg += name + ' '
-            msg += "\nBravo, vous avez gagné !"
-            messagebox.showinfo("Fin de la partie", msg)
-            self.quit()
-            self.destroy()
-            return
-        self.init_round()
+            self.fin_partie(score_max)
+        else:
+            self.init_round()
+
+    def fin_partie(self, score_max):
+        """Fin de la partie, affichage des gagnants."""
+        winers = []
+        for index, score in enumerate(self.scores):
+            if score == score_max:
+                winers.append(self.player_names[index])
+        msg = ""
+        for name in winers:
+            msg += name + ' '
+        msg += "\nBravo, vous avez gagné !"
+        messagebox.showinfo("Fin de la partie", msg)
+        self.quit()
+        self.destroy()
 
     def version(self):
         """Affiche la version du jeu"""
-        messagebox.showinfo("Ergo", "Version Beta 17/03/19")
+        messagebox.showinfo("Ergo", "Version PreProd 30/04/19")
 
     def rules(self):
         """Affiche les règles du jeu à partir du fichier regles_ergo.txt"""
