@@ -53,7 +53,7 @@ class Ordi:
 
         -1 signifie qu'on peut défausser une carte
 
-        :return: une liste de sextuplets
+        :return: une liste de couples de triplets
         :rtype: list
         """
         coups = []
