@@ -136,19 +136,18 @@ class Main(tk.Tk):
 
     def fin_manche(self):
         """Fin de la manche, affichage des gagnants et du score."""
-        # TODO faire plus propre
         prouve = self.demoDPLL.conclusion()
         if prouve is None:
             msg = "La preuve contient une contradiction,\
                     personne ne marque de point"
         else:
             score = self.proof.score()
-            msg = "Le(s) gagnant(s) est(sont) : \n"
+            winers = ""
             for index, val in enumerate(prouve):
                 if val:
-                    msg += self.player_names[index] + " "
+                    winers += self.player_names[index] + " "
                     self.scores[index] += score
-            msg += "\nChacun marque {} points".format(score)
+            msg = winers + f"\nBravo, vous marquez {score} points"
         self.can.display_current_player(self.num_player)
         messagebox.showinfo("Fin de la manche", msg)
         score_max = max(self.scores)
@@ -159,14 +158,11 @@ class Main(tk.Tk):
 
     def fin_partie(self, score_max):
         """Fin de la partie, affichage des gagnants."""
-        winers = []
+        winers = ""
         for index, score in enumerate(self.scores):
             if score == score_max:
-                winers.append(self.player_names[index])
-        msg = ""
-        for name in winers:
-            msg += name + ' '
-        msg += "\nBravo, vous avez gagné !"
+                winers += self.player_names[index] + " "
+        msg = winers + "\nBravo, vous avez gagné !"
         messagebox.showinfo("Fin de la partie", msg)
         self.quit()
         self.destroy()

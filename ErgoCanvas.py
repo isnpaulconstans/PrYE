@@ -204,13 +204,11 @@ class ErgoCanvas(tk.Canvas):
         :type event: tkinter.Event
         """
         num = self.find_closest(event.x, event.y)
-        if "card" not in self.gettags(num):
+        loc, row, col = self.x_y2row_col(event.x, event.y)
+        if loc != "premise" or "card" not in self.gettags(num):
             if messagebox.askyesno("Revolution", "Voulez-vous annuler ?"):
                 self.init_bind()
                 self.restore()
-            return
-        loc, row, col = self.x_y2row_col(event.x, event.y)
-        if loc != "premise":
             return
         card = self.master.proof.premises[row][col]
         letter = card.is_letter()
