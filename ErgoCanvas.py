@@ -152,7 +152,7 @@ class ErgoCanvas(tk.Canvas):
         :param row: numéro de la prémisse
         :type row: int
         :param col: position dans la prémisse
-        :type row: int
+        :type col: int
 
         :return: les coordonnées (x, y) dans le canvas
         :rtype: tuple
@@ -174,7 +174,7 @@ class ErgoCanvas(tk.Canvas):
         :param x: abscisse
         :type x: int
         :param y: ordonnée
-        :type x: int
+        :type y: int
 
         :return: loc, row, col où
 
