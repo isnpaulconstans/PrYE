@@ -14,8 +14,8 @@ class OrdiRandom(Ordi):
         """Joue un coup au hasard parmi les coups possibles. Si aucun n'est
         possible, jette deux cartes au hasard.
 
-        :return: Le coup joué
-        :rtype: str
+        :return: Le coup joué et le liste des cartes spéciales jouées à traiter
+        :rtype: (str, list)
         """
         self._coups.append(((-1,)*3, (-1,)*3))  # défausser deux cartes
         ((i_hand1, num_premise1, index_premise1),
@@ -30,11 +30,6 @@ class OrdiRandom(Ordi):
             choix = list(range(len(self._hand)))  # choix possibles de carte2
             choix.remove(i_hand1)
             i_hand2 = choice(choix)
-        for i_hand in (i_hand1, i_hand2):
-            card = self._hand[i_hand]
-            if card.is_wild():
-                choices = "ABCD" if card.is_wildvar() else ("OR", "AND", "THEN")
-                card.name = choice(choices)
         if i_hand1 < i_hand2:
             i_hand2 -= 1  # tirages successifs
         coup = ((i_hand1, num_premise1, index_premise1),
@@ -43,8 +38,13 @@ class OrdiRandom(Ordi):
         drop = "Jette le {}\n"
         tabula = "Efface le {} de la ligne{} en position {}\n"
         msg = ""
+        special_cards = []
         for (i_hand, num_premise, index_premise) in coup:
             card = self._hand.pop(i_hand)
+            if card.is_ergo() and num_premise != -1:
+                msg += "Joue une carte Ergo\n"
+                special_cards.append("Ergo")
+                break
             if index_premise == -1:
                 msg += drop.format(card)
                 continue
@@ -54,11 +54,11 @@ class OrdiRandom(Ordi):
                 msg += tabula.format(old_card, num_premise, index_premise)
                 continue
             if card.is_wild():
-                choices = "ABCD" if card.is_wildvar() else ("OR", "AND", "THEN")
+                choices = ("OR", "AND", "THEN") if card.is_wildop() else "ABCD"
                 card.name = choice(choices)
             self._proof.insert(num_premise, index_premise, card)
             msg += play.format(card, num_premise, index_premise)
-        return msg
+        return msg, special_cards
 
 
 if __name__ == "__main__":

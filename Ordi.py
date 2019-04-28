@@ -71,7 +71,11 @@ class Ordi:
         hand = self.__wild()
         coups = []
         for i_hand1, card1 in enumerate(hand):
-            if card1.is_special() and not card1.is_tabula_rasa():
+            if card1.is_ergo():
+                if self._proof.all_cards_played():
+                    coups.append(((i_hand1, 0, 0), (-1, -1, -1)))
+                continue
+            if card1.is_fallacy() or card1.is_justification() or card1.is_revolution():
                 continue
             for num_premise1, premise1 in enumerate(self._proof.premises):
                 index_max1 = len(premise1)+1
@@ -87,7 +91,13 @@ class Ordi:
                                       (-1, -1, -1)))
                     for i_hand2 in range(i_hand1+1, len(hand)):
                         card2 = hand[i_hand2]
-                        if card2.is_special() and not card2.is_tabula_rasa():
+                        if card2.is_ergo():
+                            if self._proof.all_cards_played()\
+                                           and premise1.npi is not None:
+                                coups.append(((i_hand1, num_premise1, index1),
+                                              (i_hand2, 0, 0)))
+                            continue
+                        if  card2.is_fallacy() or card2.is_justification() or card2.is_revolution():
                             continue
                         for num_premise2, premise2 in enumerate(self._proof.premises):
                             index_max2 = len(premise2)+1

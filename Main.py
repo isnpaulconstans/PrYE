@@ -26,9 +26,9 @@ class Main(tk.Tk):
         self.resizable(width=False, height=False)
         self.nb_player = 1
         self.__init_menu__()
-        # XXX tests de fin de partie
-        self.scores = [50] * 4
+        self.scores = [0] * 4
         self.player_names = ["Joueur "+chr(ord('A')+i) for i in range(4)]
+        self.num_player = 3
         self.can = ErgoCanvas(self)
         self.can.grid(row=0, column=1, rowspan=7)
         for i in range(4):
@@ -48,7 +48,7 @@ class Main(tk.Tk):
         self.demoDPLL = DPLL(self.proof)
         # XXX comparaison de DPLL et FB
         self.demoFB = ForceBrute(self.proof)
-        self.num_player = 0
+        self.num_player = (self.num_player + 1) % 4
         self.fallacy = [0] * 4
         self.can.display_current_player(self.num_player)
         self.ordi_player = [False]*self.nb_player + [True]*(4-self.nb_player)
@@ -56,6 +56,8 @@ class Main(tk.Tk):
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.cards_played = 0
         self.can.affiche_cards("hand", self.hands[self.num_player])
+        if self.ordi_player[self.num_player]:
+            self.ordi_plays()
 
     def __init_menu__(self):
         """creation de la barre de menu qui permet d'afficher l'aide,
@@ -112,13 +114,15 @@ class Main(tk.Tk):
         hand = self.hands[self.num_player]
         name = self.player_names[self.num_player]
         ordi = OrdiRandom(self.proof, hand)
-        msg = ordi.joue()
+        msg, special_cards = ordi.joue()
         for num_premise in range(4):
             self.can.affiche_cards("premise",
                                    self.proof.premises[num_premise],
                                    num_premise)
         messagebox.showinfo(name, msg)
-        self.can.affiche_cards("hand", self.hands[self.num_player])
+        if "Ergo" in special_cards:
+            self.fin_manche()
+            return
         self.next_player()
 
     def fin_manche(self):

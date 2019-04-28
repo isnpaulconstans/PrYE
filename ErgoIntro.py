@@ -88,7 +88,6 @@ class ErgoIntro(tk.Toplevel):
     def choice(self, nb_player):
         """Lance la fenetre de jeu """
         self.master.nb_player = nb_player
-        self.master.init_round()
         self.destroy()
 
     def destroy(self):
