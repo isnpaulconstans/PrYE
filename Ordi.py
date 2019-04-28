@@ -4,6 +4,8 @@
 Gestion du jeu de l'ordinateur.
 """
 
+from Card import Card
+
 
 class Ordi:
     """Classe abstraite gérant le jeu de l'odinateur"""
@@ -21,7 +23,7 @@ class Ordi:
         self._proof = proof
         self._hand = hand
         self.__parenthèses()  # modifie hand
-        self._hand = self._hand[:]
+
         self._coups = self.coups_possibles()
 
     def __parenthèses(self):
@@ -36,6 +38,16 @@ class Ordi:
         i1, i2 = i_parenthesis[:2]
         if self._hand[i1].name == self._hand[i2].name:
             self._hand[i2].turn_parenthesis()
+
+    def __wild(self):
+        """Renvoie une copie de la main dans laquelle chaque joker a été
+        remplacé par une carte correspondant (lettre ou opérateur)."""
+        new_hand = []
+        for card in self._hand:
+            if card.is_wild():
+                card = Card("A" if card.is_wildvar() else "OR")
+            new_hand.append(card)
+        return new_hand
 
     def joue(self):
         """Renvoie les prochaines cartes à jouer."""
@@ -56,8 +68,10 @@ class Ordi:
         :return: une liste de couples de triplets
         :rtype: list
         """
+        hand = self.__wild()
+        print(hand)
         coups = []
-        for i_hand1, card1 in enumerate(self._hand):
+        for i_hand1, card1 in enumerate(hand):
             if card1.is_special():
                 continue
             for num_premise1, premise1 in enumerate(self._proof.premises):
@@ -66,8 +80,8 @@ class Ordi:
                     if premise1.npi is not None:
                         coups.append(((i_hand1, num_premise1, index_premise1),
                                       (-1, -1, -1)))
-                    for i_hand2 in range(i_hand1+1, len(self._hand)):
-                        card2 = self._hand[i_hand2]
+                    for i_hand2 in range(i_hand1+1, len(hand)):
+                        card2 = hand[i_hand2]
                         if card2.is_special():
                             continue
                         for num_premise2, premise2 in enumerate(self._proof.premises):
@@ -82,4 +96,5 @@ class Ordi:
                                                  )
                                 premise2.pop(index_premise2)
                     premise1.pop(index_premise1)
+        print(coups)
         return coups
