@@ -111,23 +111,13 @@ class Main(tk.Tk):
         """Fait jouer l'ordinateur."""
         hand = self.hands[self.num_player]
         name = self.player_names[self.num_player]
-        play = "Joue {} sur la ligne {} en position {}"
-        drop = "Jette le {}"
         ordi = OrdiRandom(self.proof, hand)
-        coup = ordi.joue()
-        for (i_hand, num_premise, index_premise) in coup:
-            card = hand.pop(i_hand)
-            if index_premise == -1:
-                messagebox.showinfo(name, drop.format(card))
-            else:
-                self.proof.insert(num_premise, index_premise, card)
-                self.can.affiche_cards("premise",
-                                       self.proof.premises[num_premise],
-                                       num_premise)
-                messagebox.showinfo(name,
-                                    play.format(card,
-                                                num_premise,
-                                                index_premise))
+        msg = ordi.joue()
+        for num_premise in range(4):
+            self.can.affiche_cards("premise",
+                                   self.proof.premises[num_premise],
+                                   num_premise)
+        messagebox.showinfo(name, msg)
         self.can.affiche_cards("hand", self.hands[self.num_player])
         self.next_player()
 

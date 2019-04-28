@@ -13,6 +13,9 @@ class OrdiRandom(Ordi):
     def joue(self):
         """Joue un coup au hasard parmi les coups possibles. Si aucun n'est
         possible, jette deux cartes au hasard.
+
+        :return: Le coup joué
+        :rtype: str
         """
         self._coups.append(((-1,)*3, (-1,)*3))  # défausser deux cartes
         ((i_hand1, num_premise1, index_premise1),
@@ -34,8 +37,28 @@ class OrdiRandom(Ordi):
                 card.name = choice(choices)
         if i_hand1 < i_hand2:
             i_hand2 -= 1  # tirages successifs
-        return ((i_hand1, num_premise1, index_premise1),
+        coup = ((i_hand1, num_premise1, index_premise1),
                 (i_hand2, num_premise2, index_premise2))
+        play = "Joue {} sur la ligne {} en position {}\n"
+        drop = "Jette le {}\n"
+        tabula = "Efface le {} de la ligne{} en position {}\n"
+        msg = ""
+        for (i_hand, num_premise, index_premise) in coup:
+            card = self._hand.pop(i_hand)
+            if index_premise == -1:
+                msg += drop.format(card)
+                continue
+            if card.is_tabula_rasa():
+                old_card = self._proof.pop(num_premise, index_premise,
+                                           recent=False)
+                msg += tabula.format(old_card, num_premise, index_premise)
+                continue
+            if card.is_wild():
+                choices = "ABCD" if card.is_wildvar() else ("OR", "AND", "THEN")
+                card.name = choice(choices)
+            self._proof.insert(num_premise, index_premise, card)
+            msg += play.format(card, num_premise, index_premise)
+        return msg
 
 
 if __name__ == "__main__":

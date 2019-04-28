@@ -55,8 +55,8 @@ class Ordi:
 
     def coups_possibles(self):
         """Renvoie la liste des coups possibles sous la forme d'une liste de
-        couples de triplets ((i_hand1, num_premise1, index_premise1),
-        (i_hand2, num_premise2, index_premise2)) où
+        couples de triplets ((i_hand1, num_premise1, index1),
+        (i_hand2, num_premise2, index2)) où
 
         - i_hand est l'indice dans la main de la carte à jouer
         - num_premise est le numéro de la prémisse où jouer la carte (-1 pour
@@ -71,28 +71,48 @@ class Ordi:
         hand = self.__wild()
         coups = []
         for i_hand1, card1 in enumerate(hand):
-            if card1.is_special():
+            if card1.is_special() and not card1.is_tabula_rasa():
                 continue
             for num_premise1, premise1 in enumerate(self._proof.premises):
-                for index_premise1 in range(len(premise1)+1):
-                    premise1.insert(index_premise1, card1)
+                index_max1 = len(premise1)+1
+                if card1.is_tabula_rasa():
+                    index_max1 -= 1
+                for index1 in range(index_max1):
+                    if card1.is_tabula_rasa():
+                        old_card1 = premise1.pop(index1)
+                    else:
+                        premise1.insert(index1, card1)
                     if premise1.npi is not None:
-                        coups.append(((i_hand1, num_premise1, index_premise1),
+                        coups.append(((i_hand1, num_premise1, index1),
                                       (-1, -1, -1)))
                     for i_hand2 in range(i_hand1+1, len(hand)):
                         card2 = hand[i_hand2]
-                        if card2.is_special():
+                        if card2.is_special() and not card2.is_tabula_rasa():
                             continue
                         for num_premise2, premise2 in enumerate(self._proof.premises):
-                            for index_premise2 in range(len(premise2)+1):
-                                premise2.insert(index_premise2, card2)
+                            index_max2 = len(premise2)+1
+                            if card2.is_tabula_rasa():
+                                index_max2 -= 1
+                            for index2 in range(index_max2):
+                                if card2.is_tabula_rasa():
+                                    if index1 == index2:
+                                        continue
+                                    old_card2 = premise2.pop(index2)
+                                else:
+                                    premise2.insert(index2, card2)
                                 if premise1.npi is not None \
                                    and premise2.npi is not None:
                                     coups.append(((i_hand1, num_premise1,
-                                                  index_premise1),
+                                                  index1),
                                                   (i_hand2, num_premise2,
-                                                  index_premise2))
+                                                  index2))
                                                  )
-                                premise2.pop(index_premise2)
-                    premise1.pop(index_premise1)
+                                if card2.is_tabula_rasa():
+                                    premise2.insert(index2, old_card2)
+                                else:
+                                    premise2.pop(index2)
+                    if card1.is_tabula_rasa():
+                        premise1.insert(index1, old_card1)
+                    else:
+                        premise1.pop(index1)
         return coups
