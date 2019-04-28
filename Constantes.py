@@ -34,7 +34,7 @@ class Constantes():
               "NOT": 6, "(": 4, ")": 4,
               "Fallacy": 3, "Justification": 3,
               "TabulaRasa": 1, "Revolution": 1,
-              "WildVar": 10,  "WildOp": 10,
+              "WildVar": 1,  "WildOp": 1,
               "Ergo": 3,
              }
     # fond

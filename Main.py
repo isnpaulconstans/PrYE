@@ -94,9 +94,6 @@ class Main(tk.Tk):
             return
         # XXX comparaison FB DPLL
         print(self.demoDPLL.conclusion(), self.demoFB.conclusion())
-        # XXX verif sur les mains
-        for num_player in range(4):
-            print(self.player_names[num_player], " : ", self.hands[num_player])
         self.proof.reset_added()
         self.cards_played = 0
         self.unbind("<Escape>")

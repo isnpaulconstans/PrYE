@@ -69,7 +69,6 @@ class Ordi:
         :rtype: list
         """
         hand = self.__wild()
-        print(hand)
         coups = []
         for i_hand1, card1 in enumerate(hand):
             if card1.is_special():
@@ -96,5 +95,4 @@ class Ordi:
                                                  )
                                 premise2.pop(index_premise2)
                     premise1.pop(index_premise1)
-        print(coups)
         return coups
