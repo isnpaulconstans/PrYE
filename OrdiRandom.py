@@ -4,7 +4,7 @@
 Gestion du jeu de l'ordinateur.
 """
 
-from random import choice, sample
+from random import choice, sample, randrange
 from Ordi import Ordi
 
 
@@ -45,6 +45,17 @@ class OrdiRandom(Ordi):
                 msg += "Joue une carte Ergo\n"
                 special_cards.append("Ergo")
                 break
+            if card.is_revolution() and num_premise != -1:
+                i = randrange(len(num_premise))
+                row1, row2 = num_premise[i]
+                col1, col2 = index_premise[i]
+                card1 = self._proof.premises[row1][col1]
+                card2 = self._proof.premises[row2][col2]
+                msg += f"Échange {card1} de la ligne {row1} colonne {col1}"\
+                       f" avec {card2} de la ligne {row2} colonne {col2}\n"
+                self._proof.change(row1, col1, card2)
+                self._proof.change(row2, col2, card1)
+                continue
             if index_premise == -1:
                 msg += drop.format(card)
                 continue

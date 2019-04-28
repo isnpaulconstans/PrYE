@@ -40,14 +40,58 @@ class Ordi:
             self._hand[i2].turn_parenthesis()
 
     def __wild(self):
-        """Renvoie une copie de la main dans laquelle chaque joker a été
-        remplacé par une carte correspondant (lettre ou opérateur)."""
+        """:return: une copie de la main dans laquelle chaque joker a été
+        remplacé par une carte correspondant (lettre ou opérateur).
+
+        :rtype: list"""
         new_hand = []
         for card in self._hand:
             if card.is_wild():
                 card = Card("A" if card.is_wildvar() else "OR")
             new_hand.append(card)
         return new_hand
+
+    def __revolution(self):
+        """Renvoie la liste des couples de cartes échangeables dans la preuve.
+
+        :return: num_premise et index : des listes de couples donnant des
+        numéros de prémisse et des indices de cartes échangeables.
+        Par exemple, si num_premise[0]=[np0, np1] et index[0]=[i0, i1] alors on
+        peut échanger la carte d'indice i0 de la prémisse np0 avec la carte d'
+        indice i1 de la prémisse np1.
+        :rtype: tuple
+        """
+        def index_flat2premise_index(index):
+            """:return: le couple (num_premise, index) correspondant à
+            index_flat.
+            :rtype: tuple"""
+            num_premise = 0
+            len_premise = len(self._proof.premises[0])
+            while index >= len_premise:
+                index -= len_premise
+                num_premise += 1
+                len_premise = len(self._proof.premises[num_premise])
+            return (num_premise, index)
+        proof_flat = []
+        for i in range(4):
+            proof_flat += self._proof.premises[i]
+        len_flat = len(proof_flat)
+        num_premise, index = [], []
+        for index_flat1 in range(len_flat-1):
+            np1, i1 = index_flat2premise_index(index_flat1)
+            card1 = self._proof.premises[np1][i1]
+            if not (card1.is_letter() or card1.is_operator()):
+                continue
+            for index_flat2 in range(index_flat1+1, len_flat):
+                np2, i2 = index_flat2premise_index(index_flat2)
+                card2 = self._proof.premises[np2][i2]
+                if (card1.is_letter() and not card2.is_letter()) or\
+                   (card1.is_operator() and not card2.is_operator()) or\
+                   card1.name == card2.name:
+                    continue
+                num_premise.append((np1, np2))
+                index.append((i1, i2))
+        return num_premise, index
 
     def joue(self):
         """Renvoie les prochaines cartes à jouer."""
@@ -63,7 +107,14 @@ class Ordi:
           défausser)
         - index_premise est l'indice où insérer la carte dans la prémisse
 
-        -1 signifie qu'on peut défausser une carte
+        Si la carte à jouer est revolution, alors num_premise et index
+        deviennent des listes de couples donnant des numéros de
+        prémisse et des indices de cartes échangeables.
+        Par exemple, si num_premise[0]=[np0, np1] et index[0]=[i0, i1] alors on
+        peut échanger la carte d'indice i0 de la prémisse np0 avec la carte d'
+        indice i1 de la prémisse np1.
+
+        i_hand = -1 signifie qu'on peut défausser une carte
 
         :return: une liste de couples de triplets
         :rtype: list
@@ -75,7 +126,14 @@ class Ordi:
                 if self._proof.all_cards_played():
                     coups.append(((i_hand1, 0, 0), (-1, -1, -1)))
                 continue
-            if card1.is_fallacy() or card1.is_justification() or card1.is_revolution():
+            if card1.is_revolution():
+                num_premise1, index1 = self.__revolution()
+                if num_premise1:
+                    coups.append(((i_hand1, num_premise1, index1),
+                                  (-1, -1, -1)))
+                continue
+            if card1.is_fallacy() or card1.is_justification()\
+                                  or card1.is_revolution():
                 continue
             for num_premise1, premise1 in enumerate(self._proof.premises):
                 index_max1 = len(premise1)+1
@@ -97,7 +155,14 @@ class Ordi:
                                 coups.append(((i_hand1, num_premise1, index1),
                                               (i_hand2, 0, 0)))
                             continue
-                        if  card2.is_fallacy() or card2.is_justification() or card2.is_revolution():
+                        if card2.is_revolution() and premise1.npi is not None:
+                            num_premise2, index2 = self.__revolution()
+                            if num_premise2:
+                                coups.append(((i_hand1, num_premise1, index1),
+                                              (i_hand2, num_premise2, index2)))
+                            continue
+                        if card2.is_fallacy() or card2.is_justification()\
+                                              or card2.is_revolution():
                             continue
                         for num_premise2, premise2 in enumerate(self._proof.premises):
                             index_max2 = len(premise2)+1
