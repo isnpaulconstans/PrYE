@@ -3,6 +3,7 @@
 \begin{class}{Card}{0, 0}
 \attribute{name : str}
 \attribute{PRIORITY : dict}
+\attribute{wild : boolean}
 \operation{\_\_init\_\_(name : str)}
 \operation{priority() -> int}
 \operation{is\_letter() -> boolean}
@@ -11,6 +12,13 @@
 \operation{is\_close() -> boolean}
 \operation{is\_not() -> boolean}
 \operation{is\_ergo() -> boolean}
+\operation{is\_fallacy() -> boolean}
+\operation{is\_justification() -> boolean}
+\operation{is\_tabula\_rasa() -> boolean}
+\operation{is\_revolution() -> boolean}
+\operation{is\_wild() -> boolean}
+\operation{is\_wildvar() -> boolean}
+\operation{is\_wildop() -> boolean}
 \operation{is\_special() -> boolean}
 \operation{turn\_parenthesis()}
 \operation{\_\_repr\_\_() -> str}

@@ -114,7 +114,7 @@ class ErgoCanvas(tk.Canvas):
                              text=text, font="Arial 14 italic", fill="red",
                              tag=tag)
 
-    def affiche_cards(self, loc, card_list, row=4):
+    def display_cards(self, loc, card_list, row=4):
         """affiche la liste de carte card_list dans la prémisse row ou dans le
         main du joueur
 
@@ -237,8 +237,8 @@ class ErgoCanvas(tk.Canvas):
         self.selected_card = None
         self.master.proof.change(row, col, card1)
         self.master.proof.change(row1, col1, card)
-        self.affiche_cards(loc, self.master.proof.premises[row], row)
-        self.affiche_cards(loc, self.master.proof.premises[row1], row1)
+        self.display_cards(loc, self.master.proof.premises[row], row)
+        self.display_cards(loc, self.master.proof.premises[row1], row1)
         self.init_bind()
 
     def select(self, event):
@@ -258,7 +258,7 @@ class ErgoCanvas(tk.Canvas):
             if self.selected_card is None:  # impossible de la sélectionner
                 self.dtag("selected")
                 return
-            self.affiche_cards(loc, self.master.proof.premises[row], row)
+            self.display_cards(loc, self.master.proof.premises[row], row)
         elif loc == "pile":
             self.selected_card = self.pile.pop()
             self.dtag("selected", "pile")
@@ -271,7 +271,7 @@ class ErgoCanvas(tk.Canvas):
                 return
             hand = self.master.hands[self.master.num_player]
             self.selected_card = hand.pop(col)
-            self.affiche_cards("hand", hand)
+            self.display_cards("hand", hand)
             self.master.cards_played += 1
         self.tag_raise(num)  # pour passer en avant plan
 
@@ -299,7 +299,7 @@ class ErgoCanvas(tk.Canvas):
             card.name = "WildVar" if card.is_letter() else "WildOp"
         hand.insert(index, self.selected_card)
         self.delete("selected")
-        self.affiche_cards("hand", hand)
+        self.display_cards("hand", hand)
         self.selected_card = None
         self.master.cards_played -= 1
 
@@ -353,7 +353,7 @@ class ErgoCanvas(tk.Canvas):
             messagebox.showinfo("Tabula Rasa",
                                 "{} effacée. Esc pour annuler".format(card))
             self.master.bind('<Escape>', self.undo)
-            self.affiche_cards(loc, self.master.proof.premises[row], row)
+            self.display_cards(loc, self.master.proof.premises[row], row)
 
             self.master.deck.append(card)
             self.delete("selected")
@@ -381,7 +381,7 @@ class ErgoCanvas(tk.Canvas):
                 self.restore()
                 return
             cards = self.master.proof.premises[-1]+[self.selected_card]
-            self.affiche_cards(loc, cards, 3)
+            self.display_cards(loc, cards, 3)
             self.delete("selected")
             self.selected_card = None
             self.master.fin_manche()
@@ -395,7 +395,7 @@ class ErgoCanvas(tk.Canvas):
             return
         if self.master.proof.insert(row, col, self.selected_card):
             self.delete("selected")
-            self.affiche_cards(loc, self.master.proof.premises[row], row)
+            self.display_cards(loc, self.master.proof.premises[row], row)
             self.selected_card = None
             return
 
@@ -407,10 +407,10 @@ class ErgoCanvas(tk.Canvas):
         """
         card = self.master.deck.pop()
         row = self.master.proof.insert(None, None, card, new=False)
-        self.affiche_cards('premise', self.master.proof.premises[row], row)
+        self.display_cards('premise', self.master.proof.premises[row], row)
         hand = self.master.hands[self.master.num_player]
         hand.append(Card("TabulaRasa"))
-        self.affiche_cards("hand", hand)
+        self.display_cards("hand", hand)
         self.master.cards_played -= 1
         self.master.unbind('<Escape>')
 
@@ -452,4 +452,4 @@ class ErgoCanvas(tk.Canvas):
             return
         card = hand[col]
         card.turn_parenthesis()
-        self.affiche_cards("hand", hand)
+        self.display_cards("hand", hand)

@@ -55,7 +55,7 @@ class Main(tk.Tk):
         self.hands = [self.deck.draw(5) for _ in range(4)]
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.cards_played = 0
-        self.can.affiche_cards("hand", self.hands[self.num_player])
+        self.can.display_cards("hand", self.hands[self.num_player])
         if self.ordi_player[self.num_player]:
             self.ordi_plays()
 
@@ -104,7 +104,7 @@ class Main(tk.Tk):
             self.fallacy[self.num_player] -= 1
         self.num_player = (self.num_player + 1) % 4
         self.hands[self.num_player].extend(self.deck.draw(2))
-        self.can.affiche_cards("hand", self.hands[self.num_player])
+        self.can.display_cards("hand", self.hands[self.num_player])
         self.can.display_current_player(self.num_player)
         if self.ordi_player[self.num_player]:
             self.ordi_plays()
@@ -116,7 +116,7 @@ class Main(tk.Tk):
         msg, special_cards = ordi.joue(self.num_player, self.player_names)
         messagebox.showinfo(self.player_names[self.num_player], msg)
         for num_premise in range(4):
-            self.can.affiche_cards("premise",
+            self.can.display_cards("premise",
                                    self.proof.premises[num_premise],
                                    num_premise)
 #        self.can.display_current_player(self.num_player)

@@ -135,7 +135,6 @@ class Ordi:
         :rtype: list
         """
         hand = self.__wild()
-        print(hand)
         coups = []
         if self._fallacy:  # la seule carte jouable est fallacy
             for i_hand1, card1 in enumerate(hand):
