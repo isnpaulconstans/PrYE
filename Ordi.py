@@ -9,7 +9,7 @@ from Card import Card
 
 class Ordi:
     """Classe abstraite gérant le jeu de l'odinateur"""
-    def __init__(self, proof, hand):
+    def __init__(self, proof, hand, fallacy):
         """Constructeur de la classe.
 
         :param proof: Une preuve
@@ -18,10 +18,14 @@ class Ordi:
         :param hand: La main du joueur
         :type hand: list of Cards
 
+        :param fallacy: Indique si le joueur subit une fallacy
+        :type fallacy: bool
+
         :return: objet Ordi
         :rtype: Ordi"""
         self._proof = proof
         self._hand = hand
+        self._fallacy = fallacy
         self.__parenthèses()  # modifie hand
 
         self._coups = self.coups_possibles()
@@ -54,8 +58,8 @@ class Ordi:
     def __revolution(self):
         """Renvoie la liste des couples de cartes échangeables dans la preuve.
 
-        :return: num_premise et index : des listes de couples donnant des
-        numéros de prémisse et des indices de cartes échangeables.
+        :return: lst_num_premise et lst_index : des listes de couples donnant
+        des numéros de prémisse et des indices de cartes échangeables.
         Par exemple, si num_premise[0]=[np0, np1] et index[0]=[i0, i1] alors on
         peut échanger la carte d'indice i0 de la prémisse np0 avec la carte d'
         indice i1 de la prémisse np1.
@@ -72,11 +76,12 @@ class Ordi:
                 num_premise += 1
                 len_premise = len(self._proof.premises[num_premise])
             return (num_premise, index)
+
         proof_flat = []
         for i in range(4):
             proof_flat += self._proof.premises[i]
         len_flat = len(proof_flat)
-        num_premise, index = [], []
+        lst_num_premise, lst_index = [], []
         for index_flat1 in range(len_flat-1):
             np1, i1 = index_flat2premise_index(index_flat1)
             card1 = self._proof.premises[np1][i1]
@@ -89,9 +94,9 @@ class Ordi:
                    (card1.is_operator() and not card2.is_operator()) or\
                    card1.name == card2.name:
                     continue
-                num_premise.append((np1, np2))
-                index.append((i1, i2))
-        return num_premise, index
+                lst_num_premise.append((np1, np2))
+                lst_index.append((i1, i2))
+        return lst_num_premise, lst_index
 
     def joue(self):
         """Renvoie les prochaines cartes à jouer."""
@@ -123,30 +128,34 @@ class Ordi:
         coups = []
         for i_hand1, card1 in enumerate(hand):
             if card1.is_ergo():
-                if self._proof.all_cards_played():
+                if self._proof.all_cards_played() and not self._fallacy:
                     coups.append(((i_hand1, 0, 0), (-1, -1, -1)))
                 continue
             if card1.is_revolution():
-                num_premise1, index1 = self.__revolution()
-                if num_premise1:
-                    coups.append(((i_hand1, num_premise1, index1),
-                                  (-1, -1, -1)))
-                continue
-            if card1.is_fallacy() or card1.is_justification()\
-                                  or card1.is_revolution():
+                lst_num_premise, lst_index = self.__revolution()
+                if lst_num_premise == []:
+                    continue
+                coups.append(((i_hand1, lst_num_premise, lst_index),
+                              (-1, -1, -1)))
+#            if card1.is_fallacy():
+#
+            if card1.is_fallacy() or card1.is_justification():
                 continue
             for num_premise1, premise1 in enumerate(self._proof.premises):
                 index_max1 = len(premise1)+1
                 if card1.is_tabula_rasa():
                     index_max1 -= 1
+                elif card1.is_revolution():
+                    index_max1 = 1
                 for index1 in range(index_max1):
-                    if card1.is_tabula_rasa():
-                        old_card1 = premise1.pop(index1)
-                    else:
-                        premise1.insert(index1, card1)
-                    if premise1.npi is not None:
-                        coups.append(((i_hand1, num_premise1, index1),
-                                      (-1, -1, -1)))
+                    if not card1.is_revolution():
+                        if card1.is_tabula_rasa():
+                            old_card1 = premise1.pop(index1)
+                        else:
+                            premise1.insert(index1, card1)
+                        if premise1.npi is not None:
+                            coups.append(((i_hand1, num_premise1, index1),
+                                          (-1, -1, -1)))
                     for i_hand2 in range(i_hand1+1, len(hand)):
                         card2 = hand[i_hand2]
                         if card2.is_ergo():
@@ -156,10 +165,10 @@ class Ordi:
                                               (i_hand2, 0, 0)))
                             continue
                         if card2.is_revolution() and premise1.npi is not None:
-                            num_premise2, index2 = self.__revolution()
-                            if num_premise2:
+                            lst_num_premise, lst_index = self.__revolution()
+                            if lst_num_premise:
                                 coups.append(((i_hand1, num_premise1, index1),
-                                              (i_hand2, num_premise2, index2)))
+                                              (i_hand2, lst_num_premise, lst_index)))
                             continue
                         if card2.is_fallacy() or card2.is_justification()\
                                               or card2.is_revolution():
@@ -177,17 +186,16 @@ class Ordi:
                                     premise2.insert(index2, card2)
                                 if premise1.npi is not None \
                                    and premise2.npi is not None:
-                                    coups.append(((i_hand1, num_premise1,
-                                                  index1),
-                                                  (i_hand2, num_premise2,
-                                                  index2))
-                                                 )
+                                    if card1.is_revolution():
+                                        num_premise1, index1 = lst_num_premise, lst_index
+                                    coups.append(((i_hand1, num_premise1, index1),
+                                                  (i_hand2, num_premise2, index2)))
                                 if card2.is_tabula_rasa():
                                     premise2.insert(index2, old_card2)
                                 else:
                                     premise2.pop(index2)
                     if card1.is_tabula_rasa():
                         premise1.insert(index1, old_card1)
-                    else:
+                    elif not card1.is_revolution():
                         premise1.pop(index1)
         return coups
