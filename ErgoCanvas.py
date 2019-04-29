@@ -226,7 +226,8 @@ class ErgoCanvas(tk.Canvas):
                                  + " cartes du même type"
                                  + " (lettre ou opérateur).\n"
                                  + "Recommencez.")
-            self.revolution_card1 = None
+            self.init_bind()
+            self.restore()
             return
         if not messagebox.askyesno("Revolution",
                                    "Échangeer {} et {} ?".format(card1, card)):
@@ -339,6 +340,11 @@ class ErgoCanvas(tk.Canvas):
                 return
             self.restore(col if row == 0 else 7)
             return
+        if self.master.fallacy[self.master.num_player] > 0:
+            messagebox.showwarning("Fallacy",
+                                   "Impossible de modifier la preuve")
+            self.restore()
+            return
         if self.selected_card.is_tabula_rasa():
             card = self.master.proof.pop(row, col, recent=False)
             if card is None:  # impossible de la sélectionner
@@ -362,11 +368,6 @@ class ErgoCanvas(tk.Canvas):
             self.unbind('<Button1-Motion>')
             self.unbind("<ButtonRelease-1>")
             self.delete("selected")
-            return
-        if self.master.fallacy[self.master.num_player] > 0:
-            messagebox.showwarning("Fallacy", "Impossible d'ajouter une carte"
-                                   + " à la preuve")
-            self.restore()
             return
         if self.selected_card.is_ergo():
             if not self.master.proof.is_all_correct():

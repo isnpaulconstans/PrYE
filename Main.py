@@ -113,15 +113,22 @@ class Main(tk.Tk):
         """Fait jouer l'ordinateur."""
         ordi = OrdiRandom(self.proof, self.hands[self.num_player],
                           self.fallacy[self.num_player] > 0)
-        msg, special_cards = ordi.joue()
+        msg, special_cards = ordi.joue(self.num_player, self.player_names)
+        messagebox.showinfo(self.player_names[self.num_player], msg)
         for num_premise in range(4):
             self.can.affiche_cards("premise",
                                    self.proof.premises[num_premise],
                                    num_premise)
-        messagebox.showinfo(self.player_names[self.num_player], msg)
-        if "Ergo" in special_cards:
-            self.fin_manche()
-            return
+#        self.can.display_current_player(self.num_player)
+        for special in special_cards:
+            if special == "Ergo":
+                self.fin_manche()
+                return
+            if special == "Justification":
+                self.fallacy[self.num_player] = 0
+            else:  # special == ("Fallacy", num_player)
+                num_other = special[1]
+                self.fallacy[num_other] = 3
         self.next_player()
 
     def fin_manche(self):
