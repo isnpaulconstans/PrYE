@@ -46,8 +46,6 @@ class Main(tk.Tk):
         self.can.reset()
         self.proof = Proof()
         self.demoDPLL = DPLL(self.proof)
-        # XXX comparaison de DPLL et FB
-        self.demoFB = ForceBrute(self.proof)
         self.num_player = (self.num_player + 1) % 4
         self.fallacy = [0] * 4
         self.can.display_current_player(self.num_player)
@@ -94,8 +92,6 @@ class Main(tk.Tk):
         if self.deck.is_finished():
             self.fin_manche()
             return
-        # XXX comparaison FB DPLL
-        print(self.demoDPLL.conclusion(), self.demoFB.conclusion())
         self.proof.reset_added()
         self.cards_played = 0
         self.unbind("<Escape>")
