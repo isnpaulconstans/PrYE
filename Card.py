@@ -35,7 +35,7 @@ class Card():
         """getter
 
         :return: indique si la carte est ou a été un joker (WildVar, WildOp).
-        :rtype: boolean
+        :rtype: bool
         """
         return self.__wild
 
@@ -68,91 +68,91 @@ class Card():
     def is_letter(self):
         """Indique si la carte est une lettre ou non.
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name in ["A", "B", "C", "D"]
 
     def is_operator(self):
         """Indique si la carte est un opérateur.
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name in ["AND", "OR", "THEN"]
 
     def is_open(self):
         """Indique si la carte est une parenthèse ouvrante.
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name == "("
 
     def is_close(self):
         """Indique si la carte est une parenthèse fermante.
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name == ")"
 
     def is_not(self):
         """Indique si la carte est un "NOT".
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name == "NOT"
 
     def is_ergo(self):
         """Indique si la carte est "Ergo".
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name == "Ergo"
 
     def is_fallacy(self):
         """Indique si la carte est "Fallacy".
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name == "Fallacy"
 
     def is_justification(self):
         """Indique si la carte est "Justification".
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name == "Justification"
 
     def is_tabula_rasa(self):
         """Indique si la carte est "Justification".
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name == "TabulaRasa"
 
     def is_revolution(self):
         """Indique si la carte est "Revolution".
 
-         :rtype: boolean
+         :rtype: bool
         """
         return self.__name == "Revolution"
 
     def is_wild(self):
         """Indique si la carte est un joker (WildVar, WildOp).
 
-        :rtype: boolean
+        :rtype: bool
         """
         return self.name in ["WildVar", "WildOp"]
 
     def is_wildvar(self):
         """Indique si la carte est "WildVar".
 
-        :rtype: boolean
+        :rtype: bool
         """
         return self.name == "WildVar"
 
     def is_wildop(self):
         """Indique si la carte est WildOp.
 
-        :rtype: boolean
+        :rtype: bool
         """
         return self.name == "WildOp"
 
@@ -160,7 +160,7 @@ class Card():
         """Indique si la carte est spéciale (Ergo, Fallacy, Justification,
         TabulaRasa, Revolution, WildVar, WildOp).
 
-        :rtype: boolean
+        :rtype: bool
         """
         return self.name in ["Ergo", "Fallacy", "Justification", "TabulaRasa",
                              "Revolution", "WildVar", "WildOp"]

@@ -18,8 +18,8 @@ class Main(tk.Tk):
     def __init__(self):
         """Constructeur de la classe
 
-        :return: Objet ErgoGui
-        :rtype: ErgoGui
+        :return: Objet Main
+        :rtype: Main
         """
         tk.Tk.__init__(self)
         self.title("Ergo")

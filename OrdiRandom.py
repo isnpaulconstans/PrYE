@@ -23,7 +23,6 @@ class OrdiRandom(Ordi):
         :param player_names: Les noms des joueurs
         :type player_names: list
         """
-        self._coups.append(((-1,)*3, (-1,)*3))  # défausser deux cartes
         ((i_hand1, num_premise1, index_premise1),
          (i_hand2, num_premise2, index_premise2)) = choice(self._coups)
         if i_hand1 == i_hand2 == -1:

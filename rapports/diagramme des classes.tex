@@ -3,65 +3,68 @@
 \begin{class}{Card}{0, 0}
 \attribute{name : str}
 \attribute{PRIORITY : dict}
-\attribute{wild : boolean}
+\attribute{wild : bool}
 \operation{\_\_init\_\_(name : str)}
 \operation{priority() -> int}
-\operation{is\_letter() -> boolean}
-\operation{is\_operator() -> boolean}
-\operation{is\_open() -> boolean}
-\operation{is\_close() -> boolean}
-\operation{is\_not() -> boolean}
-\operation{is\_ergo() -> boolean}
-\operation{is\_fallacy() -> boolean}
-\operation{is\_justification() -> boolean}
-\operation{is\_tabula\_rasa() -> boolean}
-\operation{is\_revolution() -> boolean}
-\operation{is\_wild() -> boolean}
-\operation{is\_wildvar() -> boolean}
-\operation{is\_wildop() -> boolean}
-\operation{is\_special() -> boolean}
+\operation{is\_letter() -> bool}
+\operation{is\_operator() -> bool}
+\operation{is\_open() -> bool}
+\operation{is\_close() -> bool}
+\operation{is\_not() -> bool}
+\operation{is\_ergo() -> bool}
+\operation{is\_fallacy() -> bool}
+\operation{is\_justification() -> bool}
+\operation{is\_tabula\_rasa() -> bool}
+\operation{is\_revolution() -> bool}
+\operation{is\_wild() -> bool}
+\operation{is\_wildvar() -> bool}
+\operation{is\_wildop() -> bool}
+\operation{is\_special() -> bool}
 \operation{turn\_parenthesis()}
 \operation{\_\_repr\_\_() -> str}
 \end{class}
 
-\begin{class}[text width=7cm]{CardList[list]}{0, -8}
+\begin{class}[text width=7cm]{CardList[list]}{0, -12}
 \attribute{npi : list of Card or None}
 \attribute{modif : bool}
 \operation{\_\_init\_\_(*args)}
+\operation{change(index : int, card : Card) -> Card}
 \operation{append(card : Card)}
 \operation{insert(index : int, card : Card)}
-\operation{pop(index = -1 : int) -> Card}
-\operation{is\_syntactically\_correct() -> boolean}
+\operation{pop(index=-1 : int) -> Card}
+\operation{is\_syntactically\_correct() -> bool}
 \end{class}
 
 \draw[dashed,-latex] ({CardList[list]}) -- node[right, midway]{utilise} (Card);
 
-\begin{class}[text width=9cm]{Proof}{0, -14}
+\begin{class}[text width=11cm]{Proof}{0, -18}
 \attribute{premises : list of CardList}
 \attribute{currently\_added : list of (premise : int, index : int)}
 \attribute{modif : bool}
 \attribute{npi : list of Card or None}
 \operation{\_\_init\_\_()}
-\operation{insert(premise : int, index : int, card : Card)}
-\operation{pop(premise : int, index : int) -> Card}
+\operation{change(premise : int, index : int, card : Card) -> Card} 
+\operation{insert(premise : int, index : int, card : Card, new=True : bool)}
+\operation{pop(premise : int, index : int, recent=True : bool) -> Card}
 \operation{reset\_added()}
-\operation{is\_all\_correct() -> boolean}
-\operation{all\_cards\_played() -> boolean}
+\operation{is\_all\_correct() -> bool}
+\operation{all\_cards\_played() -> bool}
 \operation{score() -> int}
 \end{class}
 
 \draw[dashed,-latex] (Proof) --node[right, midway]{utilise} ({CardList[list]});
 
-\begin{class}[text width=7cm]{Deck[list]}{10,0}
+\begin{class}[text width=7cm]{Deck[list]}{10,1}
 \operation{\_\_init\_\_()}
 \operation{draw(number : int) -> list of Card}
 \operation{append(card : Card)}
-\operation{is\_finished() -> boolean}
+\operation{pop() -> Card}
+\operation{is\_finished() -> bool}
 \end{class}
 
 \draw[dashed,-latex] ({Deck[list]}) --node[above, midway]{utilise} (Card);
 
-\begin{class}[text width=8cm]{ErgoGuiIntro[Toplevel]}{10,-18}
+\begin{class}[text width=8cm]{ErgoIntro[Toplevel]}{10,-18.5}
 \attribute{LETWAY : list}
 \attribute{flag : int}
 \attribute{pause : int}
@@ -77,7 +80,7 @@
 \operation{destroy()}
 \end{class}
 
-\begin{class}[text width=10cm]{ErgoCanvas[Canvas]}{20.3,-15.5}
+\begin{class}[text width=10cm]{ErgoCanvas[Canvas]}{20.3,-13}
 \attribute{height : int}
 \attribute{width : int}
 \attribute{photos : dict}
@@ -87,20 +90,26 @@
 \attribute{names : list}
 \attribute{scores : list}
 \operation{\_\_init\_\_(*args, **kwargs)}
+\operation{init\_bind()}
 \operation{display\_current\_player(num\_player : int)}
-\operation{affiche\_cards(loc : str, card\_list : list of Card, row : int)}
+\operation{display\_cards(loc : str, card\_list : list of Card, row=4 : int)}
 \operation{reset()}
-\operation{row\_col2x\_y(loc : str, row : int, col : int}
+\operation{row\_col2x\_y(loc : str, row=4 : int, col=0 : int}
 \operation{x\_y2row\_col(x : int, y : int}
+\operation{select\_revolution(event : tk.Event)}
 \operation{select(event : tk.Event)}
 \operation{move(event : tk.Event)}
+\operation{restore(index=7 : int)}
 \operation{drop(event : tk.Event)}
+\operation{undo(event : tk.Event)}
+\operation{choice(options : str)}
 \operation{switch(event : tk.Event)}
 \end{class}
 
-\begin{class}[text width=9cm]{Main[Tk]}{10,-4}
+\begin{class}[text width=9cm]{Main[Tk]}{10,-3.25}
 \attribute{can : ErgoCanvas}
 \attribute{barre\_menu : tk.Menu}
+\attribute{aide : tk.Menu}
 \attribute{proof : Proof}
 \attribute{deck : Deck}
 \attribute{demo : Demonstration}
@@ -110,38 +119,44 @@
 \attribute{num\_player : int}
 \attribute{nb\_player : int}
 \attribute{player\_names : list}
+\attribute{fallacy : list}
+\attribute{ordi\_player : list}
 \attribute{scores : list}
 \attribute{cards\_played : int}
 \operation{\_\_init\_\_()}
+\operation{init\_round()}
 \operation{\_\_init\_menu\_\_()}
 \operation{play()}
+\operation{next\_player()}
 \operation{ordi\_plays()}
-\operation{fin\_manche(event : tk.Event)}
+\operation{fin\_manche()}
+\operation{fin\_partie()}
 \operation{version()}
 \operation{rules()}
 \operation{quitter()}
 \end{class}
 
-\begin{class}[text width=9cm]{ForceBrute}{20.5,-12.5}
+\begin{class}[text width=9cm]{ForceBrute}{20.5,-10}
 \operation{to\_bin(n : int) -> list}
 \operation{evalue(interpretation : list) -> bool}
 \operation{conclusion() -> list}
 \end{class}
 
-\begin{class}[text width=9cm]{DPLL}{30.5,-12.5}
+\begin{class}[text width=9cm]{DPLL}{30.5,-10}
 \attribute{fcn : FCN}
 \attribute{clause\_list : list}
+\operation{\_\_init\_\_(proof : Proof)}
 \operation{propagation(clause\_list : list, lit : int)}
 \operation{dpll(clause\_list : list, model : list) -> bool}
 \operation{conclusion() -> list}
 \end{class}
 
 
-\begin{class}[text width=9cm]{FCN}{30.5,-17.5}
+\begin{class}[text width=9cm]{FCN}{30.5,-15}
 \attribute{proof : Proof}
 \attribute{fcn\_npi : list}
 \attribute{clause\_list : list}
-\operation{\_\_init\_\_()}
+\operation{\_\_init\_\_(proof : Proof)}
 \operation{get\_proposition() -> list}
 \operation{insert\_not()}
 \operation{elim\_then()}
@@ -153,29 +168,35 @@
 \operation{to\_clause\_list() -> list}
 \end{class}
 
-\begin{class}[text width=9cm]{Demonstration}{25,-10}
+\begin{class}[text width=9cm]{Demonstration}{28,-6.5}
 \attribute{proof : Proof}
+\operation{\_\_init\_\_(proof : Proof)}
 \operation{conclusion() : list ou NoneType}
 \end{class}
 
-\begin{class}[text width=5cm]{Ordi}{19,-5}
+\begin{class}[text width=5cm]{Ordi}{19,-1.5}
 \attribute{\_proof : Proof}
 \attribute{\_hand : list of Card}
+\attribute{\_fallacy : bool}
 \attribute{\_coups : list}
+\operation{\_\_init\_\_(proof : Proof, hand : list, fallacy : bool)}
 \operation{\_\_parenthèses()}
+\operation{\_\_justification()}
+\operation{\_\_wild() -> list}
+\operation{\_\_revolution() -> (list, list)}
 \operation{coups\_possibles() -> list}
 \operation{joue() -> tuple}
 \end{class}
 
-\begin{class}[text width=5cm]{OrdiRandom}{19,-2}
-\operation{joue() -> tuple}
+\begin{class}[text width=5cm]{OrdiRandom}{19,1}
+\operation{joue(num\_player : int, player\_names : list) -> tuple}
 \end{class}
 
 \draw[dashed,-latex] (Main[Tk]) --node[right, midway]{utilise} ({Deck[list]});
 \draw[dashed,-latex] (Main[Tk]) --node[above, midway]{utilise} (Proof);
 \draw[dashed,-latex] (Main[Tk]) --node[right, midway]{utilise} (ErgoCanvas[Canvas]);
 \draw[dashed,-latex] (Main[Tk]) --node[above, midway]{utilise} (Demonstration);
-\draw[dashed,-latex] (Main[Tk]) --node[left, midway]{utilise} (ErgoGuiIntro[Toplevel]);
+\draw[dashed,-latex] (Main[Tk]) --node[left, midway]{utilise} (ErgoIntro[Toplevel]);
 \draw[dashed,-latex] (Main[Tk]) --node[above, midway]{utilise} (Ordi);
 
 \draw[-,-latex] (DPLL) --node[right, midway]{implémente} (Demonstration);

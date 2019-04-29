@@ -35,16 +35,16 @@ Modules cartes
 Modules démonstrations
 ----------------------
 
-.. automodule:: FCN
+.. automodule:: Demonstration
 
-.. autoclass:: FCN
+.. autoclass:: Demonstration
    :members:
    :private-members:
    :special-members:
 
-.. automodule:: Demonstration
+.. automodule:: FCN
 
-.. autoclass:: Demonstration
+.. autoclass:: FCN
    :members:
    :private-members:
    :special-members:
@@ -63,7 +63,7 @@ Modules démonstrations
    :private-members:
    :special-members:
 
-Modules jeu de l'ordianteur
+Modules jeu de l'ordinateur
 ---------------------------
 
 .. automodule:: Ordi

@@ -55,7 +55,7 @@ class Ordi:
 
     def __wild(self):
         """:return: une copie de la main dans laquelle chaque joker a été
-        remplacé par une carte correspondant (lettre ou opérateur)
+                    remplacé par une carte correspondant (lettre ou opérateur)
 
         :rtype: list"""
         new_hand = []
@@ -69,15 +69,15 @@ class Ordi:
         """Renvoie la liste des couples de cartes échangeables dans la preuve.
 
         :return: lst_num_premise et lst_index : des listes de couples donnant
-        des numéros de prémisse et des indices de cartes échangeables.
-        Par exemple, si num_premise[0]=[np0, np1] et index[0]=[i0, i1] alors on
-        peut échanger la carte d'indice i0 de la prémisse np0 avec la carte d'
-        indice i1 de la prémisse np1.
+                 des numéros de prémisse et des indices de cartes échangeables.
+                 Par exemple, si num_premise[0]=[np0, np1] et index[0]=[i0, i1]
+                 alors on peut échanger la carte d'indice i0 de la prémisse np0
+                 avec la carte d'indice i1 de la prémisse np1.
         :rtype: tuple
         """
         def index_flat2premise_index(index):
             """:return: le couple (num_premise, index) correspondant à
-            index_flat.
+                        index_flat.
             :rtype: tuple"""
             num_premise = 0
             len_premise = len(self._proof.premises[0])
@@ -135,7 +135,7 @@ class Ordi:
         :rtype: list
         """
         hand = self.__wild()
-        coups = []
+        coups = [((-1,)*3, (-1,)*3)]  # il est possible défausser deux cartes
         if self._fallacy:  # la seule carte jouable est fallacy
             for i_hand1, card1 in enumerate(hand):
                 if not card1.is_fallacy():

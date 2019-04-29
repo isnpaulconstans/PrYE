@@ -35,7 +35,7 @@ class CardList(list):
         :param card: la carte à mettre
         :type card: Card
         :return: la carte qu'il y avait avant modification.
-        :rtype: card
+        :rtype: Card
         """
         self.__modif = True
         old_card = self[index]
@@ -80,7 +80,7 @@ class CardList(list):
         sans s'occuper de la correspondance des parenthèses.
 
         :return: True si la liste est syntaxiquement correcte, False sinon
-        :rtype: boolean
+        :rtype: bool
         """
         if self == []:
             return True

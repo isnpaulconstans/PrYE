@@ -32,7 +32,7 @@ class ForceBrute(Demonstration):
 
         :type interpretation: list
         :return: Valeur de la liste de carte en fonction du modèle.
-        :rtype: boolean
+        :rtype: bool
         """
         assert self._proof.npi is not None
         if self._proof.npi == []:

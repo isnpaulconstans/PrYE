@@ -65,7 +65,7 @@ class Proof():
         :param card: la carte à mettre
         :type card: Card
         :return: la carte qu'il y avait avant modification.
-        :rtype: card
+        :rtype: Card
         """
         self.__modif = True
         return self.premises[premise].change(index, card)
@@ -85,7 +85,7 @@ class Proof():
         :type recent: bool
         :return: si new : True si l'insertion est possible, False sinon.
                  si not new : le numéro de la prémisse modifiée.
-        :rtype: boolean
+        :rtype: bool
         """
         if new and len(self.currently_added) >= 2:
             return False
@@ -150,7 +150,7 @@ class Proof():
     def is_all_correct(self):
         """Indique si toutes les prémisses sont correctes ou pas.
 
-        :rtype: boolean"""
+        :rtype: bool"""
         for premise in self.premises:
             if premise.npi is None:
                 return False
@@ -160,7 +160,7 @@ class Proof():
         """Indique si chacune des 4 cartes A, B, C et D a été jouée, et donc
         s'il est possible de jouer la carte Ergo.
 
-        :rtype: boolean
+        :rtype: bool
         """
         played = [False]*4
         for premise in self.premises:

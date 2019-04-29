@@ -50,5 +50,5 @@ class Deck(list):
         """Indique si la paquet est terminé.
 
         :return: True si la paquet est terminé, False sinon
-        :rtype: boolean"""
+        :rtype: bool"""
         return self == []
