@@ -189,7 +189,7 @@ class Main(tk.Tk):
 
     def version(self):
         """Affiche la version du jeu"""
-        messagebox.showinfo("Ergo", "Version PreProd 30/04/19")
+        messagebox.showinfo("Ergo", "Version finale 31/05/19")
 
     def rules(self):
         """Affiche les règles du jeu à partir du fichier regles_ergo.txt"""
