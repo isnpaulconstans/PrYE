@@ -32,7 +32,12 @@ class ErgoIntro(tk.Toplevel):
         self.transient(self.master)
         self.resizable(width=False, height=False)
         self.__init_intro__()
+        self.nb_player = 1
         self.button_choice()
+        self.cheat = tk.BooleanVar()
+        tk.Checkbutton(self, text="cheat mode",
+                       variable = self.cheat
+                       ).grid(column=0,row=2, columnspan=4)
         self.flag = 1
         self.pause = 150
         self.animate_letter(len(self.LETWAY), self.LETWAY)
@@ -42,7 +47,7 @@ class ErgoIntro(tk.Toplevel):
         self.can = tk.Canvas(self, height=7*Cst.CARD_HEIGHT,
                              width=17*Cst.CARD_WIDTH,
                              bg="skyblue")
-        self.can.grid()
+        self.can.grid(column=0, row=0, columnspan=5)
         self.img = tk.PhotoImage(file="images/carteBack.png")
         self.id_img = self.can.create_image(425, 465, image=self.img)
 
@@ -78,18 +83,22 @@ class ErgoIntro(tk.Toplevel):
 
     def button_choice(self):
         """ Creation des boutons de choix du mode de jeu """
-        tk.Button(self, text="Mode seul", bd=7, font="Arial 16",
-                  command=lambda: self.choice(1)
-                  ).grid()
-        tk.Button(self, text="Mode multijoueurs", bd=7, font="Arial 16",
-                  command=lambda: self.choice(4)
-                  ).grid()
+        for nb_player in range(1, 5):
+            pluriel = "s" if nb_player >= 2 else ""
+            tk.Button(self, text=f"{nb_player} joueur{pluriel}",
+                      bd=7, font="Arial 16",
+                      command=lambda x=nb_player: self.choice(x)
+                      ).grid(column=nb_player-1, row=1)
+#        tk.Button(self, text="Mode multijoueurs", bd=7, font="Arial 16",
+#                  command=lambda: self.choice(4)
+#                  ).grid()
 
     def choice(self, nb_player):
         """Lance la fenetre de jeu """
-        self.master.nb_player = nb_player
+        print(nb_player)
+        self.nb_player = nb_player
         self.destroy()
 
     def destroy(self):
-        self.master.init_round()
+        self.master.start(self.nb_player, self.cheat.get())
         super().destroy()

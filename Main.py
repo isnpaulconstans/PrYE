@@ -8,7 +8,6 @@ from ErgoIntro import ErgoIntro
 from Deck import Deck
 from ErgoCanvas import ErgoCanvas
 from Proof import Proof
-from ForceBrute import ForceBrute
 from DPLL import DPLL
 from OrdiRandom import OrdiRandom
 
@@ -39,6 +38,23 @@ class Main(tk.Tk):
                  font="Arial 28 italic").grid(row=7, column=1)
         tk.Button(text="jouer", command=self.play).grid(row=5, column=0)
         ErgoIntro()
+
+    def start(self, nb_player, cheat):
+        """Lance une partie
+
+        :param nbplayer: le nombre de joueurs humains
+        :type nbplayer: int
+        :param cheat: indique si le cheatmode (affichage des varibale prouvées)
+                      est activé
+        :type cheat: bool
+        """
+        print(nb_player, cheat)
+        self.nb_player = nb_player
+        for num_player in range(nb_player, 4):
+            self.player_names[num_player] = "Ordi "+chr(ord('A')+num_player)
+        if cheat:
+            tk.Button(text="cheat", command=self.cheat).grid(row=6, column=0)
+        self.init_round()
 
     def init_round(self):
         """Inialise un début de tour."""
@@ -86,6 +102,17 @@ class Main(tk.Tk):
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
         self.next_player()
+
+    def cheat(self):
+        prouve = self.demoDPLL.conclusion()
+        if prouve is None:
+            msg = "La preuve contient une contradiction"
+        else:
+            msg = ""
+            for index, val in enumerate(prouve):
+                if val:
+                    msg += self.player_names[index] + " "
+        tk.messagebox.showinfo("cheat", msg)
 
     def next_player(self):
         """Passe au joueur suivant."""
