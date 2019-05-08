@@ -8,7 +8,7 @@ from Card import Card
 
 
 class Ordi:
-    """Classe abstraite gérant le jeu de l'odinateur"""
+    """Classe gérant le jeu de l'odinateur"""
     def __init__(self, proof, hand, fallacy):
         """Constructeur de la classe.
 
@@ -108,9 +108,82 @@ class Ordi:
                 lst_index.append((i1, i2))
         return lst_num_premise, lst_index
 
-    def joue(self, num_player, player_names):
-        """Renvoie les prochaines cartes à jouer."""
+    def choix_coups(self, num_player):
+        """Choisi un coup parmi l'ensemble des coups possibles.
+
+        * Si la carte à jouer est Fallacy, num_premise indique le numéro
+          du joueur sur lequelle elle doit être jouée.
+
+        * Si la carte est Révolution, num_premise et index sont les
+          couples de numéros de prémisses et d'indice des cartes à
+          échanger.
+
+        * Dans le cas d'une carte Wild, self._hand est modifié.
+
+        :return: Un couple de triplets ((i_hand1, num_premise1, index1),
+                 (i_hand2, num_premise2, index2))
+
+        :rtype: tuple
+        """
         raise NotImplementedError
+
+    def joue(self, num_player, player_names):
+        """Joue un coup au hasard parmi les coups possibles. Si aucun n'est
+        possible, jette deux cartes au hasard.
+
+        :return: Un message décrivant le coup joué et la liste des cartes
+                 spéciales (Fallacy, Justification, Ergo) jouées à traiter
+        :rtype: (str, list)
+
+        :param num_player: Le numéro du joueur
+        :type num_player: int
+
+        :param player_names: Les noms des joueurs
+        :type player_names: list
+        """
+        coup = self.choix_coups(num_player)
+        play = "Joue {} sur la ligne {} en position {}\n"
+        drop = "Jette le {}\n"
+        tabula = "Efface le {} de la ligne {} en position {}\n"
+        msg = ""
+        special_cards = []
+        for (i_hand, num_premise, index_premise) in coup:
+            card = self._hand.pop(i_hand)
+            if num_premise == -1:
+                msg += drop.format(card)
+                continue
+            if card.is_fallacy():
+                other = num_premise
+                other_name = player_names[other]
+                msg += f"Joue une carte Fallacy sur {other_name}\n"
+                special_cards.append(("Fallacy", other))
+                continue
+            if card.is_justification():
+                msg += "Joue une carte Justification\n"
+                special_cards.append("Justification")
+                continue
+            if card.is_ergo():
+                msg += "Joue une carte Ergo\n"
+                special_cards.append("Ergo")
+                break
+            if card.is_revolution():
+                row1, row2 = num_premise
+                col1, col2 = index_premise
+                card1 = self._proof.premises[row1][col1]
+                card2 = self._proof.premises[row2][col2]
+                msg += f"Échange {card1} de la ligne {row1} colonne {col1}"\
+                       f" avec {card2} de la ligne {row2} colonne {col2}\n"
+                self._proof.change(row1, col1, card2)
+                self._proof.change(row2, col2, card1)
+                continue
+            if card.is_tabula_rasa():
+                old_card = self._proof.pop(num_premise, index_premise,
+                                           recent=False)
+                msg += tabula.format(old_card, num_premise, index_premise)
+                continue
+            self._proof.insert(num_premise, index_premise, card)
+            msg += play.format(card, num_premise, index_premise)
+        return msg, special_cards
 
     def coups_possibles(self):
         """Renvoie la liste des coups possibles sous la forme d'une liste de
