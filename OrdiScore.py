@@ -10,13 +10,13 @@ from Ordi import Ordi
 class OrdiRandom(Ordi):
     """Concrétisation de choix_coups avec un score pour chaque coup."""
     card_value = {"A": 1, "B": 1, "C": 1, "D": 1,
-                       "AND": 1, "OR": 1, "THEN": 1,
-                       "NOT": 1, "(": 1, ")": 1,
-                       "Fallacy": 2, "Justification": 4,
-                       "TabulaRasa": 4, "Revolution": 4,
-                       "WildVar": 5,  "WildOp": 5,
-                       "Ergo": 5,
-                      }
+                  "AND": 1, "OR": 1, "THEN": 1,
+                  "NOT": 1, "(": 1, ")": 1,
+                  "Fallacy": 2, "Justification": 4,
+                  "TabulaRasa": 4, "Revolution": 4,
+                  "WildVar": 5,  "WildOp": 5,
+                  "Ergo": 5,
+                 }
 
     def drop_choice(self, other):
         """Renvoie la carte de la main de score mini"""
