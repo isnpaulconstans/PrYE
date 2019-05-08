@@ -167,9 +167,9 @@ class Main(tk.Tk):
                     winers += self.player_names[index] + " "
                     self.scores[index] += score
             if winers:
-                 msg = winers + f"\nBravo, vous marquez {score} points"
-             else:
-                 msg = "Personne n'est prouvé, personne ne marque de point"
+                msg = winers + f"\nBravo, vous marquez {score} points"
+            else:
+                msg = "Personne n'est prouvé, personne ne marque de point"
         self.can.display_current_player(self.num_player)
         messagebox.showinfo("Fin de la manche", msg)
         score_max = max(self.scores)

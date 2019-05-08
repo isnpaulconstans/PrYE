@@ -9,7 +9,7 @@ from Ordi import Ordi
 
 
 class OrdiRandom(Ordi):
-    """Implémentation de Ordi."""
+    """Concrétisation de choix_coups avec un tirage aléatoire."""
     def choix_coups(self, num_player):
         """Choisi un coup parmi l'ensemble des coups possibles.
 
