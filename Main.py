@@ -48,7 +48,6 @@ class Main(tk.Tk):
                       est activé
         :type cheat: bool
         """
-        print(nb_player, cheat)
         self.nb_player = nb_player
         for num_player in range(nb_player, 4):
             self.player_names[num_player] = "Ordi "+chr(ord('A')+num_player)

@@ -95,7 +95,6 @@ class ErgoIntro(tk.Toplevel):
 
     def choice(self, nb_player):
         """Lance la fenetre de jeu """
-        print(nb_player)
         self.nb_player = nb_player
         self.destroy()
 
