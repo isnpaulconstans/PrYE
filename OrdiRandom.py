@@ -60,7 +60,7 @@ class OrdiRandom(Ordi):
             if card.is_revolution():
                 i = randrange(len(num_premise))
                 coup[i_coup][1] = num_premise[i]
-                coup[i_coup][1] = index_premise[i]
+                coup[i_coup][2] = index_premise[i]
             if card.is_wild():
                 choices = ("OR", "AND", "THEN") if card.is_wildop() else "ABCD"
                 card.name = choice(choices)
