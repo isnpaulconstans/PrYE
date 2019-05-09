@@ -108,7 +108,7 @@ class Ordi:
                 lst_index.append((i1, i2))
         return lst_num_premise, lst_index
 
-    def choix_coups(self, num_player):
+    def choix_coups(self, num_player, scores, fallacy):
         """Choisi un coup parmi l'ensemble des coups possibles.
 
         * Si la carte à jouer est Fallacy, num_premise indique le numéro
@@ -120,9 +120,17 @@ class Ordi:
 
         * Dans le cas d'une carte Wild, self._hand est modifié.
 
+        :param num_player: Le numéro du joueur
+        :type num_player: int
+
+        :param scores: Les scores des joueurs
+        :type scores: list
+
+        :param fallacy: Les nombres de tours de "fallacy" pour chaque joueur
+        :type fallacy: list
+
         :return: Un couple de triplets ((i_hand1, num_premise1, index1),
                  (i_hand2, num_premise2, index2))
-
         :rtype: tuple
         """
         raise NotImplementedError
