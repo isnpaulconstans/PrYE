@@ -42,6 +42,8 @@ class OrdiRandom(Ordi):
         coup = ([i_hand1, num_premise1, index_premise1],
                 [i_hand2, num_premise2, index_premise2])
         for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
+            if num_premise == -1:
+                continue
             card = self._hand[i_hand]
             if card.is_fallacy():
                 others = list(range(4))
@@ -51,7 +53,7 @@ class OrdiRandom(Ordi):
                 i = randrange(len(num_premise))
                 coup[i_coup][1] = num_premise[i]
                 coup[i_coup][1] = index_premise[i]
-            if card.is_wild() and num_premise != -1:
+            if card.is_wild():
                 choices = ("OR", "AND", "THEN") if card.is_wildop() else "ABCD"
                 card.name = choice(choices)
         if i_hand1 < i_hand2:
