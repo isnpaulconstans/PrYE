@@ -50,6 +50,12 @@ class Card():
         raise TypeError("'=' not supported between instances of 'Card' "
                         f"and '{type(other)}'")
 
+    def __hash__(self):
+        """:return : hash(self)
+        :rtype : int
+        """
+        return self.name.__hash__()
+
     @property
     def wild(self):
         """getter
