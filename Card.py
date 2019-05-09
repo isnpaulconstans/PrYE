@@ -21,7 +21,7 @@ class Card():
         """Constructeur de la classe
 
         :param name: nom de la carte (ET, OU, AND, NOT, ...)
-        :type name: string
+        :type name: str
 
         :return: Objet Card
         :rtype: Card
@@ -29,6 +29,26 @@ class Card():
         assert name in Cst.card_names()
         self.__name = name
         self.__wild = self.is_wild()
+
+    def __eq__(self, other):
+        """
+        * Si other est une chaîne de caractères, indique si le nom de la carte
+          est other.
+
+        * Si other est une carte, indique si elle a le même nom que la carte.
+
+        :param other: l'objet auquel comparer
+        :type other: str ou Card
+
+        :return : True si les noms sont égaux, False sinon
+        :rtype : bool
+        """
+        if isinstance(other, str):
+            return self.name == other
+        if isinstance(other, Card):
+            return self.name == other.name
+        raise TypeError("'=' not supported between instances of 'Card' "
+                        f"and '{type(other)}'")
 
     @property
     def wild(self):
