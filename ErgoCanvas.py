@@ -83,6 +83,13 @@ class ErgoCanvas(tk.Canvas):
         self.bind("<ButtonRelease-1>", func=self.drop)
         self.bind("<Button-3>", func=self.switch)
 
+    def reset_bind(self):
+        """Désactive la gestion des événements souris."""
+        self.unbind('<Button-1>')
+        self.unbind('<Button1-Motion>')
+        self.unbind("<ButtonRelease-1>")
+        self.unbind("<Button-3>")
+
     def display_current_player(self, num_player):
         """ Affiche les numéros de joueurs en faisant tourner, le joueur
         courant est toujours en haut à gauche.
@@ -270,6 +277,9 @@ class ErgoCanvas(tk.Canvas):
                 self.dtag("selected")
                 return
             hand = self.master.hands[self.master.num_player]
+            if col >= len(hand):
+                self.dtag("selected")
+                return
             self.selected_card = hand.pop(col)
             self.display_cards("hand", hand)
             self.master.cards_played += 1
