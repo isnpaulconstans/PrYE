@@ -112,7 +112,7 @@ class Proof():
 
     def pop(self, premise, index, recent=True):
         """Enlève la carte en position index de la prémisse premise.
-        Si recent=True, ne renvoie la carte que si elle vienne d'être ajoutée.
+        Si recent=True, ne renvoie la carte que si elle venait d'être ajoutée.
 
         :param premise: le numéro de la prémisse
         :type premise: int
