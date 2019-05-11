@@ -70,7 +70,11 @@ class Main(tk.Tk):
         self.cards_played = 0
         self.can.display_cards("hand", self.hands[self.num_player])
         if self.ordi_player[self.num_player]:
+            self.can.reset_bind()
             self.ordi_plays()
+        else:
+            self.can.init_bind()
+
 
     def __init_menu__(self):
         """creation de la barre de menu qui permet d'afficher l'aide,
@@ -129,7 +133,10 @@ class Main(tk.Tk):
         self.can.display_cards("hand", self.hands[self.num_player])
         self.can.display_current_player(self.num_player)
         if self.ordi_player[self.num_player]:
+            self.can.reset_bind()
             self.ordi_plays()
+        else:
+            self.can.init_bind()
 
     def ordi_plays(self):
         """Fait jouer l'ordinateur."""
