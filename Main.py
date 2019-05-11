@@ -8,9 +8,9 @@ from ErgoIntro import ErgoIntro
 from Deck import Deck
 from ErgoCanvas import ErgoCanvas
 from Proof import Proof
-from DPLL import DPLL
-from OrdiRandom import OrdiRandom
-
+from DPLL import DPLL as Demo
+#from OrdiRandom import OrdiRandom as Ordi
+from OrdiScore import OrdiScore as Ordi
 
 class Main(tk.Tk):
     """Interface graphique."""
@@ -60,7 +60,7 @@ class Main(tk.Tk):
         self.deck = Deck()
         self.can.reset()
         self.proof = Proof()
-        self.demoDPLL = DPLL(self.proof)
+        self.demo = Demo(self.proof)
         self.num_player = (self.num_player + 1) % 4
         self.fallacy = [0] * 4
         self.can.display_current_player(self.num_player)
@@ -103,7 +103,7 @@ class Main(tk.Tk):
         self.next_player()
 
     def cheat(self):
-        prouve = self.demoDPLL.conclusion()
+        prouve = self.demo.conclusion()
         if prouve is None:
             msg = "La preuve contient une contradiction"
         else:
@@ -133,9 +133,9 @@ class Main(tk.Tk):
 
     def ordi_plays(self):
         """Fait jouer l'ordinateur."""
-        ordi = OrdiRandom(self.proof, self.hands[self.num_player],
-                          self.fallacy[self.num_player] > 0)
-        msg, special_cards = ordi.joue(self.num_player, self.player_names)
+        ordi = Ordi(self.proof, self.hands[self.num_player],
+                    self.num_player, self.scores, self.fallacy)
+        msg, special_cards = ordi.joue(self.player_names)
         messagebox.showinfo(self.player_names[self.num_player], msg)
         for num_premise in range(4):
             self.can.display_cards("premise",
@@ -155,15 +155,15 @@ class Main(tk.Tk):
 
     def fin_manche(self):
         """Fin de la manche, affichage des gagnants et du score."""
-        prouve = self.demoDPLL.conclusion()
-        if prouve is None:
+        provens = self.demo.conclusion()
+        if provens is None:
             msg = "La preuve contient une contradiction,\
                     personne ne marque de point"
         else:
             score = self.proof.score()
             winers = ""
-            for index, val in enumerate(prouve):
-                if val:
+            for index, proven in enumerate(provens):
+                if proven:
                     winers += self.player_names[index] + " "
                     self.scores[index] += score
             if winers:

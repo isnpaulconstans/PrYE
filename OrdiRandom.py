@@ -10,7 +10,7 @@ from Ordi import Ordi
 
 class OrdiRandom(Ordi):
     """Concrétisation de choix_coups avec un tirage aléatoire."""
-    def choix_coups(self, num_player, scores, fallacy):
+    def choix_coups(self):
         """Choisi un coup parmi l'ensemble des coups possibles.
 
         * Si la carte à jouer est Fallacy, num_premise indique le numéro
@@ -22,21 +22,14 @@ class OrdiRandom(Ordi):
 
         * Dans le cas d'une carte Wild, self._hand est modifié.
 
-        :param num_player: Le numéro du joueur
-        :type num_player: int
-
-        :param scores: Les scores des joueurs
-        :type scores: list
-
-        :param fallacy: Les nombres de tours de "fallacy" pour chaque joueur
-        :type fallacy: list
-
         :return: Un couple de triplets ((i_hand1, num_premise1, index1),
                  (i_hand2, num_premise2, index2))
         :rtype: tuple
         """
+        coups = self.coups_possibles()
         ((i_hand1, num_premise1, index_premise1),
-         (i_hand2, num_premise2, index_premise2)) = choice(self._coups)
+         (i_hand2, num_premise2, index_premise2)) = choice(coups)
+        # gestion ddes cartes à jeter
         if i_hand1 == i_hand2 == -1:
             i_hand1, i_hand2 = sample(range(len(self._hand)), 2)
         elif i_hand1 == -1 or i_hand2 == -1:
@@ -49,13 +42,14 @@ class OrdiRandom(Ordi):
             i_hand2 = choice(choix)
         coup = ([i_hand1, num_premise1, index_premise1],
                 [i_hand2, num_premise2, index_premise2])
+        # gestion des cartes hors prémisses (fallacy, revolution) et wild
         for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
             if num_premise == -1:
                 continue
             card = self._hand[i_hand]
             if card.is_fallacy():
                 others = list(range(4))
-                others.remove(num_player)
+                others.remove(self._num_player)
                 coup[i_coup][1] = choice(others)
             if card.is_revolution():
                 i = randrange(len(num_premise))

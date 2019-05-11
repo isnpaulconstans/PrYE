@@ -9,7 +9,7 @@ from Card import Card
 
 class Ordi:
     """Classe gérant le jeu de l'odinateur"""
-    def __init__(self, proof, hand, fallacy):
+    def __init__(self, proof, hand, num_player, scores, fallacys):
         """Constructeur de la classe.
 
         :param proof: Une preuve
@@ -18,17 +18,19 @@ class Ordi:
         :param hand: La main du joueur
         :type hand: list of Cards
 
-        :param fallacy: Indique si le joueur subit une fallacy
-        :type fallacy: bool
+        :param fallacys: Les nombres de tours de "fallacy" pour chaque joueur
+        :type fallacys: list
 
         :return: objet Ordi
         :rtype: Ordi"""
         self._proof = proof
         self._hand = hand
-        self._fallacy = fallacy
+        self._num_player = num_player
+        self._scores = scores
+        self._fallacys = fallacys
         self.__parenthèses()  # modifie hand
         self.__justification()  # modifie hand
-        self._coups = self.coups_possibles()
+#        self._coups = self.coups_possibles()
 
     def __parenthèses(self):
         """Modifie la main pour avoir si possible au moins une parenthèse
@@ -108,7 +110,7 @@ class Ordi:
                 lst_index.append((i1, i2))
         return lst_num_premise, lst_index
 
-    def choix_coups(self, num_player, scores, fallacy):
+    def choix_coups(self):
         """Choisi un coup parmi l'ensemble des coups possibles.
 
         * Si la carte à jouer est Fallacy, num_premise indique le numéro
@@ -120,22 +122,13 @@ class Ordi:
 
         * Dans le cas d'une carte Wild, self._hand est modifié.
 
-        :param num_player: Le numéro du joueur
-        :type num_player: int
-
-        :param scores: Les scores des joueurs
-        :type scores: list
-
-        :param fallacy: Les nombres de tours de "fallacy" pour chaque joueur
-        :type fallacy: list
-
         :return: Un couple de triplets ((i_hand1, num_premise1, index1),
                  (i_hand2, num_premise2, index2))
         :rtype: tuple
         """
         raise NotImplementedError
 
-    def joue(self, num_player, player_names):
+    def joue(self, player_names):
         """Joue un coup au hasard parmi les coups possibles. Si aucun n'est
         possible, jette deux cartes au hasard.
 
@@ -143,13 +136,10 @@ class Ordi:
                  spéciales (Fallacy, Justification, Ergo) jouées à traiter
         :rtype: (str, list)
 
-        :param num_player: Le numéro du joueur
-        :type num_player: int
-
         :param player_names: Les noms des joueurs
         :type player_names: list
         """
-        coup = self.choix_coups(num_player)
+        coup = self.choix_coups()
         play = "Joue {} sur la ligne {} en position {}\n"
         drop = "Jette le {}\n"
         tabula = "Efface le {} de la ligne {} en position {}\n"
@@ -195,8 +185,8 @@ class Ordi:
 
     def coups_possibles(self):
         """Renvoie la liste des coups possibles sous la forme d'une liste de
-        couples de triplets ((i_hand1, num_premise1, index1),
-        (i_hand2, num_premise2, index2)) où
+        couples de triplets [(i_hand1, num_premise1, index1),
+        (i_hand2, num_premise2, index2)] où
 
         - i_hand est l'indice dans la main de la carte à jouer
         - num_premise est le numéro de la prémisse où jouer la carte (-1 pour
@@ -216,44 +206,45 @@ class Ordi:
         :rtype: list
         """
         hand = self.__wild()
-        coups = [((-1,)*3, (-1,)*3)]  # il est possible défausser deux cartes
-        if self._fallacy:  # la seule carte jouable est fallacy
+        coups = [[(-1,)*3, (-1,)*3]]  # il est possible défausser deux cartes
+        fallacied = self._fallacys[self._num_player]
+        if fallacied:  # la seule carte jouable est fallacy
             for i_hand1, card1 in enumerate(hand):
                 if not card1.is_fallacy():
                     continue
-                coups.append(((i_hand1, None, None), (-1, -1, -1)))
+                coups.append([(i_hand1, None, None), (-1, -1, -1)])
                 for i_hand2 in range(i_hand1+1, len(hand)):
                     card2 = hand[i_hand2]
                     if not card2.is_fallacy():
                         continue
-                    coups.append(((i_hand1, None, None),
-                                  (i_hand2, None, None)))
+                    coups.append([(i_hand1, None, None),
+                                  (i_hand2, None, None)])
                     break
                 break
         for i_hand1, card1 in enumerate(hand):
             special1 = False  # indique si carte1 est jouée hors prémisses
-            if self._fallacy:
+            if fallacied:
                 if not card1.is_justification():
                     break
                 np1, i1 = None, None
-                coups.append(((i_hand1, np1, i1), (-1, -1, -1)))
+                coups.append([(i_hand1, np1, i1), (-1, -1, -1)])
                 special1 = True
             elif card1.is_justification():
                 continue
             if card1.is_fallacy():
                 np1, i1 = None, None
-                coups.append(((i_hand1, np1, i1), (-1, -1, -1)))
+                coups.append([(i_hand1, np1, i1), (-1, -1, -1)])
                 special1 = True
             if card1.is_ergo():
                 if self._proof.all_cards_played():
-                    coups.append(((i_hand1, None, None), (-1, -1, -1)))
+                    coups.append([(i_hand1, None, None), (-1, -1, -1)])
                 continue
             if card1.is_revolution():
                 np1, i1 = self.__revolution()
                 if np1 == []:
                     continue
-                coups.append(((i_hand1, np1, i1),
-                              (-1, -1, -1)))
+                coups.append([(i_hand1, np1, i1),
+                              (-1, -1, -1)])
                 special1 = True
             for num_premise1, premise1 in enumerate(self._proof.premises):
                 index_max1 = len(premise1)+1
@@ -268,28 +259,28 @@ class Ordi:
                         else:
                             premise1.insert(index1, card1)
                         if premise1.npi is not None:
-                            coups.append(((i_hand1, num_premise1, index1),
-                                          (-1, -1, -1)))
+                            coups.append([(i_hand1, num_premise1, index1),
+                                          (-1, -1, -1)])
                     for i_hand2 in range(i_hand1+1, len(hand)):
                         card2 = hand[i_hand2]
                         if card2.is_fallacy():
                             if premise1.npi is not None:
-                                coups.append(((i_hand1, num_premise1, index1),
-                                              (i_hand2, None, None)))
+                                coups.append([(i_hand1, num_premise1, index1),
+                                              (i_hand2, None, None)])
                             continue
                         if card2.is_ergo():
                             if self._proof.all_cards_played()\
                                            and premise1.npi is not None:
-                                coups.append(((i_hand1, num_premise1, index1),
-                                              (i_hand2, None, None)))
+                                coups.append([(i_hand1, num_premise1, index1),
+                                              (i_hand2, None, None)])
                             continue
                         if card2.is_revolution():
                             if premise1.npi is None:
                                 continue
                             np2, i2 = self.__revolution()
                             if np2:
-                                coups.append(((i_hand1, num_premise1, index1),
-                                              (i_hand2, np2, i2)))
+                                coups.append([(i_hand1, num_premise1, index1),
+                                              (i_hand2, np2, i2)])
                             continue
                         if card2.is_justification():
                             continue
@@ -306,8 +297,8 @@ class Ordi:
                                     premise2.insert(index2, card2)
                                 if premise1.npi is not None \
                                    and premise2.npi is not None:
-                                    coups.append(((i_hand1, num_premise1, index1),
-                                                  (i_hand2, num_premise2, index2)))
+                                    coups.append([(i_hand1, num_premise1, index1),
+                                                  (i_hand2, num_premise2, index2)])
                                 if card2.is_tabula_rasa():
                                     premise2.insert(index2, old_card2)
                                 else:
