@@ -4,6 +4,7 @@
 Gestion du jeu de l'ordinateur.
 """
 
+from random import random
 from Ordi import Ordi
 from DPLL import DPLL as Demo
 
@@ -19,7 +20,7 @@ class OrdiScore(Ordi):
                   "Ergo": 5,
                  }
     coef_fallacy = 0.1
-    coef_proof_self = 5
+    coef_proof_self = 7
     coef_proof_other = -2
     coef_ergo = 2
 
@@ -50,7 +51,7 @@ class OrdiScore(Ordi):
             if self._fallacys[i_other] == 3:
                 point = 0
             else:
-                point = (self._scores[i_other] * (3-self._fallacys[i_other])
+                point = ((10+self._scores[i_other]) * (3-self._fallacys[i_other])
                          * self.coef_fallacy)
             if point > point_max:
                 point_max = point
@@ -158,15 +159,15 @@ class OrdiScore(Ordi):
         :rtype: tuple
         """
         self.sort_hand()
-        print(self._hand)
+#        print(self._hand)
         lst_coups = self.coups_possibles()
-        print("possible :",lst_coups)
+#        print("possible :",lst_coups)
         lst_coups = self.extend_coups(lst_coups)
-        print("extension :", lst_coups)
+#        print("extension :", lst_coups)
         score_max = -float('inf')
         for coup in lst_coups:
-            print('coup : ', coup)
-            print('prémisses avant: ', self._proof.premises)
+#            print('coup : ', coup)
+#            print('prémisses avant: ', self._proof.premises)
             score = 0
             i_drop = len(self._hand)-1  # indice de la prochaine carte à jeter
             poped_cards = []  # cartes effacées avec tabula_rasa
@@ -209,30 +210,38 @@ class OrdiScore(Ordi):
                 if card.is_wild():
                     index_premise, name = index_premise
                     card.name = name
-                print("insertion", card)
+#                print("insertion", card)
                 self._proof.insert(num_premise, index_premise, card)
-            print('prémisses pendant: ', self._proof.premises)
+#            print('prémisses pendant: ', self._proof.premises)
             # calcul du score obtenu
             coef = self.coef_ergo if ergo else 1
             score += coef * self.calc_score()
-            if score > score_max:
+            if score > score_max or (score == score_max and random() > 0.5):
+                # XXX testes du score
+                [(i_hand1, num_premise1, index_premise1),
+                 (i_hand2, num_premise2, index_premise2)] = coup
+                card1 = self._hand[i_hand1]
+                card2 = self._hand[i_hand2]
+                print(f"Score : {score}", end=' : ')
+                print(f"{card1} ligne {num_premise1} col {index_premise1}", end=' ')
+                print(f"{card2} ligne {num_premise2} col {index_premise2}")
                 score_max = score
                 coup_max = coup
             #restauration de self._proof
             coup = reversed(coup)
             for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
-                print('restauration', (i_hand, num_premise, index_premise))
+#                print('restauration', (i_hand, num_premise, index_premise))
                 if num_premise == -1:
                     continue
                 card = self._hand[i_hand]
-                print(card)
+#                print(card)
                 if card.is_justification() or card.is_fallacy() or card.is_ergo():
-                    print('cas 1')
+#                    print('cas 1')
                     continue
                 if card.is_tabula_rasa():
                     card = poped_cards.pop()
                     self._proof.insert(None, None, card, new=False)
-                    print('cas 2')
+#                    print('cas 2')
                     continue
                 if card.is_revolution():
                     row1, row2 = num_premise
@@ -241,13 +250,13 @@ class OrdiScore(Ordi):
                     card2 = self._proof.premises[row2][col2]
                     self._proof.change(row1, col1, card2)
                     self._proof.change(row2, col2, card1)
-                    print('cas 3')
+#                    print('cas 3')
                     continue
                 if card.wild:
                     card.name = "WildVar" if card.is_letter() else "WildOp"
                     index_premise = index_premise[0]
-                print(self._proof.pop(num_premise, index_premise))
-            print('prémisses après: ', self._proof.premises)
+                self._proof.pop(num_premise, index_premise)
+#            print('prémisses après: ', self._proof.premises)
         coup = coup_max
         # gestion des wild cards
         for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
@@ -263,12 +272,3 @@ class OrdiScore(Ordi):
             i_hand2 -= 1  # i_hand2 -= 1 en cas de tirages successifs
         return ((i_hand1, num_premise1, index_premise1),
                 (i_hand2, num_premise2, index_premise2))
-
-
-if __name__ == "__main__":
-    from Proof import Proof
-    from Deck import Deck
-    deck = Deck()
-    proof = Proof()
-    hand = deck.draw(7)
-    ordi = Ordi(proof, hand)
