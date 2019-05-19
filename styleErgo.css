@@ -1,0 +1,22 @@
+body
+{
+	background-image : url(images/carteBack3.png);
+	background-attachment: fixed;
+	background-color: rgba(255, 255, 255, 0.1);
+	color : darkblue;
+	font-size: 2em;
+}
+
+h1
+{
+	text-align: center;
+}
+
+footer
+{
+	clear:both;
+	text-align: center;
+    font-size: 70%;
+	font-style: italic;
+	margin-top: 5pt;
+}
