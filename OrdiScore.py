@@ -20,9 +20,9 @@ class OrdiScore(Ordi):
                   "Ergo": 5,
                  }
     coef_fallacy = 0.1
-    coef_proof_self = 7
-    coef_proof_other = -2
-    coef_ergo = 2
+    coef_proof_self = 7.
+    coef_proof_other = -2.
+    coef_ergo = 2.
 
     def sort_hand(self):
         """Tri la main par ordre décroissant de valeur. Si la main comporte
@@ -39,10 +39,9 @@ class OrdiScore(Ordi):
             self._hand.append(ergo)
 
     def choice_fallacy(self):
-        """:return : le numéro du joueur sur lequel jouer fallacy et le score
-        correspondant.
-        :rtype : tuple
-
+        """:return: le numéro du joueur sur lequel jouer fallacy et le score
+                    correspondant.
+        :rtype: tuple
         """
         others = list(range(4))
         others.remove(self._num_player)
@@ -65,21 +64,21 @@ class OrdiScore(Ordi):
         Pour les cartes Wild, index est transformé en un couple (index, name)
         où name est le nom à affecter à la wild card.
 
-        :param lst_coups : la liste de coups initiale au format créé par
-                           coups_possibles
-        :type lst_coups : list
+        :param lst_coups: la liste de coups initiale au format créé par
+                          coups_possibles
+        :type lst_coups: list
 
-        :return : La liste de coups mise à jour
-        :rtype : list
+        :return: La liste de coups mise à jour
+        :rtype: list
         """
         def is_to_extend(i_hand):
-            """:return : True si la carte d'indice i_hand de la main nécessite
+            """:return: True si la carte d'indice i_hand de la main nécessite
             une extension.
-            :rtype : bool
+            :rtype: bool
 
-            :param i_hand : l'indice de la carte dans la main, ou -1 si c'est
-                            une carte à jeter
-            :type i_hand : int
+            :param i_hand: l'indice de la carte dans la main, ou -1 si c'est
+                           une carte à jeter
+            :type i_hand: int
             """
 
             if i_hand == -1:
@@ -125,8 +124,8 @@ class OrdiScore(Ordi):
         return new_lst_coups
 
     def calc_score(self):
-        """:return : le score obtenu avec le coup actuellement joué
-        :rtype : int
+        """:return: le score obtenu avec le coup actuellement joué
+        :rtype: int
         """
         demo = Demo(self._proof)
         provens = demo.conclusion()

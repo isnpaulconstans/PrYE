@@ -129,11 +129,6 @@ class Proof():
             return None
         if recent:
             self.currently_added.remove((premise, index, True))
-#        try:
-#            self.currently_added.remove((premise, index, recent))
-#        except ValueError:
-#            if recent or index >= len(self.premises[premise]):
-#                return None
         self.__modif = True
         for i, (premise1, index1, mod) in enumerate(self.currently_added):
             if premise1 == premise and index1 > index:
