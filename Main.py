@@ -175,7 +175,7 @@ class Main(tk.Tk):
                     winers += self.player_names[index] + " "
                     self.scores[index] += score
             if winers:
-                msg = winers + f"\nBravo, vous marquez {score} points"
+                msg = winers + "\nBravo, vous marquez {} points".format(score)
             else:
                 msg = "Personne n'est prouvé, personne ne marque de point"
         self.can.display_current_player(self.num_player)
