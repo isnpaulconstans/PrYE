@@ -4,6 +4,7 @@
 
 import tkinter as tk
 from tkinter import messagebox
+import webbrowser
 from ErgoIntro import ErgoIntro
 from Deck import Deck
 from ErgoCanvas import ErgoCanvas
@@ -202,12 +203,8 @@ class Main(tk.Tk):
         messagebox.showinfo("Ergo", "Version finale 31/05/19")
 
     def rules(self):
-        """Affiche les règles du jeu à partir du fichier regles_ergo.txt"""
-        texte = ""
-        with open("regles_ergo.txt", encoding="utf-8") as fic:
-            for ligne in fic:
-                texte += ligne
-        messagebox.showinfo("Ergo", texte)
+        """Affiche les règles du jeu dans le navigateur wenb par défaut."""
+        webbrowser.open("regles_ergo.html")
 
     def quitter(self):
         """Quitte"""

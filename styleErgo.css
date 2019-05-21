@@ -6,6 +6,16 @@ body
 	color : darkblue;
 	font-size: 2em;
 }
+#article
+{
+background-color: rgba(176,207,235,0.4);
+display: flow-root;
+}
+
+body img
+{
+    vertical-align: middle;
+}
 
 h1
 {
