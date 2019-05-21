@@ -68,7 +68,7 @@ Le but est de réaliser une implémentation en Python de ce jeu. Pour cela, plus
 \item implémenter une fonction pour pouvoir jouer contre l'ordinateur.
 \end{itemize}
 
-Si on finit tout ça et qu'on a peur de s'ennuyer, on pourra toujours creuser pour améliorer la façon dont l'ordinateur joue. Au pire, on demandera à Frédéric Muller de nous prêter ses TetrisBot pour qu'ils apprennent à jouer à Ergo ;-)
+%Si on finit tout ça et qu'on a peur de s'ennuyer, on pourra toujours creuser pour améliorer la façon dont l'ordinateur joue. Au pire, on demandera à Frédéric Muller de nous prêter ses TetrisBot pour qu'ils apprennent à jouer à Ergo ;-)
 
 
 \section{Organisation du travail}
@@ -85,18 +85,27 @@ Les résultats sont disponibles sur \url{http://paulconstans.ddns.info/redmine/p
 
 \subsection{Répartition du travail}
 
-Après quelques discutions, le travail s'est assez naturellement réparti. Emmanuel Delay s'est chargé de la partie algorithmique tandis que Nicolas Desforêts s'est occupé de l'interface graphique. Comme nous travaillons tous les deux dans le même lycée, nous avons pu nous voir régulièrement pour faire la jointure entre nos deux parties et nous mettre d'accord sur les étapes suivantes.
+Après quelques discutions, le travail s'est assez naturellement réparti. Emmanuel Delay s'est chargé de la partie algorithmique tandis que Nicolas Desforêts s'est occupé de l'interface graphique et de la réalisation d'une page web pour les règles du jeu. Comme nous travaillons tous les deux dans le même lycée, nous avons pu nous voir régulièrement pour faire la jointure entre nos deux parties et nous mettre d'accord sur les étapes suivantes.
 
 \section{Solutions techniques}
+
+\subsection{Les constantes}
+
+Les différentes constantes pouvant être utiles dans plusieurs classes, comme le nombre de cartes de chaque type, la taille des images correspondante ou les couleurs du canvas, sont rassemblées dans une classe dédiée.
 
 \subsection{Les modules concernant les cartes}
 
 Quatre modules sont destinés à gérer les cartes :
 
 \begin{description}
-\item[Card] définit les différentes cartes;
-\item[CardList] gère les listes de cartes et la notation polonaise inversée associée;
-\item[Proof] gère les quatre prémisses;
+\item[Card] définit les différentes cartes. Chaque carte a un nom, un niveau de priorité. De nombreuses méthodes permettent de déterminer de quelle carte, ou de qelle famille de carte (lettre, opérateur, joker, \dots) il s'agit. Une méthode permet aussi de \og retourner \fg les parenthèses pour transformer un parenthèse ouvrante en parenthèse fermante et réciproquement. Comme il est parfois nécessaire de comparer deux cartes, la méthode \texttt{\_\_eq\_\_} permet de tester l'égalité de deux cartes (en comparant les noms), ou d'une carte et d'une chaîne de caractères. Les cartes pouvant aussi servir de clé dans un dictionnaire, une fonction de hachage a été implémentée par la méthode \texttt{\_\_hash\_\_}.
+\item[CardList], qui hérite de la classe \texttt{list}, gère les listes de cartes. Elle permet d'ajouter, modifier ou supprimer une carte de la liste. Cette classe permet de déterminer si la liste de carte est syntaxiquement correcte, et dans ce cas d'y associer son écriture en notation polonaise inversée (NPI). Un attribut \texttt{modif} permet de savoir si la liste a été modifiée depuis le dernier calcul de la NPI pour éviter de le refaire inutilement.
+\item[Proof] gère les quatre prémisses. Elle répercute les modifications (ajout, suppression, changement) aux différentes prémisses et gère leur conjonction pour déterminer la NPI associée à la preuve. Elle permet également de savoir si toutes les lettres ont été jouées (pour pouvoir éventuellement jouer une carte Ergo), et le nombre de cartes jouées (pour calculer le score correspondant). Les méthodes \texttt{insert} et \texttt{pop} ont un paramètre supplémentaire qui permet de gérer deux cas différents pour chacune :
+\begin{itemize}
+\item l'ajout peut provenir soit d'une nouvelle carte jouée par le joueur soit de l'annulation d'une carte Tabula Rasa qui doit être gérée différemment.
+\item De même , la suppression peut soit correspondre à une carte qui vient d'être jouée, soit au jeu d'une carte Tabula Rasa.
+\end{itemize}
+Pour pouvoir gérer ces différents cas, on maintient une liste \texttt{currently\_added} des numéro de prémisse et index des cartes qui peuvent être modifiées, ainsi qu'un booléen indiquant si la carte correspond à un jeu \og classique \fg (une carte qui vient d'être jouée et qui peut être retirée) ou au jeu d'une carte Tabula Rasa (carte qui a été supprimée par un Tabula Rasa et qui peut être remise). Les indices de cette liste doivent être actualisés à chaque ajout ou suppression de cartes dans les prémisses pour suivre les modifications. Par exemple, si une carte est ajoutée avant une carte mémorisée, l'indice de cette dernière doit être augmenté de 1.
 \item[Deck] gère le paquet de cartes.
 \end{description}
 
