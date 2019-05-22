@@ -52,7 +52,7 @@ class OrdiScore(Ordi):
             else:
                 point = ((10+self._scores[i_other]) * (3-self._fallacys[i_other])
                          * self.coef_fallacy)
-            if point > point_max:
+            if point > point_max or (point == point_max and random() > 0.5):
                 point_max = point
                 i_other_max = i_other
         return i_other_max, point_max
