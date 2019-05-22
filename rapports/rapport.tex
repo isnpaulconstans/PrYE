@@ -6,6 +6,9 @@
 
 \author{Delay Emmanuel-- Desforêts Nicolas}
 
+\parindent 0.5cm
+\parskip 5pt
+
 \makeatletter
 \renewcommand{\maketitle}{%
   \thispagestyle{plain}
@@ -111,6 +114,7 @@ La classe \texttt{Proof} gère les quatre prémisses. Elle répercute les modifi
 \item l'ajout peut provenir soit d'une nouvelle carte jouée par le joueur soit de l'annulation d'une carte Tabula Rasa qui doit être gérée différemment.
 \item De même , la suppression peut soit correspondre à une carte qui vient d'être jouée, soit au jeu d'une carte Tabula Rasa.
 \end{itemize}
+
 Pour pouvoir gérer ces différents cas, on maintient une liste \texttt{currently\_added} des numéro de prémisse et index des cartes qui peuvent être modifiées, ainsi qu'un booléen indiquant si la carte correspond à un jeu \og classique \fg (une carte qui vient d'être jouée et qui peut être retirée) ou au jeu d'une carte Tabula Rasa (carte qui a été supprimée par un Tabula Rasa et qui peut être remise). Les indices de cette liste doivent être actualisés à chaque ajout ou suppression de cartes dans les prémisses pour suivre les modifications. Par exemple, si une carte est ajoutée avant une carte mémorisée, l'indice de cette dernière doit être augmenté de 1 pour refléter sa nouvelle position dans la prémisse.
 
 \subsubsection{Deck}
@@ -119,27 +123,45 @@ La classe \texttt{Deck} hérite de \texttt{list} et gère le paquet de cartes. E
 
 \subsection{Les modules concernant les démonstrations}
 
-L'analyse de la preuve se fait par la classe abstraite \texttt{Demonstration}. Cette classe est concrétisée par les deux classes \texttt{ForceBrute}, qui cherche à déterminer les \og variables prouvées \fg par force brute, et \texttt{DPLL} qui utilise l'algorithme de Davis-Putnam-Logemann-Loveland. Cette dernière commence par faire appel à la classe \texttt{FCN} pour obtenir l'écriture en forme conjonctive normale de la preuve.
+L'analyse de la preuve se fait par la classe abstraite \texttt{Demonstration}. Cette classe est concrétisée par les deux classes \texttt{ForceBrute}, qui cherche à déterminer les \og variables prouvées \fg par force brute, et \texttt{DPLL} qui utilise l'algorithme de Davis-Putnam-Logemann-Loveland. Cette dernière commence par faire appel à la classe \texttt{FCN} pour obtenir l'écriture en forme conjonctive normale de la preuve. Les algorithmes utilisés dans ces classes seront décrits dans la section suivante.
 
+\subsection{Jeu de l'ordinateur}
+
+\subsubsection{Ordi}
+
+Le gestion des coups possibles se fait dans la classe \texttt{Ordi}. Cette classe contient une méthode abstraite \texttt{choix\_coups} en vue de tester différentes idées concernant les deux cartes à jouer.
+
+Une première étape consiste, si on a au moins deux parenthèses en main, à se débrouiller pour en avoir au moins une ouvrante et une fermante. Pour simplifier la gestion des cartes Fallacy et Justification, une deuxième étape consiste à mettre en premier la carte \texttt{Justification} s'il y en a une. Enfin, on travaille avec une copie de la main dans laquelle les joker (\texttt{WildVar} et \texttt{WildOp}) sont remplacés par une lettre et un opérateur (ça ne change rien à la syntaxe). Pour retrouver les cartes qui étaient initialement des jokers, j'ai ajouté un attribut \texttt{wild} à la classe \texttt{Card} qui mémorise l'état initial de la carte.
+
+Pour la gestion de la carte \texttt{Revolution} (qui permet d'échanger deux cartes), j'ai mis bout à bout les quatre prémisses pour pouvoir plus facilement les parcourir avec seulement deux boucles imbriquées. Pour retrouver les coordonnées initiales (sous forme d'un numéro de prémisse et d'un index), j'ai fait une petite fonction \texttt{index\_flat2premise\_index}.
+
+Si le joueur est sous le coup d'une falsification, il peut soit commencer par jouer une carte \texttt{Justification}, soit jouer une (ou éventuellement deux) carte(s) \texttt{Fallacy} sur un (deux) joueurs. Cette partie étant assez différente du reste, on la traite dans une boucle séparée.
+
+Enfin, on détermine l'ensemble des coups possibles en essayant de jouer chacune des cartes de la main à l'aide de deux boucles imbriquées. Le gestion des cartes spéciales, en particulier celles qui ne se jouent pas dans les prémisses, nécessite l'utilisation d'une variable booléenne \texttt{special1}.
+
+Ces calculs sont réalisés dans la méthode \texttt{coups\_possibles}. Cette méthode est une horreur du point de vue Deep Nesting, mais j'ai eu beau tourner le problème de différentes façons, je n'ai pas réussi à faire plus propre. \footnote{J'espère que Régis Barbanchon, qui nous a fait le cours de PCOO l'an dernier, ne verra pas ça ;-)}
+
+Enfin, la méthode \texttt{joue} joue effectivement les cartes choisies par \texttt{choix\_coups} dans les prémisses, et elle renvoie un message à afficher concernant ce jeu. Le gestion des cartes particulières (\texttt{Fallacy}, \texttt{Justification} et \texttt{Ergo}) qui ne concernent pas directement les prémisses est déléguée à la classe appelante.
+
+\subsubsection{OrdiRandom}
+
+La classe \texttt{OrdiRandom} concrétise la méthode \texttt{choix\_coups} en se chargeant de choisir un coup au hasard dans la liste des coups possibles. En cas de défausse, les cartes à défausser sont elles aussi choisies au hasard dans la main. De même, la \og victime \fg d'une carte \texttt{Fallacy}, les cartes à échanger avec \texttt{Revolution} ou les joker sont choisis aléatoirement.
+
+\subsubsection{OrdiScore}
+
+La classe \texttt{OrdiScore} concrétise elle aussi la méthode \texttt{choix\_coups}, mais en attribuant un score à chaque coup et en choisissant un coup parmi ceux ayant le meilleur score.
+
+Pour cela, je commence par affecter une valeur à chaque carte, puis je trie la main par valeur décroissante. Ainsi, les éventuelles cartes à défausser seront les dernières de la main. Ensuite, la liste des coups possibles est calculée par la méthode \texttt{coups\_possibles}. Mais cette liste doit être complétée en détaillant tous les échanges possibles pour les cartes \texttt{Revolution}, et toutes les possibilités pour les cartes joker. C'est la méthode \texttt{extend\_coups} qui se charge de ce travail. Pour indiquer par quelle carte un joker doit être remplacé, l'index du coup à jouer est transformé en un couple (index, name) où name est le nom à affecter au joker.
+
+Pour le jeu d'une carte \texttt{Fallacy}, la méthode \texttt{choice\_fallacy} se charge de désigner la \og victime \fg. Pour cela, on privilégie les joueurs ayant le plus gros score, et n'étant pas (ou peu) sous le coup d'une falsification.
+
+Ensuite, tous les coups possibles sont joués dans la preuve, avec à chaque fois une évaluation du score obtenu en utilisant un certain nombre de coefficients (pour l'instant choisis au \og doigt mouillé \fg. Le coup est ensuite annulé pour restaurer la preuve dans son état initial. Le coup ayant obtenu le meilleur score est choisi. En cas d'ex \ae quo, un coup au hasard est choisi parmi les meilleurs.
+
+Avant de renvoyer le coup choisi, les joker éventuellement à jouer sont remplacés par la valeur choisie.
 
 \subsection{L'interface graphique}
 
-Nous utilisons tkinter pour l'interface graphique. Avec en complément messagebox.
-
-Il a fallu créer les images des cartes, en choisissant une dimension pratique pour la gestion du placement de cartes. La première dimension était trop importante et ne permettait pas de faire des lignes de preuve suffisamment longues. Les constantes correspondant à la taille des différentes cartes, à l'épaisseur des traits, au nom ou au nombre de chaque cartes ont été 
-
-Nous avions initialement choisi de créer nos images au format gif, mais à l'usage le format png s'est révélé plus facile à manipuler. L'image carteBack permet d'afficher les mains des autres joueurs face cachée.
-
-\smallskip
-Avec les nouvelles fonctionnalités qui permettent de choisir soit le mode multijoueur ou de jouer contre l'ordinateur une nouvelle classe \texttt{ErgoIntro} a été créée. 
-
-Elle permet de créer une fenêtre d’accueil avec une animation au démarrage. La méthode animate\_letter permet de simuler une distribution des cartes suivant la forme des lettres du nom du jeu ERGO.
-
-Deux boutons permettent d'accéder au jeu dans le mode choisi.
-
-\subsection{La classe Main}
-
-La classe \texttt{Main} gère le jeu en lui même et la gestion du \texttt{Canvas} est déléguée à la classe \texttt{ErgoCanvas}. 
+Toute la partie graphique est déléguée à la classe \texttt{ErgoCanvas} qui hérite de la classe \texttt{Canvas} de tkinter. 
 
 La gestion du jeu se fait à la souris. On peut attraper (bouton gauche), déplacer (bouton gauche maintenu) et déposer (bouton gauche relâché) la carte à l'aide des méthodes \texttt{select}, \texttt{move} et \texttt{drop}.
 
@@ -147,8 +169,22 @@ Le bouton droit permet, associé à la méthode \texttt{switch}, si la carte est
 
 De plus, il s'est avéré qu'il fallait autoriser l'annulation d'une carte effacée avec \texttt{Tabula Rasa} sous peine de bloquer le joueur. C'est possible avec la touche ESC.
 
+Il a fallu créer les images des cartes, en choisissant une dimension pratique pour la gestion du placement de cartes. La première dimension était trop importante et ne permettait pas de faire des lignes de preuve suffisamment longues. Les constantes correspondant à la taille des différentes cartes, à l'épaisseur des traits, au nom ou au nombre de chaque cartes ont été 
 
-Les règles du jeu sont dans un fichier texte. Lors de l'appel de la méthode nous faisons une lecture du fichier puis un affichage dans une fenêtre messagebox.
+Nous avions initialement choisi de créer nos images au format gif, mais à l'usage le format png s'est révélé plus facile à manipuler. L'image carteBack permet d'afficher les mains des autres joueurs face cachée.
+
+Avec les nouvelles fonctionnalités qui permettent de choisir soit le mode multijoueur ou de jouer contre l'ordinateur une nouvelle classe \texttt{ErgoIntro} a été créée. 
+
+Elle permet de créer une fenêtre d’accueil avec une animation au démarrage. La méthode animate\_letter permet de simuler une distribution des cartes suivant la forme des lettres du nom du jeu ERGO.
+
+Quatre boutons permettent d'accéder au jeu dans le mode choisi, et une case à cocher permet de choisir le \og cheat mode \fg. Ce dernier ajoute un bouton \texttt{cheat} à l'interface de jeu qui permet de savoir quels sont les joueurs actuellement démontrés.
+
+
+\subsection{La classe Main}
+
+La classe \texttt{Main} gère le jeu en lui même. C'est elle qui gère l'initialisation du jeu, le passage d'un tour au suivant et la fin de partie. Elle utilise la classe \texttt{ErgoCanvas} pour la gestion du canvas, la classe \texttt{Deck} pour le jeu de carte, les classes \texttt{Proof} et \texttt{Demonstration} (implémentée par \texttt{ForceBrute} ou \texttt{DPLL}) pour la gestion de la preuve et la classe \texttt{Ordi} (implémentée par \texttt{OrdiRandom} ou \texttt{OrdiScore}) pour le jeu de l'ordinateur. 
+
+Les règles du jeu sont dans un fichier html affiché dans le navigateur par défaut grâce au module \texttt{webbrowser}.
 
 
 \section{Algorithmes utilisés}
@@ -160,7 +196,7 @@ Une des premier problème algorithmique a été de transformer l'écriture algé
 Je l'ai légèrement adapté au contexte (proposition logique au lieu de d'expression mathématique) pour obtenir l'algorithme \ref{Shunting-yard}.
 
 
-\begin{algorithm}
+\begin{algorithm}[h]
 \caption{Algorithme de passage en notation polonaise inversée}
 \label{Shunting-yard}
 \Entree{Une liste \texttt{input} de cartes (propositions ou connecteurs)}
@@ -193,14 +229,9 @@ Créer une \texttt{pile} vide\;
 
 Ici, mon idée a été d'attaquer le problème en force brute : tester tous les modèles possible (comme il y a 4 variables, il y a seulement $2^4=16$ possibilités) et pour chacun évaluer la preuve. Si le résultat est Vrai, c'est que le modèle est admissible et on le mémorise. Ensuite, on regarde pour chaque variable si elle a toujours la même valeur (Vrai ou Faux) dans tous les modèles admissibles. Si c'est la cas, la variable est prouvée ou niée.
 
-\medskip
-D'après le cours qu'on a eu pour l'instant sur la logique avec Line Jakubie-Jamet, cette méthode constitue une preuve sémantique, mais c'est équivalent à une preuve syntaxique.
-
-\medskip
-
 Pour l'évaluation d'une formule, j'ai utilisé l'algorithme classique d'évaluation d'une expression en NPI (algorithme \ref{evalNPI}).
 
-\begin{algorithm}
+\begin{algorithm}[h]
 \caption{Algorithme d'évaluation d'une formule}
 \label{evalNPI}
 \Entrees{Une liste \texttt{npi} de carte en NPI et une interprétation}
@@ -233,7 +264,7 @@ Même si l'algorithme précédent marche bien dans le contexte qui nous intéres
 \item développement ($A \vee (B \wedge C) \equiv (A \vee B) \wedge (A \vee C)$).
 \end{itemize}
 
-\begin{algorithm}
+\begin{algorithm}[h]
 \caption{Algorithme de Davis-Putnam-Logemann-Loveland (DPLL)}
 \label{algoDPLL}
 \Entrees{Une liste de clauses \texttt{clause\_list} et un modèle partiel \texttt{model}}
@@ -261,33 +292,14 @@ Même si l'algorithme précédent marche bien dans le contexte qui nous intéres
 
 \end{algorithm}
 
-\subsection{Jeu de l'ordinateur}
 
-Le gestion des coups possibles se fait dans la classe \texttt{Ordi}. Cette classe contient une méthode abstraite \texttt{joue} en vue de tester différentes idées concernant les deux cartes à jouer.
+\section{Évolutions possibles}
 
-Une première étape consiste, si on a au moins deux parenthèses en main, à se débrouiller pour en avoir au moins une ouvrante et une fermante. Pour simplifier la gestion des cartes Fallacy et Justification, une deuxième étape consiste à mettre en premier la carte \texttt{Justification} s'il y en a une. Enfin, on travaille avec une copie de la main dans laquelle les joker (\texttt{WildVar} et \texttt{WildOp}) sont remplacés par une lettre et un opérateur (ça ne change rien à la syntaxe). Pour retrouver les cartes qui étaient initialement des jokers, j'ai ajouté un attribut \texttt{wild} à la classe \texttt{Card} qui mémorise l'état initial de la carte.
+Les calculs du score dans la classe \texttt{OrdiScore} dépend de plusieurs paramètres. Je pense que le choix de ces paramètres pourrait se prêter assez bien à un algorithme génétique en faisant jouer l'ordinateur contre lui même et en faisant des croisements entre les coups gagnants.
 
-\smallskip
-Pour la gestion de la carte \texttt{Revolution} (qui permet d'échanger deux cartes), j'ai mis bout à bout les quatre prémisses pour pouvoir plus facilement les parcourir avec seulement deux boucles imbriquées. Pour retrouver les coordonnées initiales (sous forme d'un numéro de prémisse et d'un index), j'ai fait une petite fonction \texttt{index\_flat2premise\_index}.
+On pourrait aussi tester d'autres méthodes pour le jeu de l'ordinateur. J'avais éventuellement pensé à un minimax en testant toutes les cartes qui n'ont pas encore été jouées, mais je pense que ça va faire trop de calculs.
 
-\smallskip
-Si le joueur est sous le coup d'une falsification, il peut soit commencer par jouer une carte \texttt{Justification}, soit jouer une (ou éventuellement deux) carte(s) \texttt{Fallacy} sur un (deux) joueurs. Cette partie étant assez différente du reste, on la traite dans une boucle séparée.
-
-Enfin, on détermine l'ensemble des coups possibles en essayant de jouer chacune des cartes de la main à l'aide de deux boucles imbriquées. Le gestion des cartes spéciales, en particulier celles qui ne se jouent pas dans les prémisses, nécessite l'utilisation d'une variable booléenne \texttt{special1}.
-
-Ces calculs sont réalisés dans la méthode \texttt{coups\_possibles}. Cette méthode est une horreur du point de vue Deep Nesting, mais j'ai eu beau tourner le problème de différentes façons, je n'ai pas réussi à faire plus propre. \footnote{J'espère que Régis Barbanchon, qui nous a fait le cours de PCOO l'an dernier, ne verra pas ça ;-)}
-
-\smallskip
-Ensuite, la classe \texttt{OrdiRandom} concrétise la méthode \texttt{joue} en se chargeant de choisir un coup au hasard. Elle joue effectivement les cartes choisies dans les prémisses, et elle renvoie un message à afficher concernant ce jeu. Le gestion des cartes particulières (\texttt{Fallacy}, \texttt{Justification} et \texttt{Ergo}) qui ne concernent pas directement les prémisses est déléguée à la classe appelante.
-
-\section{Évolutions à venir}
-
-\begin{itemize}
-\item Proposer une version chronométrée où le joueur a un temps limité pour jouer.
-\item Ajouter un bouton \texttt{Cheat} qui indique ce qui est prouvé pour l'instant.
-\item Revoir l'esthétique des différents messages, et réécrire la règle du jeu un peu plus précisément. 
-\item Tester d'autres méthodes pour le jeu de l'ordinateur. Il faudrait en particulier attribuer un score à chaque coup en fonction de ce qui est prouvé. Ensuite, j'avais éventuellement pensé à un minimax en testant toutes les cartes qui n'ont pas encore été jouées, mais je pense que ça va faire trop de calculs. Peut-être qu'en faisant quelques parties, une stratégie se présentera\dots Sinon, il restera la solution de faire appel à un ami ?
-\end{itemize}
+\clearpage
 
 \appendix
 \begin{a3_landscape}
