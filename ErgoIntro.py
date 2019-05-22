@@ -85,7 +85,7 @@ class ErgoIntro(tk.Toplevel):
         """ Creation des boutons de choix du mode de jeu """
         for nb_player in range(1, 5):
             pluriel = "s" if nb_player >= 2 else ""
-            tk.Button(self, text=f"{nb_player} joueur{pluriel}",
+            tk.Button(self, text="{} joueur{}".format(nb_player,pluriel),
                       bd=7, font="Arial 16",
                       command=lambda x=nb_player: self.choice(x)
                       ).grid(column=nb_player-1, row=1)

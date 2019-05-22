@@ -3,6 +3,7 @@
 """Interface graphique."""
 
 import tkinter as tk
+import webbrowser
 from tkinter import messagebox
 from ErgoIntro import ErgoIntro
 from Deck import Deck
@@ -83,7 +84,7 @@ class Main(tk.Tk):
         # creation du menu "Aide"
         self.aide = tk.Menu(self.barre_menu, tearoff=0)
         self.barre_menu.add_cascade(label="Aide", underline=0, menu=self.aide)
-        self.aide.add_command(label="Règles", underline=0, command=self.rules)
+        self.aide.add_command(label="Règles", underline=0, command=self.rulesW)
         self.aide.add_command(label="A propos", underline=0,
                               command=self.version)
         self.aide.add_command(label="Quitter", underline=0,
@@ -174,7 +175,7 @@ class Main(tk.Tk):
                     winers += self.player_names[index] + " "
                     self.scores[index] += score
             if winers:
-                msg = winers + f"\nBravo, vous marquez {score} points"
+                msg = winers + "\nBravo, vous marquez {} points".format(score)
             else:
                 msg = "Personne n'est prouvé, personne ne marque de point"
         self.can.display_current_player(self.num_player)
@@ -199,6 +200,10 @@ class Main(tk.Tk):
     def version(self):
         """Affiche la version du jeu"""
         messagebox.showinfo("Ergo", "Version finale 31/05/19")
+
+    def rulesW(self):
+        """Ouvre le navigateur courant et affiche les règles"""
+        webbrowser.open("regles_ergo.html")
 
     def rules(self):
         """Affiche les règles du jeu à partir du fichier regles_ergo.txt"""

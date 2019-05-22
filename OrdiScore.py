@@ -222,9 +222,11 @@ class OrdiScore(Ordi):
                  (i_hand2, num_premise2, index_premise2)] = coup
                 card1 = self._hand[i_hand1]
                 card2 = self._hand[i_hand2]
-                print(f"Score : {score}", end=' : ')
-                print(f"{card1} ligne {num_premise1} col {index_premise1}", end=' ')
-                print(f"{card2} ligne {num_premise2} col {index_premise2}")
+                print("Score : {}".format(score), end=' : ')
+                print("{} ligne {} col {}"\
+                .format(card1,num_premise1,index_premise1), end=' ')
+                print("{} ligne {} col {}"\
+                .format(card2,num_premise2,index_premise2))
                 score_max = score
                 coup_max = coup
             #restauration de self._proof

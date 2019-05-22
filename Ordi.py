@@ -153,7 +153,7 @@ class Ordi:
             if card.is_fallacy():
                 other = num_premise
                 other_name = player_names[other]
-                msg += f"Joue une carte Fallacy sur {other_name}\n"
+                msg += "Joue une carte Fallacy sur {}\n".format(other_name)
                 special_cards.append(("Fallacy", other))
                 continue
             if card.is_justification():
@@ -169,8 +169,9 @@ class Ordi:
                 col1, col2 = index_premise
                 card1 = self._proof.premises[row1][col1]
                 card2 = self._proof.premises[row2][col2]
-                msg += f"Échange {card1} de la ligne {row1} colonne {col1}"\
-                       f" avec {card2} de la ligne {row2} colonne {col2}\n"
+                msg += "Échange {} de la ligne {} colonne {}"\
+                       " avec {} de la ligne {} colonne {}\n"\
+                       .format(card1,row1,col1,card2,row2,col2)
                 self._proof.change(row1, col1, card2)
                 self._proof.change(row2, col2, card1)
                 continue

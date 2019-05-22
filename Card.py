@@ -48,7 +48,7 @@ class Card():
         if isinstance(other, Card):
             return self.name == other.name
         raise TypeError("'=' not supported between instances of 'Card' "
-                        f"and '{type(other)}'")
+                        "and '{}'".format(type(other)))
 
     def __hash__(self):
         """:return : hash(self)
