@@ -32,12 +32,11 @@ class ErgoIntro(tk.Toplevel):
         self.transient(self.master)
         self.resizable(width=False, height=False)
         self.__init_intro__()
-        self.nb_player = 1
         self.button_choice()
         self.cheat = tk.BooleanVar()
         tk.Checkbutton(self, text="cheat mode",
-                       variable = self.cheat
-                       ).grid(column=0,row=2, columnspan=4)
+                       variable=self.cheat
+                       ).grid(column=0, row=2, columnspan=4)
         self.flag = 1
         self.pause = 150
         self.animate_letter(len(self.LETWAY), self.LETWAY)
@@ -85,19 +84,15 @@ class ErgoIntro(tk.Toplevel):
         """ Creation des boutons de choix du mode de jeu """
         for nb_player in range(1, 5):
             pluriel = "s" if nb_player >= 2 else ""
-            tk.Button(self, text="{} joueur{}".format(nb_player,pluriel),
+            tk.Button(self, text="{} joueur{}".format(nb_player, pluriel),
                       bd=7, font="Arial 16",
                       command=lambda x=nb_player: self.choice(x)
                       ).grid(column=nb_player-1, row=1)
-#        tk.Button(self, text="Mode multijoueurs", bd=7, font="Arial 16",
-#                  command=lambda: self.choice(4)
-#                  ).grid()
 
     def choice(self, nb_player):
         """Lance la fenetre de jeu """
-        self.nb_player = nb_player
-        self.destroy()
+        self.destroy(nb_player)
 
-    def destroy(self):
-        self.master.start(self.nb_player, self.cheat.get())
+    def destroy(self, nb_player=1):
+        self.master.start(nb_player, self.cheat.get())
         super().destroy()

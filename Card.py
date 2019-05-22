@@ -30,6 +30,12 @@ class Card():
         self.__name = name
         self.__wild = self.is_wild()
 
+    def __repr__(self):
+        """:return: le nom de la carte.
+        :rtype: string
+        """
+        return self.__name
+
     def __eq__(self, other):
         """
         * Si other est une chaîne de caractères, indique si le nom de la carte
@@ -197,9 +203,3 @@ class Card():
             self.__name = "("
         elif self.__name == "(":
             self.__name = ")"
-
-    def __repr__(self):
-        """:return: le nom de la carte.
-        :rtype: string
-        """
-        return self.__name

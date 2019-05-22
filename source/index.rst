@@ -10,7 +10,7 @@ Ceci est la page d'accueil de la documentation du jeu Ergo.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Table des matières:
 
    regles

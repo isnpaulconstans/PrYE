@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Interface graphique."""
+"""Programme principal."""
 
 import tkinter as tk
 import webbrowser
 from tkinter import messagebox
+import webbrowser
 from ErgoIntro import ErgoIntro
 from Deck import Deck
 from ErgoCanvas import ErgoCanvas
@@ -13,8 +14,9 @@ from DPLL import DPLL as Demo
 #from OrdiRandom import OrdiRandom as Ordi
 from OrdiScore import OrdiScore as Ordi
 
+
 class Main(tk.Tk):
-    """Interface graphique."""
+    """Programme principal."""
     def __init__(self):
         """Constructeur de la classe
 
@@ -24,11 +26,11 @@ class Main(tk.Tk):
         tk.Tk.__init__(self)
         self.title("Ergo")
         self.resizable(width=False, height=False)
-        self.nb_player = 1
         self.__init_menu__()
+        self.nb_player = 4
         self.scores = [0] * 4
         self.player_names = ["Joueur "+chr(ord('A')+i) for i in range(4)]
-        self.num_player = 3
+        self.num_player = 3  # sera incrémenté de 1 par init_round
         self.can = ErgoCanvas(self)
         self.can.grid(row=0, column=1, rowspan=7)
         for i in range(4):
@@ -39,6 +41,21 @@ class Main(tk.Tk):
                  font="Arial 28 italic").grid(row=7, column=1)
         tk.Button(text="jouer", command=self.play).grid(row=5, column=0)
         ErgoIntro()
+
+    def __init_menu__(self):
+        """creation de la barre de menu qui permet d'afficher l'aide,
+        les règles, la version et de pouvoir quitter le jeu."""
+        self.barre_menu = tk.Menu(self)
+        # creation du menu "Aide"
+        self.aide = tk.Menu(self.barre_menu, tearoff=0)
+        self.barre_menu.add_cascade(label="Aide", underline=0, menu=self.aide)
+        self.aide.add_command(label="Règles", underline=0, command=self.rules)
+        self.aide.add_command(label="A propos", underline=0,
+                              command=self.version)
+        self.aide.add_command(label="Quitter", underline=0,
+                              command=self.quitter)
+        # afficher le menu
+        self.config(menu=self.barre_menu)
 
     def start(self, nb_player, cheat):
         """Lance une partie
@@ -76,22 +93,6 @@ class Main(tk.Tk):
         else:
             self.can.init_bind()
 
-
-    def __init_menu__(self):
-        """creation de la barre de menu qui permet d'afficher l'aide,
-        les règles, la version et de pouvoir quitter le jeu."""
-        self.barre_menu = tk.Menu(self)
-        # creation du menu "Aide"
-        self.aide = tk.Menu(self.barre_menu, tearoff=0)
-        self.barre_menu.add_cascade(label="Aide", underline=0, menu=self.aide)
-        self.aide.add_command(label="Règles", underline=0, command=self.rulesW)
-        self.aide.add_command(label="A propos", underline=0,
-                              command=self.version)
-        self.aide.add_command(label="Quitter", underline=0,
-                              command=self.quitter)
-        # afficher le menu
-        self.config(menu=self.barre_menu)
-
     def play(self):
         """Valide un coup si possible."""
         if self.cards_played != 2:
@@ -108,6 +109,7 @@ class Main(tk.Tk):
         self.next_player()
 
     def cheat(self):
+        """Affiche les noms des joueurs prouvés."""
         prouve = self.demo.conclusion()
         if prouve is None:
             msg = "La preuve contient une contradiction"
@@ -201,17 +203,9 @@ class Main(tk.Tk):
         """Affiche la version du jeu"""
         messagebox.showinfo("Ergo", "Version finale 31/05/19")
 
-    def rulesW(self):
-        """Ouvre le navigateur courant et affiche les règles"""
-        webbrowser.open("regles_ergo.html")
-
     def rules(self):
-        """Affiche les règles du jeu à partir du fichier regles_ergo.txt"""
-        texte = ""
-        with open("regles_ergo.txt", encoding="utf-8") as fic:
-            for ligne in fic:
-                texte += ligne
-        messagebox.showinfo("Ergo", texte)
+        """Affiche les règles du jeu dans le navigateur wenb par défaut."""
+        webbrowser.open("regles_ergo.html")
 
     def quitter(self):
         """Quitte"""

@@ -169,9 +169,9 @@ class Ordi:
                 col1, col2 = index_premise
                 card1 = self._proof.premises[row1][col1]
                 card2 = self._proof.premises[row2][col2]
-                msg += "Échange {} de la ligne {} colonne {}"\
-                       " avec {} de la ligne {} colonne {}\n"\
-                       .format(card1,row1,col1,card2,row2,col2)
+                msg_carte = "{} de la ligne {} colonne {}"
+                msg += "Échange " + msg_carte.format(card1, row1, col1)\
+                       + " avec " + msg_carte.format(card2, row2, col2) + "\n"
                 self._proof.change(row1, col1, card2)
                 self._proof.change(row2, col2, card1)
                 continue

@@ -61,12 +61,3 @@ class OrdiRandom(Ordi):
         if i_hand1 < i_hand2:
             coup[1][0] -= 1  # i_hand2 -= 1 en cas de tirages successifs
         return coup
-
-
-if __name__ == "__main__":
-    from Proof import Proof
-    from Deck import Deck
-    deck = Deck()
-    proof = Proof()
-    hand = deck.draw(7)
-    ordi = Ordi(proof, hand)

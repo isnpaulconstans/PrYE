@@ -1,8 +1,22 @@
 Documentation des modules
 =========================
 
+Constantes
+----------
+
+.. automodule:: Constantes
+
+.. autoclass:: Constantes
+   :members:
+   :private-members:
+   :special-members:
+
+
 Modules cartes
 --------------
+
+Card
+....
 
 .. automodule:: Card
 
@@ -11,6 +25,9 @@ Modules cartes
    :private-members:
    :special-members:
 
+CardList
+........
+
 .. automodule:: CardList
 
 .. autoclass:: CardList
@@ -18,12 +35,18 @@ Modules cartes
    :private-members:
    :special-members:
 
+Proof
+.....
+
 .. automodule:: Proof
 
 .. autoclass:: Proof
    :members:
    :private-members:
    :special-members:
+
+Deck
+....
 
 .. automodule:: Deck
 
@@ -35,12 +58,18 @@ Modules cartes
 Modules démonstrations
 ----------------------
 
+Demonstration
+.............
+
 .. automodule:: Demonstration
 
 .. autoclass:: Demonstration
    :members:
    :private-members:
    :special-members:
+
+FCN
+...
 
 .. automodule:: FCN
 
@@ -49,12 +78,18 @@ Modules démonstrations
    :private-members:
    :special-members:
 
+DPLL
+....
+
 .. automodule:: DPLL
 
 .. autoclass:: DPLL
    :members:
    :private-members:
    :special-members:
+
+ForceBrute
+..........
 
 .. automodule:: ForceBrute
 
@@ -66,12 +101,18 @@ Modules démonstrations
 Modules jeu de l'ordinateur
 ---------------------------
 
+Ordi
+....
+
 .. automodule:: Ordi
 
 .. autoclass:: Ordi
    :members:
    :private-members:
    :special-members:
+
+OrdiRandom
+..........
 
 .. automodule:: OrdiRandom
 
@@ -80,8 +121,21 @@ Modules jeu de l'ordinateur
    :private-members:
    :special-members:
 
+OrdiScore
+.........
+
+.. automodule:: OrdiScore
+
+.. autoclass:: OrdiScore
+   :members:
+   :private-members:
+   :special-members:
+
 Modules interfaces graphiques
 -----------------------------
+
+ErgoCanvas
+..........
 
 .. automodule:: ErgoCanvas
 
@@ -89,6 +143,9 @@ Modules interfaces graphiques
    :members:
    :private-members:
    :special-members:
+
+ErgoIntro
+.........
 
 .. automodule:: ErgoIntro
 
