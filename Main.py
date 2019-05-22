@@ -5,7 +5,6 @@
 import tkinter as tk
 import webbrowser
 from tkinter import messagebox
-import webbrowser
 from ErgoIntro import ErgoIntro
 from Deck import Deck
 from ErgoCanvas import ErgoCanvas
