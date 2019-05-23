@@ -7,7 +7,6 @@
 \author{Delay Emmanuel-- Desforêts Nicolas}
 
 \parindent 0.5cm
-\parskip 5pt
 
 \makeatletter
 \renewcommand{\maketitle}{%
@@ -24,7 +23,7 @@
 
 % a3_landascape environment
 \newenvironment{a3_landscape}
-    {\newpage
+    {\clearpage
     \pdfpagewidth=2\pdfpagewidth
     \hsize=2\hsize
     \textwidth=2\textwidth
@@ -41,6 +40,8 @@
 \maketitle
 
 \tableofcontents
+
+\parskip 5pt
 
 \section{Présentation du projet}
 
@@ -61,7 +62,7 @@ Concernant la construction de la preuve, un certain nombre de règles doivent ê
 
 \subsection{Le projet}
 
-Le but est de réaliser une implémentation en Python de ce jeu. Pour cela, plusieurs points sont à traiter, plus ou moins par ordre de difficulté croissante~:
+Le but initial était de réaliser une implémentation en Python de ce jeu. Pour cela, plusieurs points semblaient à traiter, plus ou moins par ordre de difficulté croissante~:
 \nopagebreak
 \begin{itemize}
 \item analyser une ligne de la preuve pour vérifier qu'elle est syntaxiquement correcte~;
@@ -70,6 +71,8 @@ Le but est de réaliser une implémentation en Python de ce jeu. Pour cela, plus
 \item réaliser une interface graphique avec tkinter~;
 \item implémenter une fonction pour pouvoir jouer contre l'ordinateur.
 \end{itemize}
+
+Finalement, tous les points précédents ont pu être traités.
 
 %Si on finit tout ça et qu'on a peur de s'ennuyer, on pourra toujours creuser pour améliorer la façon dont l'ordinateur joue. Au pire, on demandera à Frédéric Muller de nous prêter ses TetrisBot pour qu'ils apprennent à jouer à Ergo ;-)
 
@@ -161,6 +164,8 @@ Avant de renvoyer le coup choisi, les joker éventuellement à jouer sont rempla
 
 \subsection{L'interface graphique}
 
+\subsubsection{Généralités}
+
 Toute la partie graphique est déléguée à la classe \texttt{ErgoCanvas} qui hérite de la classe \texttt{Canvas} de tkinter. 
 
 La gestion du jeu se fait à la souris. On peut attraper (bouton gauche), déplacer (bouton gauche maintenu) et déposer (bouton gauche relâché) la carte à l'aide des méthodes \texttt{select}, \texttt{move} et \texttt{drop}.
@@ -173,18 +178,61 @@ Il a fallu créer les images des cartes, en choisissant une dimension pratique p
 
 Nous avions initialement choisi de créer nos images au format gif, mais à l'usage le format png s'est révélé plus facile à manipuler. L'image carteBack permet d'afficher les mains des autres joueurs face cachée.
 
-Avec les nouvelles fonctionnalités qui permettent de choisir soit le mode multijoueur ou de jouer contre l'ordinateur une nouvelle classe \texttt{ErgoIntro} a été créée. 
+Avec les nouvelles fonctionnalités qui permettent de choisir soit le mode multijoueur ou de jouer contre l'ordinateur une nouvelle classe \texttt{ErgoIntro} a été créée (voir figure \ref{ergoIntro}).
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.35]{../images/ima1.png}
+\end{center}
+\caption{Fenêtre d'introduction}
+\label{ergoIntro}
+\end{figure} 
 
 Elle permet de créer une fenêtre d’accueil avec une animation au démarrage. La méthode animate\_letter permet de simuler une distribution des cartes suivant la forme des lettres du nom du jeu ERGO.
 
 Quatre boutons permettent d'accéder au jeu dans le mode choisi, et une case à cocher permet de choisir le \og cheat mode \fg. Ce dernier ajoute un bouton \texttt{cheat} à l'interface de jeu qui permet de savoir quels sont les joueurs actuellement démontrés.
 
+Le résultat est visible Figure \ref{GI}.
+
+\subsubsection{outils}
+
+Comme les cartes doivent être placées sur une \og grille \fg{},  deux méthodes \texttt{row\_col2x\_y} et \texttt{x\_y2row\_col} ont été créées pour permettre de passer des coordonnées écran aux coordonnées dans la grille et réciproquement.
+
+Les méthodes \texttt{init\_bind} et \texttt{reset\_bind} permettent de désactiver ou modifier les événements souris à certaines étapes du jeu (pendant l'ouverture de messages ou la sélection des cartes à échanger par \texttt{Revolution}). Dans le cas d'une carte \texttt{Revolution}, la méthode \texttt{select\_revolution} permet de choisir les deux cartes à échanger.
+
+\subsubsection{La méthode drop}
+
+Elle permet de placer la carte sélectionnée par \texttt{select} au bon endroit. Dans le cas d'une carte \og simple \fg, elle doit gérer les cas où on lâche la carte :
+
+\begin{itemize}
+\item ldans les prémisses. La carte est alors insérée à la positon choisie dans la preuve;
+\item dans la pile. La carte est alors ajoutée à l'attribut \texttt{pile} qui permet éventuellement de la récupérer;
+\item dans la zone des mains. La carte est alors remise dans la main du joueur.
+\end{itemize}
+
+
+Différents cas particuliers sont à gérer pour les cartes spéciales :
+\begin{itemize}
+\item les cartes \texttt{fallacy} et \texttt{Justification} jouées dans la zone des mains. L'attribut \texttt{fallacy} de la classe \texttt{Main} est mis à jour en fonction ;
+\item la carte \texttt{Tabula Rasa}. Un message informe de l'effacement qui peut être annulé en appuyant sur la touche Echap;
+\item la carte \texttt{revolution}. Un message invite à sélectionner les cartes à échanger;
+\item les cartes joker. Une liste à puce permet de sélectionner la carte voulue;
+\item la carte \texttt{Ergo}. Si toutes les lettres ont été jouées, met fin à la manche en appelant la méthode \texttt{fin\_manche} de la classe \texttt{Main}.
+\end{itemize}
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=.35]{../images/ima2.png}
+\end{center}
+\caption{Rendu final}
+\label{GI}
+\end{figure}
 
 \subsection{La classe Main}
 
 La classe \texttt{Main} gère le jeu en lui même. C'est elle qui gère l'initialisation du jeu, le passage d'un tour au suivant et la fin de partie. Elle utilise la classe \texttt{ErgoCanvas} pour la gestion du canvas, la classe \texttt{Deck} pour le jeu de carte, les classes \texttt{Proof} et \texttt{Demonstration} (implémentée par \texttt{ForceBrute} ou \texttt{DPLL}) pour la gestion de la preuve et la classe \texttt{Ordi} (implémentée par \texttt{OrdiRandom} ou \texttt{OrdiScore}) pour le jeu de l'ordinateur. 
 
-Les règles du jeu sont dans un fichier html affiché dans le navigateur par défaut grâce au module \texttt{webbrowser}.
+Les règles du jeu sont dans un fichier html associé à un fichier css . Elles sont affichées dans le navigateur par défaut grâce au module \texttt{webbrowser}. On y trouve les détails d'utilisation des cartes spéciales, les règles de logique et quelques captures d'écran.
 
 
 \section{Algorithmes utilisés}
@@ -264,6 +312,7 @@ Même si l'algorithme précédent marche bien dans le contexte qui nous intéres
 \item développement ($A \vee (B \wedge C) \equiv (A \vee B) \wedge (A \vee C)$).
 \end{itemize}
 
+
 \begin{algorithm}[h]
 \caption{Algorithme de Davis-Putnam-Logemann-Loveland (DPLL)}
 \label{algoDPLL}
@@ -292,16 +341,15 @@ Même si l'algorithme précédent marche bien dans le contexte qui nous intéres
 
 \end{algorithm}
 
-
 \section{Évolutions possibles}
 
 Les calculs du score dans la classe \texttt{OrdiScore} dépend de plusieurs paramètres. Je pense que le choix de ces paramètres pourrait se prêter assez bien à un algorithme génétique en faisant jouer l'ordinateur contre lui même et en faisant des croisements entre les coups gagnants.
 
 On pourrait aussi tester d'autres méthodes pour le jeu de l'ordinateur. J'avais éventuellement pensé à un minimax en testant toutes les cartes qui n'ont pas encore été jouées, mais je pense que ça va faire trop de calculs.
 
-\clearpage
 
 \appendix
+
 \begin{a3_landscape}
 \section{Diagramme des classes}
 \vspace*{-1cm}
