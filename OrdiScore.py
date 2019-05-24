@@ -23,7 +23,7 @@ class OrdiScore(Ordi):
     coef_proof_self = 10.
     coef_proof_other = -5.
     coef_ergo = 2.
-    score_justification = 1
+    score_justification = 1.
 
     def sort_hand(self):
         """Tri la main par ordre décroissant de valeur. Si la main comporte
@@ -167,8 +167,6 @@ class OrdiScore(Ordi):
         """
         self.sort_hand()
         lst_coups = self.coups_possibles()
-        print("hand :", self._hand)
-        print("possible :",lst_coups)
         lst_coups = self.extend_coups(lst_coups)
 #        print("extension :", lst_coups)
         score_max = -float('inf')

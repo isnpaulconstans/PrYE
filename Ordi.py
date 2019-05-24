@@ -28,10 +28,10 @@ class Ordi:
         self._num_player = num_player
         self._scores = scores
         self._fallacys = fallacys
-        self.__parenthèses()  # modifie hand
+        self.__parentheses()  # modifie hand
 #        self._coups = self.coups_possibles()
 
-    def __parenthèses(self):
+    def __parentheses(self):
         """Modifie la main pour avoir si possible au moins une parenthèse
         ouvrante et une fermante."""
         i_parenthesis = []  # indices des parenthèses
