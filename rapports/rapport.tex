@@ -1,25 +1,26 @@
 \documentclass[12pt, algo]{cours}
 
-\usepackage{pgf-umlcd}
+\usepackage{pgf-umlcd}  % pour le diagramme des classes
 
 \title{\textbf{\textsc{Ergo -- rapport}}}
 
 \author{Delay Emmanuel-- Desforêts Nicolas}
+\date{\today}
 
 \parindent 0.5cm
 
-\makeatletter
-\renewcommand{\maketitle}{%
-  \thispagestyle{plain}
-  \begin{center}%
-  \let \footnote \thanks
-    {\LARGE \@title \par}%
-    \vskip 1.5em%
-    {\large \@author}%
-  \end{center}%
-  \par
-  \vskip 1.5em}
-\makeatother
+%\makeatletter
+%\renewcommand{\maketitle}{%
+%  \thispagestyle{plain}
+%  \begin{center}%
+%  \let \footnote \thanks
+%    {\LARGE \@title \par}%
+%    \vskip 1.5em%
+%    {\large \@author}%
+%  \end{center}%
+%  \par
+%  \vskip 1.5em}
+%\makeatother
 
 % a3_landascape environment
 \newenvironment{a3_landscape}
@@ -42,6 +43,8 @@
 \tableofcontents
 
 \parskip 5pt
+
+\pagebreak
 
 \section{Présentation du projet}
 
@@ -144,7 +147,7 @@ Enfin, on détermine l'ensemble des coups possibles en essayant de jouer chacune
 
 Ces calculs sont réalisés dans la méthode \texttt{coups\_possibles}. Cette méthode est une horreur du point de vue Deep Nesting, mais j'ai eu beau tourner le problème de différentes façons, je n'ai pas réussi à faire plus propre. \footnote{J'espère que Régis Barbanchon, qui nous a fait le cours de PCOO l'an dernier, ne verra pas ça ;-)}
 
-Enfin, la méthode \texttt{joue} joue effectivement les cartes choisies par \texttt{choix\_coups} dans les prémisses, et elle renvoie un message à afficher concernant ce jeu. Le gestion des cartes particulières (\texttt{Fallacy}, \texttt{Justification} et \texttt{Ergo}) qui ne concernent pas directement les prémisses est déléguée à la classe appelante.
+Enfin, la méthode \texttt{joue} joue effectivement les cartes choisies par \texttt{choix\_coups} dans les prémisses, et elle renvoie un message à afficher concernant ce jeu. La liste des cartes particulières (\texttt{Fallacy}, \texttt{Justification} et \texttt{Ergo}) jouées qui ne concernent pas directement les prémisses est renvoyée afin que la classe \texttt{Main} puisse les gérer.
 
 \subsubsection{OrdiRandom}
 
@@ -158,9 +161,9 @@ Pour cela, je commence par affecter une valeur à chaque carte, puis je trie la 
 
 Pour le jeu d'une carte \texttt{Fallacy}, la méthode \texttt{choice\_fallacy} se charge de désigner la \og victime \fg. Pour cela, on privilégie les joueurs ayant le plus gros score, et n'étant pas (ou peu) sous le coup d'une falsification.
 
-Ensuite, tous les coups possibles sont joués dans la preuve, avec à chaque fois une évaluation du score obtenu en utilisant un certain nombre de coefficients (pour l'instant choisis au \og doigt mouillé \fg. Le coup est ensuite annulé pour restaurer la preuve dans son état initial. Le coup ayant obtenu le meilleur score est choisi. En cas d'ex \ae quo, un coup au hasard est choisi parmi les meilleurs.
+Ensuite, tous les coups possibles sont joués dans la preuve, avec à chaque fois une évaluation du score obtenu en utilisant un certain nombre de coefficients (pour l'instant choisis au \og doigt mouillé \fg). Le coup est ensuite annulé pour restaurer la preuve dans son état initial. Le coup ayant obtenu le meilleur score est choisi. En cas d'ex \ae quo, un coup au hasard est choisi parmi les meilleurs.
 
-Avant de renvoyer le coup choisi, les joker éventuellement à jouer sont remplacés par la valeur choisie.
+Avant de renvoyer le coup choisi, les joker éventuellement à jouer sont remplacés dans le main par la valeur choisie.
 
 \subsection{L'interface graphique}
 
