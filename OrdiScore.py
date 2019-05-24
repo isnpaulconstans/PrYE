@@ -23,6 +23,7 @@ class OrdiScore(Ordi):
     coef_proof_self = 10.
     coef_proof_other = -5.
     coef_ergo = 2.
+    score_justification = 1
 
     def sort_hand(self):
         """Tri la main par ordre décroissant de valeur. Si la main comporte
@@ -38,13 +39,18 @@ class OrdiScore(Ordi):
             ergo = self._hand.pop(i_ergo)
             self._hand.append(ergo)
 
-    def choice_fallacy(self):
-        """:return: le numéro du joueur sur lequel jouer fallacy et le score
-                    correspondant.
+    def choice_fallacy(self, num_other):
+        """:para num_other: Le numéro du joueur sur lequel on a déjà joué une
+                            carte fallacy, ou None s'il n'y en a pas
+        :type num_other: int ou NoneType
+        :return: le numéro du joueur sur lequel jouer fallacy et le score
+                 correspondant.
         :rtype: tuple
         """
         others = list(range(4))
         others.remove(self._num_player)
+        if num_other is not None:
+            others.remove(num_other)
         point_max = -float('inf')
         for i_other in others:
             if self._fallacys[i_other] == 3:
@@ -132,9 +138,9 @@ class OrdiScore(Ordi):
         demo = Demo(self._proof)
         provens = demo.conclusion()
         if provens is None:
-            return 0
+            return 0.
         score_proof = self._proof.score()
-        score = 0
+        score = 0.
         for index, proven in enumerate(provens):
             coef = self.coef_proof_self if index == self._num_player\
                                         else self.coef_proof_other
@@ -160,16 +166,16 @@ class OrdiScore(Ordi):
         :rtype: tuple
         """
         self.sort_hand()
-#        print(self._hand)
         lst_coups = self.coups_possibles()
-#        print("possible :",lst_coups)
+        print("hand :", self._hand)
+        print("possible :",lst_coups)
         lst_coups = self.extend_coups(lst_coups)
 #        print("extension :", lst_coups)
         score_max = -float('inf')
         for coup in lst_coups:
 #            print('coup : ', coup)
 #            print('prémisses avant: ', self._proof.premises)
-            score = 0
+            score = 0.
             poped_cards = []  # cartes effacées avec tabula_rasa
             ergo = False  # indique si ergo a été joué
             for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
@@ -184,11 +190,14 @@ class OrdiScore(Ordi):
                     continue
                 card = self._hand[i_hand]
                 if card.is_justification():
-                    score -= 1
+                    score += self.score_justification
                     continue
                 score -= self.card_value[card]
                 if card.is_fallacy():
-                    num_premise, point = self.choice_fallacy()
+                    other_card = self._hand[coup[1-i_coup][0]]
+                    num_other = coup[1-i_coup][1] if other_card.is_fallacy()\
+                                                  else None
+                    num_premise, point = self.choice_fallacy(num_other)
                     coup[i_coup] = (i_hand, num_premise, index_premise)
                     score += point
                     continue
