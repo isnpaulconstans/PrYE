@@ -226,7 +226,7 @@ class Ordi:
             special1 = False  # indique si carte1 est jouée hors prémisses
             if fallacied:
                 if not card1.is_justification():
-                    break
+                    continue
                 np1, i1 = None, None
                 coups.append([(i_hand1, np1, i1), (-1, -1, -1)])
                 special1 = True
