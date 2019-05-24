@@ -13,15 +13,15 @@ class OrdiScore(Ordi):
     """Concrétisation de choix_coups avec un score pour chaque coup."""
     card_value = {"A": 1, "B": 1, "C": 1, "D": 1,
                   "AND": 1, "OR": 1, "THEN": 1,
-                  "NOT": 1, "(": 1, ")": 1,
+                  "NOT": 1, "(": 2, ")": 2,
                   "Fallacy": 2, "Justification": 4,
                   "TabulaRasa": 4, "Revolution": 4,
                   "WildVar": 5, "WildOp": 5,
                   "Ergo": 5,
                  }
     coef_fallacy = 0.1
-    coef_proof_self = 7.
-    coef_proof_other = -2.
+    coef_proof_self = 10.
+    coef_proof_other = -5.
     coef_ergo = 2.
 
     def sort_hand(self):
@@ -86,6 +86,7 @@ class OrdiScore(Ordi):
             card = self._hand[i_hand]
             return card.is_revolution() or card.is_wild()
 
+        # tri des coups à étendre ou pas
         new_lst_coups = []
         to_extend_lst = []
         for coup in lst_coups:
@@ -98,6 +99,7 @@ class OrdiScore(Ordi):
                 to_extend_lst.append(coup[:])
             else:
                 new_lst_coups.append(coup[:])
+        # extension des coups le nécessitant
         for i_coup in range(2):
             lst_coups = to_extend_lst
             to_extend_lst = []
@@ -168,15 +170,16 @@ class OrdiScore(Ordi):
 #            print('coup : ', coup)
 #            print('prémisses avant: ', self._proof.premises)
             score = 0
-            i_drop = len(self._hand)-1  # indice de la prochaine carte à jeter
             poped_cards = []  # cartes effacées avec tabula_rasa
             ergo = False  # indique si ergo a été joué
             for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
                 # cartes hors prémisses
                 if i_hand == -1:
+                    i_drop = len(self._hand)-1  # prochaine carte à jeter
+                    if coup[1-i_coup][0] == i_drop:  # si la carte à jeter est
+                        i_drop -= 1                   # l'autre carte jouée
                     coup[i_coup] = (i_drop, num_premise, index_premise)
                     card = self._hand[i_drop]
-                    i_drop -= 1
                     score -= self.card_value[card]
                     continue
                 card = self._hand[i_hand]
