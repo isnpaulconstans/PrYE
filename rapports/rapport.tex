@@ -1,6 +1,5 @@
 \documentclass[12pt, a4paper]{article}
 
-
 \usepackage[algo]{raccourcis}
 
 \usepackage[hmargin=2cm, vmargin=1cm, includeheadfoot,headsep=1cm,footskip=1cm]{geometry}
@@ -19,10 +18,7 @@
 \cfoot{\thepage / \pageref*{LastPage}}
 \rfoot{\theauthor}
 
-
-
 \usepackage{pgf-umlcd}  % pour le diagramme des classes
-
 
 \makeatletter
 \renewcommand{\maketitle}{%
@@ -226,7 +222,7 @@ Les méthodes \texttt{init\_bind} et \texttt{reset\_bind} permettent de désacti
 Elle permet de placer la carte sélectionnée par \texttt{select} au bon endroit. Dans le cas d'une carte \og simple \fg, elle doit gérer les cas où on lâche la carte :
 
 \begin{itemize}
-\item ldans les prémisses. La carte est alors insérée à la positon choisie dans la preuve;
+\item dans les prémisses. La carte est alors insérée à la positon choisie dans la preuve;
 \item dans la pile. La carte est alors ajoutée à l'attribut \texttt{pile} qui permet éventuellement de la récupérer;
 \item dans la zone des mains. La carte est alors remise dans la main du joueur.
 \end{itemize}
