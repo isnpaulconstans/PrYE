@@ -25,6 +25,7 @@ class Main(tk.Tk):
         tk.Tk.__init__(self)
         self.title("Ergo")
         self.resizable(width=False, height=False)
+        self.iconbitmap("@images/carteBack.icon")
         self.__init_menu__()
         self.nb_player = 4
         self.scores = [0] * 4
