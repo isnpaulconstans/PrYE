@@ -128,8 +128,7 @@ class Ordi:
         raise NotImplementedError
 
     def joue(self, player_names):
-        """Joue un coup au hasard parmi les coups possibles. Si aucun n'est
-        possible, jette deux cartes au hasard.
+        """Joue le coup déterminé par choix_coups.
 
         :return: Un message décrivant le coup joué et la liste des cartes
                  spéciales (Fallacy, Justification, Ergo) jouées à traiter

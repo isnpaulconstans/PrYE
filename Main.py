@@ -6,6 +6,7 @@ import tkinter as tk
 import webbrowser
 from tkinter import messagebox
 from ErgoIntro import ErgoIntro
+from Card import Card
 from Deck import Deck
 from ErgoCanvas import ErgoCanvas
 from Proof import Proof
@@ -146,22 +147,27 @@ class Main(tk.Tk):
         ordi = Ordi(self.proof, self.hands[self.num_player],
                     self.num_player, self.scores, self.fallacy)
         msg, special_cards = ordi.joue(self.player_names)
-        messagebox.showinfo(self.player_names[self.num_player], msg)
-        for num_premise in range(4):
-            self.can.display_cards("premise",
-                                   self.proof.premises[num_premise],
-                                   num_premise)
-#        self.can.display_current_player(self.num_player)
+        ergo_played = False
         for special in special_cards:
             if special == "Ergo":
-                self.fin_manche()
-                return
-            if special == "Justification":
+                ergo_played = True
+            elif special == "Justification":
                 self.fallacy[self.num_player] = 0
             else:  # special == ("Fallacy", num_player)
                 num_other = special[1]
                 self.fallacy[num_other] = 3
-        self.next_player()
+        for num_premise in range(4):
+            cards = self.proof.premises[num_premise]
+            if ergo_played and num_premise == 3:
+                cards = cards + [Card("Ergo")]
+            self.can.display_cards("premise", cards, num_premise)
+        self.can.display_current_player(self.num_player)
+        self.can.display_cards("hand", self.hands[self.num_player])
+        messagebox.showinfo(self.player_names[self.num_player], msg)
+        if ergo_played:
+            self.fin_manche()
+        else:
+            self.next_player()
 
     def fin_manche(self):
         """Fin de la manche, affichage des gagnants et du score."""
