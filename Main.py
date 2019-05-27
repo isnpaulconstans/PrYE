@@ -3,8 +3,9 @@
 """Programme principal."""
 
 import tkinter as tk
-import webbrowser
 from tkinter import messagebox
+import webbrowser
+from sys import platform
 from ErgoIntro import ErgoIntro
 from Card import Card
 from Deck import Deck
@@ -26,7 +27,10 @@ class Main(tk.Tk):
         tk.Tk.__init__(self)
         self.title("Ergo")
         self.resizable(width=False, height=False)
-        self.iconbitmap("@images/carteBack.icon")
+        if platform == "linux":
+            self.iconbitmap("@images/carteBack.icon")
+        else:
+            self.iconbitmap(default="images/carteBack.ico")
         self.__init_menu__()
         self.nb_player = 4
         self.scores = [0] * 4
