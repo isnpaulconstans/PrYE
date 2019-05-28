@@ -51,7 +51,13 @@ class ErgoIntro(tk.Toplevel):
         self.id_img = self.can.create_image(425, 465, image=self.img)
 
     def rectangle(self, x, y):
-        """ création d'un rectangle trace du passage de la carte """
+        """ création d'un rectangle trace du passage de la carte.
+
+        :param x: abscisse du coin supérieur gauche
+        :type x: int
+        :param y: ordonnée du coin inférieur droit
+        :type y: int
+        """
         self.can.create_rectangle(x, y, x+Cst.CARD_WIDTH, y+Cst.CARD_HEIGHT,
                                   fill="ivory")
 
@@ -86,13 +92,14 @@ class ErgoIntro(tk.Toplevel):
             pluriel = "s" if nb_player >= 2 else ""
             tk.Button(self, text="{} joueur{}".format(nb_player, pluriel),
                       bd=7, font="Arial 16",
-                      command=lambda x=nb_player: self.choice(x)
+                      command=lambda x=nb_player: self.destroy(x)
                       ).grid(column=nb_player-1, row=1)
 
-    def choice(self, nb_player):
-        """Lance la fenetre de jeu """
-        self.destroy(nb_player)
-
     def destroy(self, nb_player=1):
+        """Ferme la fenêtre d'introduction et lance le jeu.
+
+        :param nb_player: le nombre de joueurs humains
+        :type nb_player: int
+        """
         self.master.start(nb_player, self.cheat.get())
         super().destroy()

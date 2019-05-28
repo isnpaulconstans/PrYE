@@ -104,10 +104,6 @@ class Main(tk.Tk):
             messagebox.showwarning("Ergo",
                                    "Il faut jouer 2 cartes pour valider.")
             return
-#        if len(self.hands[self.num_player]) != 5:
-#            messagebox.showwarning("Ergo",
-#                                   "Il faut garder 5 cartes pour valider.")
-#            return
         if not self.proof.is_all_correct():
             messagebox.showwarning("Ergo", "Jeu invalide")
             return
@@ -199,15 +195,18 @@ class Main(tk.Tk):
             self.init_round()
 
     def fin_partie(self, score_max):
-        """Fin de la partie, affichage des gagnants."""
+        """Affiche le nom des gagnants et ferme la fenêtre.
+
+        :param score_max: le score du ou des gagnant(s)
+        :type score_max: int
+        """
         winers = ""
         for index, score in enumerate(self.scores):
             if score == score_max:
                 winers += self.player_names[index] + " "
         msg = winers + "\nBravo, vous avez gagné !"
         messagebox.showinfo("Fin de la partie", msg)
-        self.quit()
-        self.destroy()
+        self.quitter()
 
     def version(self):
         """Affiche la version du jeu"""

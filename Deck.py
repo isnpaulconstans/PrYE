@@ -23,6 +23,9 @@ class Deck(list):
     def draw(self, number):
         """Tire number cartes
 
+        :param number: le nombre de cartes à tirer
+        :type number: int
+
         :return: number cartes du paquet s'il en reste assez, la fin du
                  paquet ou une liste vide sinon.
         :rtype: list

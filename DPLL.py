@@ -24,9 +24,6 @@ class DPLL(Demonstration):
     @property
     def clause_list(self):
         """getter pour clause_list."""
-#        if self._proof.modif:
-#            self.__clause_list = self.__fcn.clause_list
-#        return self.__clause_list
         return self.__fcn.clause_list
 
     @staticmethod

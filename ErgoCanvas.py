@@ -435,7 +435,7 @@ class ErgoCanvas(tk.Canvas):
         fen = tk.Toplevel()
         fen.title("Wild Card")
         fen.grab_set()
-        tk.Label(fen, text="Choisissez le symbole :", #font="Arial 14",
+        tk.Label(fen, text="Choisissez le symbole :",
                  ).grid(row=0, column=0, columnspan=len(options), pady=10)
         var = tk.IntVar()
         for index, option in enumerate(options):

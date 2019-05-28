@@ -76,11 +76,15 @@ class Ordi:
                  avec la carte d'indice i1 de la prémisse np1.
         :rtype: tuple
         """
-        def index_flat2premise_index(index):
-            """:return: le couple (num_premise, index) correspondant à
+        def index_flat2premise_index(index_flat):
+            """
+            :param index_flat: indice dans la version applatie de la preuve
+            :type index_flat: int
+            :return: le couple (num_premise, index) correspondant à
                         index_flat.
             :rtype: tuple"""
             num_premise = 0
+            index = index_flat
             len_premise = len(self._proof.premises[0])
             while index >= len_premise:
                 index -= len_premise
@@ -309,10 +313,6 @@ class Ordi:
                         premise1.pop(index1)
                     if special1:
                         break
-#                    print("coups", coups)
-#                    print("premise1", premise1)
-#                    print("premise2", premise2)
                 if special1:
                     break
-#        print(coups)
         return coups

@@ -168,11 +168,8 @@ class OrdiScore(Ordi):
         self.sort_hand()
         lst_coups = self.coups_possibles()
         lst_coups = self.extend_coups(lst_coups)
-#        print("extension :", lst_coups)
         score_max = -float('inf')
         for coup in lst_coups:
-#            print('coup : ', coup)
-#            print('prémisses avant: ', self._proof.premises)
             score = 0.
             poped_cards = []  # cartes effacées avec tabula_rasa
             ergo = False  # indique si ergo a été joué
@@ -219,42 +216,36 @@ class OrdiScore(Ordi):
                 if card.is_wild():
                     index_premise, name = index_premise
                     card.name = name
-#                print("insertion", card)
                 self._proof.insert(num_premise, index_premise, card)
-#            print('prémisses pendant: ', self._proof.premises)
             # calcul du score obtenu
             coef = self.coef_ergo if ergo else 1
             score += coef * self.calc_score()
             if score > score_max or (score == score_max and random() > 0.5):
                 # XXX testes du score
-                [(i_hand1, num_premise1, index_premise1),
-                 (i_hand2, num_premise2, index_premise2)] = coup
-                card1 = self._hand[i_hand1]
-                card2 = self._hand[i_hand2]
-                print("Score : {}".format(score), end=' : ')
-                print("{} ligne {} col {}".format(card1,
-                                                  num_premise1,
-                                                  index_premise1), end=' ')
-                print("{} ligne {} col {}".format(card2,
-                                                  num_premise2,
-                                                  index_premise2))
+#                [(i_hand1, num_premise1, index_premise1),
+#                 (i_hand2, num_premise2, index_premise2)] = coup
+#                card1 = self._hand[i_hand1]
+#                card2 = self._hand[i_hand2]
+#                print("Score : {}".format(score), end=' : ')
+#                print("{} ligne {} col {}".format(card1,
+#                                                  num_premise1,
+#                                                  index_premise1), end=' ')
+#                print("{} ligne {} col {}".format(card2,
+#                                                  num_premise2,
+#                                                  index_premise2))
                 score_max = score
                 coup_max = coup
             #restauration de self._proof
             coup = reversed(coup)
             for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
-#                print('restauration', (i_hand, num_premise, index_premise))
                 if num_premise == -1:
                     continue
                 card = self._hand[i_hand]
-#                print(card)
                 if card.is_justification() or card.is_fallacy() or card.is_ergo():
-#                    print('cas 1')
                     continue
                 if card.is_tabula_rasa():
                     card = poped_cards.pop()
                     self._proof.insert(None, None, card, new=False)
-#                    print('cas 2')
                     continue
                 if card.is_revolution():
                     row1, row2 = num_premise
@@ -263,13 +254,11 @@ class OrdiScore(Ordi):
                     card2 = self._proof.premises[row2][col2]
                     self._proof.change(row1, col1, card2)
                     self._proof.change(row2, col2, card1)
-#                    print('cas 3')
                     continue
                 if card.wild:
                     card.name = "WildVar" if card.is_letter() else "WildOp"
                     index_premise = index_premise[0]
                 self._proof.pop(num_premise, index_premise)
-#            print('prémisses après: ', self._proof.premises)
         coup = coup_max
         # gestion des wild cards
         for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
