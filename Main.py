@@ -75,7 +75,7 @@ class Main(tk.Tk):
         for num_player in range(nb_player, 4):
             self.player_names[num_player] = "Ordi "+chr(ord('A')+num_player)
         if cheat:
-            tk.Button(text="cheat", command=self.cheat).grid(row=6, column=0)
+            tk.Button(text="cheat", command=self.cheat).grid(row=7, column=0)
         self.init_round()
 
     def init_round(self):

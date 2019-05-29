@@ -142,9 +142,9 @@ class Ordi:
         :type player_names: list
         """
         coup = self.choix_coups()
-        play = "Joue {} sur la ligne {} en position {}\n"
+        play = "Joue {} sur la prémisse {} en position {}\n"
         drop = "Jette le {}\n"
-        tabula = "Efface le {} de la ligne {} en position {}\n"
+        tabula = "Efface le {} de la prémisse {} en position {}\n"
         msg = ""
         special_cards = []
         for (i_hand, num_premise, index_premise) in coup:
@@ -171,19 +171,20 @@ class Ordi:
                 col1, col2 = index_premise
                 card1 = self._proof.premises[row1][col1]
                 card2 = self._proof.premises[row2][col2]
-                msg_carte = "{} de la ligne {} colonne {}"
-                msg += "Échange " + msg_carte.format(card1, row1, col1)\
-                       + " avec " + msg_carte.format(card2, row2, col2) + "\n"
+                msg_carte = "{} de la prémisse {} colonne {}"
+                msg += "Échange " + msg_carte.format(card1, row1+1, col1+1)\
+                       + " avec " + msg_carte.format(card2, row2+1, col2+1)\
+                       + "\n"
                 self._proof.change(row1, col1, card2)
                 self._proof.change(row2, col2, card1)
                 continue
             if card.is_tabula_rasa():
                 old_card = self._proof.pop(num_premise, index_premise,
                                            recent=False)
-                msg += tabula.format(old_card, num_premise, index_premise)
+                msg += tabula.format(old_card, num_premise+1, index_premise+1)
                 continue
             self._proof.insert(num_premise, index_premise, card)
-            msg += play.format(card, num_premise, index_premise)
+            msg += play.format(card, num_premise+1, index_premise+1)
         return msg, special_cards
 
     def coups_possibles(self):
