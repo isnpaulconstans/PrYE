@@ -17,27 +17,27 @@ class OrdiScore(Ordi):
                   "Fallacy": 2, "Justification": 4,
                   "TabulaRasa": 4, "Revolution": 4,
                   "WildVar": 5, "WildOp": 5,
-                  "Ergo": 5,
+                  "QED": 5,
                  }
     coef_fallacy = 0.1
     coef_proof_self = 10.
     coef_proof_other = -5.
-    coef_ergo = 2.
+    coef_qed = 2.
     score_justification = 1.
 
     def sort_hand(self):
         """Tri la main par ordre décroissant de valeur. Si la main comporte
-        plusieurs cartes Ergo, en garde une au début et déplace les autre à la
+        plusieurs cartes QED, en garde une au début et déplace les autre à la
         fin (il n'y a aucun intéret à en garder plusieurs). Les cartes à jeter
         sont alors les dernières de la main.
         """
         self._hand.sort(key=lambda card: self.card_value[card.name],
                         reverse=True)
-        nb_ergo = self._hand.count("Ergo")
-        for _ in range(nb_ergo-1):
-            i_ergo = self._hand.index("Ergo")
-            ergo = self._hand.pop(i_ergo)
-            self._hand.append(ergo)
+        nb_qed = self._hand.count("QED")
+        for _ in range(nb_qed-1):
+            i_qed = self._hand.index("QED")
+            qed = self._hand.pop(i_qed)
+            self._hand.append(qed)
 
     def choice_fallacy(self, num_other):
         """:para num_other: Le numéro du joueur sur lequel on a déjà joué une
@@ -172,7 +172,7 @@ class OrdiScore(Ordi):
         for coup in lst_coups:
             score = 0.
             poped_cards = []  # cartes effacées avec tabula_rasa
-            ergo = False  # indique si ergo a été joué
+            qed = False  # indique si QED a été joué
             for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
                 # cartes hors prémisses
                 if i_hand == -1:
@@ -196,8 +196,8 @@ class OrdiScore(Ordi):
                     coup[i_coup] = (i_hand, num_premise, index_premise)
                     score += point
                     continue
-                if card.is_ergo():
-                    ergo = True
+                if card.is_qed():
+                    qed = True
                     break
                 # modification de _proof
                 if card.is_tabula_rasa():
@@ -218,7 +218,7 @@ class OrdiScore(Ordi):
                     card.name = name
                 self._proof.insert(num_premise, index_premise, card)
             # calcul du score obtenu
-            coef = self.coef_ergo if ergo else 1
+            coef = self.coef_qed if qed else 1
             score += coef * self.calc_score()
             if score > score_max or (score == score_max and random() > 0.5):
                 # XXX testes du score
@@ -241,7 +241,7 @@ class OrdiScore(Ordi):
                 if num_premise == -1:
                     continue
                 card = self._hand[i_hand]
-                if card.is_justification() or card.is_fallacy() or card.is_ergo():
+                if card.is_justification() or card.is_fallacy() or card.is_qed():
                     continue
                 if card.is_tabula_rasa():
                     card = poped_cards.pop()

@@ -8,7 +8,7 @@ from Constantes import Constantes as Cst
 from Card import Card
 
 
-class ErgoCanvas(tk.Canvas):
+class PryeCanvas(tk.Canvas):
     """Création du canvas de jeu avec les lignes des prémisses, les mains
     et noms des joueurs et la pile"""
     def __init__(self, *args, **kwargs):
@@ -379,9 +379,9 @@ class ErgoCanvas(tk.Canvas):
             self.unbind("<ButtonRelease-1>")
             self.delete("selected")
             return
-        if self.selected_card.is_ergo():
+        if self.selected_card.is_qed():
             if not self.master.proof.is_all_correct():
-                messagebox.showwarning("Ergo", "Jeu invalide")
+                messagebox.showwarning("PrYE", "Jeu invalide")
                 self.restore()
                 return
             if not self.master.proof.all_cards_played():

@@ -6,10 +6,10 @@ import tkinter as tk
 from tkinter import messagebox
 import webbrowser
 from sys import platform
-from ErgoIntro import ErgoIntro
+from PryeIntro import PryeIntro
 from Card import Card
 from Deck import Deck
-from ErgoCanvas import ErgoCanvas
+from PryeCanvas import PryeCanvas
 from Proof import Proof
 from DPLL import DPLL as Demo
 #from OrdiRandom import OrdiRandom as Ordi
@@ -25,7 +25,7 @@ class Main(tk.Tk):
         :rtype: Main
         """
         tk.Tk.__init__(self)
-        self.title("Ergo")
+        self.title("PrYE")
         self.resizable(width=False, height=False)
         if platform == "linux":
             self.iconbitmap("@images/carteBack.icon")
@@ -36,16 +36,16 @@ class Main(tk.Tk):
         self.scores = [0] * 4
         self.player_names = ["Joueur "+chr(ord('A')+i) for i in range(4)]
         self.num_player = 3  # sera incrémenté de 1 par init_round
-        self.can = ErgoCanvas(self)
+        self.can = PryeCanvas(self)
         self.can.grid(row=0, column=1, rowspan=7)
         for i in range(4):
             tk.Label(text="Prémisse "+str(i+1)).grid(row=i, column=2)
-        tk.Label(text="Ergo le jeu", font="Arial 16 italic").grid(row=0,
+        tk.Label(text="PrYE le jeu", font="Arial 16 italic").grid(row=0,
                                                                   column=0)
-        tk.Label(text="Prouve que tu existes ...",
+        tk.Label(text="Prove You Exist ...",
                  font="Arial 28 italic").grid(row=7, column=1)
         tk.Button(text="jouer", command=self.play).grid(row=5, column=0)
-        ErgoIntro()
+        PryeIntro()
 
     def __init_menu__(self):
         """creation de la barre de menu qui permet d'afficher l'aide,
@@ -101,11 +101,11 @@ class Main(tk.Tk):
     def play(self):
         """Valide un coup si possible."""
         if self.cards_played != 2:
-            messagebox.showwarning("Ergo",
+            messagebox.showwarning("PrYE",
                                    "Il faut jouer 2 cartes pour valider.")
             return
         if not self.proof.is_all_correct():
-            messagebox.showwarning("Ergo", "Jeu invalide")
+            messagebox.showwarning("PrYE", "Jeu invalide")
             return
         self.next_player()
 
@@ -147,10 +147,10 @@ class Main(tk.Tk):
         ordi = Ordi(self.proof, self.hands[self.num_player],
                     self.num_player, self.scores, self.fallacy)
         msg, special_cards = ordi.joue(self.player_names)
-        ergo_played = False
+        qed_played = False
         for special in special_cards:
-            if special == "Ergo":
-                ergo_played = True
+            if special == "QED":
+                qed_played = True
             elif special == "Justification":
                 self.fallacy[self.num_player] = 0
             else:  # special == ("Fallacy", num_player)
@@ -158,13 +158,13 @@ class Main(tk.Tk):
                 self.fallacy[num_other] = 3
         for num_premise in range(4):
             cards = self.proof.premises[num_premise]
-            if ergo_played and num_premise == 3:
-                cards = cards + [Card("Ergo")]
+            if qed_played and num_premise == 3:
+                cards = cards + [Card("QED")]
             self.can.display_cards("premise", cards, num_premise)
         self.can.display_current_player(self.num_player)
         self.can.display_cards("hand", self.hands[self.num_player])
         messagebox.showinfo(self.player_names[self.num_player], msg)
-        if ergo_played:
+        if qed_played:
             self.fin_manche()
         else:
             self.next_player()
@@ -210,11 +210,11 @@ class Main(tk.Tk):
 
     def version(self):
         """Affiche la version du jeu"""
-        messagebox.showinfo("Ergo", "Version finale 31/05/19")
+        messagebox.showinfo("PrYE", "Version finale 31/05/19")
 
     def rules(self):
         """Affiche les règles du jeu dans le navigateur wenb par défaut."""
-        webbrowser.open("regles_ergo.html")
+        webbrowser.open("regles_prye.html")
 
     def quitter(self):
         """Quitte"""

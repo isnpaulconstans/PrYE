@@ -6,7 +6,7 @@ import tkinter as tk
 from Constantes import Constantes as Cst
 
 
-class ErgoIntro(tk.Toplevel):
+class PryeIntro(tk.Toplevel):
     """Interface graphique fenetre acceuil avec animation
     et choix du mode de jeu"""
     # definition du chemin des lettres de l'animation
@@ -23,11 +23,11 @@ class ErgoIntro(tk.Toplevel):
     def __init__(self):
         """Constructeur de la classe
 
-        :return: Objet ErgoGuiIntro
-        :rtype: ErgoGuiIntro
+        :return: Objet PryeIntro
+        :rtype: PryeIntro
         """
         super().__init__()
-        self.title("Ergo acceuil")
+        self.title("PrYE acceuil")
         self.grab_set()
         self.transient(self.master)
         self.resizable(width=False, height=False)
@@ -68,7 +68,7 @@ class ErgoIntro(tk.Toplevel):
         :param nb_cards: nombre de cartes à afficher
         :type nb_cards: int
 
-        :param l_way: le chemin à suivre par la carte Ergo
+        :param l_way: le chemin à suivre par la carte PrYE
         :type l_way: list
         """
         if self.flag != 1:

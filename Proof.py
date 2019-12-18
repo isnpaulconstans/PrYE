@@ -153,7 +153,7 @@ class Proof():
 
     def all_cards_played(self):
         """Indique si chacune des 4 cartes A, B, C et D a été jouée, et donc
-        s'il est possible de jouer la carte Ergo.
+        s'il est possible de jouer la carte QED.
 
         :rtype: bool
         """

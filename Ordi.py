@@ -135,7 +135,7 @@ class Ordi:
         """Joue le coup déterminé par choix_coups.
 
         :return: Un message décrivant le coup joué et la liste des cartes
-                 spéciales (Fallacy, Justification, Ergo) jouées à traiter
+                 spéciales (Fallacy, Justification, QED) jouées à traiter
         :rtype: (str, list)
 
         :param player_names: Les noms des joueurs
@@ -162,9 +162,9 @@ class Ordi:
                 msg += "Joue une carte Justification\n"
                 special_cards.append("Justification")
                 continue
-            if card.is_ergo():
-                msg += "Joue une carte Ergo\n"
-                special_cards.append("Ergo")
+            if card.is_qed():
+                msg += "Joue une carte QED\n"
+                special_cards.append("QED")
                 break
             if card.is_revolution():
                 row1, row2 = num_premise
@@ -240,7 +240,7 @@ class Ordi:
                 np1, i1 = None, None
                 coups.append([(i_hand1, np1, i1), (-1, -1, -1)])
                 special1 = True
-            elif card1.is_ergo():
+            elif card1.is_qed():
                 if self._proof.all_cards_played():
                     coups.append([(i_hand1, None, None), (-1, -1, -1)])
                 continue
@@ -273,7 +273,7 @@ class Ordi:
                                 coups.append([(i_hand1, num_premise1, index1),
                                               (i_hand2, None, None)])
                             continue
-                        elif card2.is_ergo():
+                        elif card2.is_qed():
                             if self._proof.all_cards_played()\
                                            and premise1.npi is not None:
                                 coups.append([(i_hand1, num_premise1, index1),

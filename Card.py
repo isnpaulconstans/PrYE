@@ -132,12 +132,12 @@ class Card():
         """
         return self.__name == "NOT"
 
-    def is_ergo(self):
-        """Indique si la carte est "Ergo".
+    def is_qed(self):
+        """Indique si la carte est "QED".
 
          :rtype: bool
         """
-        return self.__name == "Ergo"
+        return self.__name == "QED"
 
     def is_fallacy(self):
         """Indique si la carte est "Fallacy".
@@ -189,12 +189,12 @@ class Card():
         return self.name == "WildOp"
 
     def is_special(self):
-        """Indique si la carte est spéciale (Ergo, Fallacy, Justification,
+        """Indique si la carte est spéciale (QED, Fallacy, Justification,
         TabulaRasa, Revolution, WildVar, WildOp).
 
         :rtype: bool
         """
-        return self.name in ["Ergo", "Fallacy", "Justification", "TabulaRasa",
+        return self.name in ["QED", "Fallacy", "Justification", "TabulaRasa",
                              "Revolution", "WildVar", "WildOp"]
 
     def turn_parenthesis(self):

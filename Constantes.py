@@ -15,7 +15,7 @@ class Constantes():
               "Fallacy": 3, "Justification": 3,
               "TabulaRasa": 1, "Revolution": 1,
               "WildVar": 1,  "WildOp": 1,
-              "Ergo": 3,
+              "QED": 3,
              }
     # fond
     LINE_WIDTH = 5
