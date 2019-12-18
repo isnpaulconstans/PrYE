@@ -1,0 +1,27 @@
+\documentclass[12pt]{cours}
+
+\title{}
+\author{}
+
+%\corrigetrue
+
+\begin{document}
+
+$(A \wedge B) \implies \neg C$ \quad donne \quad 
+\begin{tikzpicture}[baseline=-1.5cm]%,level distance=2cm,level 1/.style={sibling distance=2cm},level 2/.style={sibling distance=1cm}]
+\node at(0,0) {$\implies$} [grow=down]
+	child{node {$\wedge$} 
+		  child{node {A}}
+		  child{node {B}}
+		 }
+	child{node {$\neg$} 
+		  child{node {C}}
+		 }
+		      ;
+\end{tikzpicture}
+\quad qui devient en Polonaise Inversée \quad  A B $\wedge$ C $\neg$ $\implies$
+
+
+
+\end{document}
+
