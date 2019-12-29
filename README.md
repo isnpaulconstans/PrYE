@@ -1,4 +1,3 @@
-# Ergo
-Implémentation du jeu Ergo (disponible sur https://www.catalystgamelabs.com/ergo/) en Python
+# PrYE
+Prove You Exist. Un jeu de logique en Python
 
-Projet pour le DU CCIE
