@@ -14,16 +14,16 @@ class OrdiScore(Ordi):
     card_value = {"A": 1, "B": 1, "C": 1, "D": 1,
                   "AND": 1, "OR": 1, "THEN": 1,
                   "NOT": 1, "(": 2, ")": 2,
-                  "Fallacy": 2, "Justification": 4,
-                  "TabulaRasa": 4, "Revolution": 4,
-                  "WildVar": 5, "WildOp": 5,
+                  "Liar": 2, "Truth": 4,
+                  "Blank": 4, "Exchange": 4,
+                  "JokerVar": 5, "JokerOp": 5,
                   "QED": 5,
                  }
-    coef_fallacy = 0.1
+    coef_liar = 0.1
     coef_proof_self = 10.
     coef_proof_other = -5.
     coef_qed = 2.
-    score_justification = 1.
+    score_truth = 1.
 
     def sort_hand(self):
         """Tri la main par ordre décroissant de valeur. Si la main comporte
@@ -39,11 +39,11 @@ class OrdiScore(Ordi):
             qed = self._hand.pop(i_qed)
             self._hand.append(qed)
 
-    def choice_fallacy(self, num_other):
+    def choice_liar(self, num_other):
         """:para num_other: Le numéro du joueur sur lequel on a déjà joué une
-                            carte fallacy, ou None s'il n'y en a pas
+                            carte liar, ou None s'il n'y en a pas
         :type num_other: int ou NoneType
-        :return: le numéro du joueur sur lequel jouer fallacy et le score
+        :return: le numéro du joueur sur lequel jouer liar et le score
                  correspondant.
         :rtype: tuple
         """
@@ -53,22 +53,22 @@ class OrdiScore(Ordi):
             others.remove(num_other)
         point_max = -float('inf')
         for i_other in others:
-            if self._fallacys[i_other] == 3:
+            if self._liars[i_other] == 3:
                 point = 0
             else:
-                point = ((10+self._scores[i_other]) * (3-self._fallacys[i_other])
-                         * self.coef_fallacy)
+                point = ((10+self._scores[i_other]) * (3-self._liars[i_other])
+                         * self.coef_liar)
             if point > point_max or (point == point_max and random() > 0.5):
                 point_max = point
                 i_other_max = i_other
         return i_other_max, point_max
 
     def extend_coups(self, lst_coups):
-        """Ajoute tous les choix possibles des cartes Revolution et Wild à la
+        """Ajoute tous les choix possibles des cartes Exchange et joker à la
         liste des coups.
 
-        Pour les cartes Wild, index est transformé en un couple (index, name)
-        où name est le nom à affecter à la wild card.
+        Pour les cartes Joker, index est transformé en un couple (index, name)
+        où name est le nom à affecter à la joker card.
 
         :param lst_coups: la liste de coups initiale au format créé par
                           coups_possibles
@@ -90,7 +90,7 @@ class OrdiScore(Ordi):
             if i_hand == -1:
                 return False
             card = self._hand[i_hand]
-            return card.is_revolution() or card.is_wild()
+            return card.is_exchange() or card.is_joker()
 
         # tri des coups à étendre ou pas
         new_lst_coups = []
@@ -115,13 +115,13 @@ class OrdiScore(Ordi):
                     to_extend_lst.append(coup[:])
                     continue
                 card = self._hand[i_hand]
-                if card.is_revolution():
+                if card.is_exchange():
                     for num, index in zip(num_premise, index_premise):
                         new_coup = coup[:]
                         new_coup[i_coup] = (i_hand, num, index)
                         to_extend_lst.append(new_coup)
-                elif card.is_wild():
-                    name_lst = ("OR", "AND", "THEN") if card.is_wildop()\
+                elif card.is_joker():
+                    name_lst = ("OR", "AND", "THEN") if card.is_jokerop()\
                                                      else "ABCD"
                     for name in name_lst:
                         new_coup = coup[:]
@@ -152,14 +152,14 @@ class OrdiScore(Ordi):
     def choix_coups(self):
         """Choisi un coup parmi l'ensemble des coups possibles.
 
-        * Si la carte à jouer est Fallacy, num_premise indique le numéro
+        * Si la carte à jouer est Liar, num_premise indique le numéro
           du joueur sur lequelle elle doit être jouée.
 
         * Si la carte est Révolution, num_premise et index sont les
           couples de numéros de prémisses et d'indice des cartes à
           échanger.
 
-        * Dans le cas d'une carte Wild, self._hand est modifié.
+        * Dans le cas d'une carte joker, self._hand est modifié.
 
         :return: Un couple de triplets ((i_hand1, num_premise1, index1),
                  (i_hand2, num_premise2, index2))
@@ -171,7 +171,7 @@ class OrdiScore(Ordi):
         score_max = -float('inf')
         for coup in lst_coups:
             score = 0.
-            poped_cards = []  # cartes effacées avec tabula_rasa
+            poped_cards = []  # cartes effacées avec blank
             qed = False  # indique si QED a été joué
             for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
                 # cartes hors prémisses
@@ -184,15 +184,15 @@ class OrdiScore(Ordi):
                     score -= self.card_value[card]
                     continue
                 card = self._hand[i_hand]
-                if card.is_justification():
-                    score += self.score_justification
+                if card.is_truth():
+                    score += self.score_truth
                     continue
                 score -= self.card_value[card]
-                if card.is_fallacy():
+                if card.is_liar():
                     other_card = self._hand[coup[1-i_coup][0]]
-                    num_other = coup[1-i_coup][1] if other_card.is_fallacy()\
+                    num_other = coup[1-i_coup][1] if other_card.is_liar()\
                                                   else None
-                    num_premise, point = self.choice_fallacy(num_other)
+                    num_premise, point = self.choice_liar(num_other)
                     coup[i_coup] = (i_hand, num_premise, index_premise)
                     score += point
                     continue
@@ -200,12 +200,12 @@ class OrdiScore(Ordi):
                     qed = True
                     break
                 # modification de _proof
-                if card.is_tabula_rasa():
+                if card.is_blank():
                     poped_cards.append(self._proof.pop(num_premise,
                                                        index_premise,
                                                        recent=False))
                     continue
-                if card.is_revolution():
+                if card.is_exchange():
                     row1, row2 = num_premise
                     col1, col2 = index_premise
                     card1 = self._proof.premises[row1][col1]
@@ -213,7 +213,7 @@ class OrdiScore(Ordi):
                     self._proof.change(row1, col1, card2)
                     self._proof.change(row2, col2, card1)
                     continue
-                if card.is_wild():
+                if card.is_joker():
                     index_premise, name = index_premise
                     card.name = name
                 self._proof.insert(num_premise, index_premise, card)
@@ -241,13 +241,13 @@ class OrdiScore(Ordi):
                 if num_premise == -1:
                     continue
                 card = self._hand[i_hand]
-                if card.is_justification() or card.is_fallacy() or card.is_qed():
+                if card.is_truth() or card.is_liar() or card.is_qed():
                     continue
-                if card.is_tabula_rasa():
+                if card.is_blank():
                     card = poped_cards.pop()
                     self._proof.insert(None, None, card, new=False)
                     continue
-                if card.is_revolution():
+                if card.is_exchange():
                     row1, row2 = num_premise
                     col1, col2 = index_premise
                     card1 = self._proof.premises[row1][col1]
@@ -255,15 +255,15 @@ class OrdiScore(Ordi):
                     self._proof.change(row1, col1, card2)
                     self._proof.change(row2, col2, card1)
                     continue
-                if card.wild:
-                    card.name = "WildVar" if card.is_letter() else "WildOp"
+                if card.joker:
+                    card.name = "JokerVar" if card.is_letter() else "JokerOp"
                     index_premise = index_premise[0]
                 self._proof.pop(num_premise, index_premise)
         coup = coup_max
-        # gestion des wild cards
+        # gestion des joker cards
         for i_coup, (i_hand, num_premise, index_premise) in enumerate(coup):
             card = self._hand[i_hand]
-            if not card.is_wild():
+            if not card.is_joker():
                 continue
             index_premise, name = index_premise
             card.name = name

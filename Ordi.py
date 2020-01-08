@@ -9,7 +9,7 @@ from Card import Card
 
 class Ordi:
     """Classe gérant le jeu de l'odinateur"""
-    def __init__(self, proof, hand, num_player, scores, fallacys):
+    def __init__(self, proof, hand, num_player, scores, liars):
         """Constructeur de la classe.
 
         :param proof: Une preuve
@@ -18,8 +18,8 @@ class Ordi:
         :param hand: La main du joueur
         :type hand: list of Cards
 
-        :param fallacys: Les nombres de tours de "fallacy" pour chaque joueur
-        :type fallacys: list
+        :param liars: Les nombres de tours de "liar" pour chaque joueur
+        :type liars: list
 
         :return: objet Ordi
         :rtype: Ordi"""
@@ -27,7 +27,7 @@ class Ordi:
         self._hand = hand
         self._num_player = num_player
         self._scores = scores
-        self._fallacys = fallacys
+        self._liars = liars
         self.__parentheses()  # modifie hand
 #        self._coups = self.coups_possibles()
 
@@ -44,29 +44,29 @@ class Ordi:
         if self._hand[i1].name == self._hand[i2].name:
             self._hand[i2].turn_parenthesis()
 
-    def __justification(self):
-        """Modifie la main pour avoir si possible une carte justification
+    def __truth(self):
+        """Modifie la main pour avoir si possible une carte truth
         placée au début."""
         for i_card, card in enumerate(self._hand):
-            if not card.is_justification():
+            if not card.is_truth():
                 continue
             self._hand.pop(i_card)
             self._hand.insert(0, card)
             break
 
-    def __wild(self):
+    def __joker(self):
         """:return: une copie de la main dans laquelle chaque joker a été
                     remplacé par une carte correspondant (lettre ou opérateur)
 
         :rtype: list"""
         new_hand = []
         for card in self._hand:
-            if card.is_wild():
-                card = Card("A" if card.is_wildvar() else "OR")
+            if card.is_joker():
+                card = Card("A" if card.is_jokervar() else "OR")
             new_hand.append(card)
         return new_hand
 
-    def __revolution(self):
+    def __exchange(self):
         """Renvoie la liste des couples de cartes échangeables dans la preuve.
 
         :return: lst_num_premise et lst_index : des listes de couples donnant
@@ -116,14 +116,14 @@ class Ordi:
     def choix_coups(self):
         """Choisi un coup parmi l'ensemble des coups possibles.
 
-        * Si la carte à jouer est Fallacy, num_premise indique le numéro
+        * Si la carte à jouer est Liar, num_premise indique le numéro
           du joueur sur lequelle elle doit être jouée.
 
         * Si la carte est Révolution, num_premise et index sont les
           couples de numéros de prémisses et d'indice des cartes à
           échanger.
 
-        * Dans le cas d'une carte Wild, self._hand est modifié.
+        * Dans le cas d'une carte joker, self._hand est modifié.
 
         :return: Un couple de triplets ((i_hand1, num_premise1, index1),
                  (i_hand2, num_premise2, index2))
@@ -135,7 +135,7 @@ class Ordi:
         """Joue le coup déterminé par choix_coups.
 
         :return: Un message décrivant le coup joué et la liste des cartes
-                 spéciales (Fallacy, Justification, QED) jouées à traiter
+                 spéciales (Liar, Truth, QED) jouées à traiter
         :rtype: (str, list)
 
         :param player_names: Les noms des joueurs
@@ -152,21 +152,21 @@ class Ordi:
             if num_premise == -1:
                 msg += drop.format(card)
                 continue
-            if card.is_fallacy():
+            if card.is_liar():
                 other = num_premise
                 other_name = player_names[other]
-                msg += "Joue une carte Fallacy sur {}\n".format(other_name)
-                special_cards.append(("Fallacy", other))
+                msg += "Joue une carte Liar sur {}\n".format(other_name)
+                special_cards.append(("Liar", other))
                 continue
-            if card.is_justification():
-                msg += "Joue une carte Justification\n"
-                special_cards.append("Justification")
+            if card.is_truth():
+                msg += "Joue une carte Truth\n"
+                special_cards.append("Truth")
                 continue
             if card.is_qed():
                 msg += "Joue une carte QED\n"
                 special_cards.append("QED")
                 break
-            if card.is_revolution():
+            if card.is_exchange():
                 row1, row2 = num_premise
                 col1, col2 = index_premise
                 card1 = self._proof.premises[row1][col1]
@@ -178,7 +178,7 @@ class Ordi:
                 self._proof.change(row1, col1, card2)
                 self._proof.change(row2, col2, card1)
                 continue
-            if card.is_tabula_rasa():
+            if card.is_blank():
                 old_card = self._proof.pop(num_premise, index_premise,
                                            recent=False)
                 msg += tabula.format(old_card, num_premise+1, index_premise+1)
@@ -197,7 +197,7 @@ class Ordi:
           défausser)
         - index_premise est l'indice où insérer la carte dans la prémisse
 
-        Si la carte à jouer est revolution, alors num_premise et index
+        Si la carte à jouer est exchange, alors num_premise et index
         deviennent des listes de couples donnant des numéros de
         prémisse et des indices de cartes échangeables.
         Par exemple, si num_premise[0]=[np0, np1] et index[0]=[i0, i1] alors on
@@ -209,18 +209,18 @@ class Ordi:
         :return: une liste de couples de triplets
         :rtype: list
         """
-        self.__justification()  # modifie hand
-        hand = self.__wild()
+        self.__truth()  # modifie hand
+        hand = self.__joker()
         coups = [[(-1,)*3, (-1,)*3]]  # il est possible défausser deux cartes
-        fallacied = self._fallacys[self._num_player]
-        if fallacied:  # la seule carte jouable est fallacy
+        fallacied = self._liars[self._num_player]
+        if fallacied:  # la seule carte jouable est liar
             for i_hand1, card1 in enumerate(hand):
-                if not card1.is_fallacy():
+                if not card1.is_liar():
                     continue
                 coups.append([(i_hand1, None, None), (-1, -1, -1)])
                 for i_hand2 in range(i_hand1+1, len(hand)):
                     card2 = hand[i_hand2]
-                    if not card2.is_fallacy():
+                    if not card2.is_liar():
                         continue
                     coups.append([(i_hand1, None, None),
                                   (i_hand2, None, None)])
@@ -229,14 +229,14 @@ class Ordi:
         for i_hand1, card1 in enumerate(hand):
             special1 = False  # indique si carte1 est jouée hors prémisses
             if fallacied:
-                if not card1.is_justification():
-                    break  # la premiere carte doit être justification
+                if not card1.is_truth():
+                    break  # la premiere carte doit être truth
                 np1, i1 = None, None
                 coups.append([(i_hand1, np1, i1), (-1, -1, -1)])
                 special1 = True
-            elif card1.is_justification():
+            elif card1.is_truth():
                 continue
-            elif card1.is_fallacy():
+            elif card1.is_liar():
                 np1, i1 = None, None
                 coups.append([(i_hand1, np1, i1), (-1, -1, -1)])
                 special1 = True
@@ -244,8 +244,8 @@ class Ordi:
                 if self._proof.all_cards_played():
                     coups.append([(i_hand1, None, None), (-1, -1, -1)])
                 continue
-            elif card1.is_revolution():
-                np1, i1 = self.__revolution()
+            elif card1.is_exchange():
+                np1, i1 = self.__exchange()
                 if np1 == []:
                     continue
                 coups.append([(i_hand1, np1, i1),
@@ -253,13 +253,13 @@ class Ordi:
                 special1 = True
             for num_premise1, premise1 in enumerate(self._proof.premises):
                 index_max1 = len(premise1)+1
-                if card1.is_tabula_rasa():
+                if card1.is_blank():
                     index_max1 -= 1
                 for index1 in range(index_max1):
                     if special1:
                         num_premise1, index1 = np1, i1
                     else:
-                        if card1.is_tabula_rasa():
+                        if card1.is_blank():
                             old_card1 = premise1.pop(index1)
                         else:
                             premise1.insert(index1, card1)
@@ -268,7 +268,7 @@ class Ordi:
                                           (-1, -1, -1)])
                     for i_hand2 in range(i_hand1+1, len(hand)):
                         card2 = hand[i_hand2]
-                        if card2.is_fallacy():
+                        if card2.is_liar():
                             if premise1.npi is not None:
                                 coups.append([(i_hand1, num_premise1, index1),
                                               (i_hand2, None, None)])
@@ -279,22 +279,22 @@ class Ordi:
                                 coups.append([(i_hand1, num_premise1, index1),
                                               (i_hand2, None, None)])
                             continue
-                        elif card2.is_revolution():
+                        elif card2.is_exchange():
                             if premise1.npi is None:
                                 continue
-                            np2, i2 = self.__revolution()
+                            np2, i2 = self.__exchange()
                             if np2:
                                 coups.append([(i_hand1, num_premise1, index1),
                                               (i_hand2, np2, i2)])
                             continue
-                        elif card2.is_justification():
+                        elif card2.is_truth():
                             continue
                         for num_premise2, premise2 in enumerate(self._proof.premises):
                             index_max2 = len(premise2)+1
-                            if card2.is_tabula_rasa():
+                            if card2.is_blank():
                                 index_max2 -= 1
                             for index2 in range(index_max2):
-                                if card2.is_tabula_rasa():
+                                if card2.is_blank():
                                     if index1 == index2:
                                         continue
                                     old_card2 = premise2.pop(index2)
@@ -304,11 +304,11 @@ class Ordi:
                                    and premise2.npi is not None:
                                     coups.append([(i_hand1, num_premise1, index1),
                                                   (i_hand2, num_premise2, index2)])
-                                if card2.is_tabula_rasa():
+                                if card2.is_blank():
                                     premise2.insert(index2, old_card2)
                                 else:
                                     premise2.pop(index2)
-                    if card1.is_tabula_rasa():
+                    if card1.is_blank():
                         premise1.insert(index1, old_card1)
                     elif not special1:
                         premise1.pop(index1)

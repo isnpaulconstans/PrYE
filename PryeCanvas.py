@@ -104,12 +104,12 @@ class PryeCanvas(tk.Canvas):
             self.itemconfig(score,
                             text=self.master.scores[(num_player+i) % 4])
         for i in range(4):
-            fallacy = self.master.fallacy[(num_player+i) % 4]
-            tag = "fallacy" + str(i)
+            liar = self.master.liar[(num_player+i) % 4]
+            tag = "liar" + str(i)
             self.delete(tag)
-            if fallacy == 0:
+            if liar == 0:
                 continue
-            text = str(fallacy) + " tour" + ("s" if fallacy > 1 else "")
+            text = str(liar) + " tour" + ("s" if liar > 1 else "")
             x1 = Cst.CARD_WIDTH*(.25 + 10 * (i % 2))
             y1 = 4.75 * Cst.CARD_HEIGHT + (i // 2) * (Cst.CARD_HEIGHT +
                                                       Cst.LINE_WIDTH)
@@ -203,9 +203,9 @@ class PryeCanvas(tk.Canvas):
             loc = 'out'
         return loc, row, col
 
-    def select_revolution(self, event):
+    def select_exchange(self, event):
         """Selectionne les cartes à échnager après avoir joué la carte
-        Revolution.
+        Exchange.
 
         :param event: événement
         :type event: tkinter.Event
@@ -213,7 +213,7 @@ class PryeCanvas(tk.Canvas):
         num = self.find_closest(event.x, event.y)
         loc, row, col = self.x_y2row_col(event.x, event.y)
         if loc != "premise" or "card" not in self.gettags(num):
-            if messagebox.askyesno("Revolution", "Voulez-vous annuler ?"):
+            if messagebox.askyesno("Exchange", "Voulez-vous annuler ?"):
                 self.init_bind()
                 self.restore()
             return
@@ -221,23 +221,23 @@ class PryeCanvas(tk.Canvas):
         letter = card.is_letter()
         if not letter and not card.is_operator():
             return
-        if self.revolution_card1 is None:
-            self.revolution_card1 = (card, row, col)
-            messagebox.showinfo("Revolution",
+        if self.exchange_card1 is None:
+            self.exchange_card1 = (card, row, col)
+            messagebox.showinfo("Exchange",
                                 "Carte {} sélectionnée.".format(card))
             return
-        card1, row1, col1 = self.revolution_card1
+        card1, row1, col1 = self.exchange_card1
         letter1 = card1.is_letter()
         if letter1 != letter:
-            messagebox.showerror("Revolution", "On ne peut échanger que deux"
+            messagebox.showerror("Exchange", "On ne peut échanger que deux"
                                  + " cartes du même type"
                                  + " (lettre ou opérateur).\n"
                                  + "Recommencez.")
             self.init_bind()
             self.restore()
             return
-        if not messagebox.askyesno("Revolution",
-                                   "Échangeer {} et {} ?".format(card1, card)):
+        if not messagebox.askyesno("Exchange",
+                                   "Échanger {} et {} ?".format(card1, card)):
             self.init_bind()
             self.restore()
             return
@@ -305,8 +305,8 @@ class PryeCanvas(tk.Canvas):
         card = self.selected_card
         if index < 0:
             index = 0
-        if card.wild and not card.is_wild():
-            card.name = "WildVar" if card.is_letter() else "WildOp"
+        if card.joker and not card.is_joker():
+            card.name = "JokerVar" if card.is_letter() else "JokerOp"
         hand.insert(index, self.selected_card)
         self.delete("selected")
         self.display_cards("hand", hand)
@@ -336,26 +336,26 @@ class PryeCanvas(tk.Canvas):
             self.selected_card = None
             return
         if loc == "hand":
-            if self.selected_card.is_fallacy() and row > 0:
-                self.master.fallacy[(self.master.num_player+row) % 4] = 3
+            if self.selected_card.is_liar() and row > 0:
+                self.master.liar[(self.master.num_player+row) % 4] = 3
                 self.delete("selected")
                 self.selected_card = None
                 self.display_current_player(self.master.num_player)
                 return
-            if self.selected_card.is_justification() and row == 0 and col < 0:
-                self.master.fallacy[self.master.num_player] = 0
+            if self.selected_card.is_truth() and row == 0 and col < 0:
+                self.master.liar[self.master.num_player] = 0
                 self.delete("selected")
                 self.selected_card = None
                 self.display_current_player(self.master.num_player)
                 return
             self.restore(col if row == 0 else 7)
             return
-        if self.master.fallacy[self.master.num_player] > 0:
-            messagebox.showwarning("Fallacy",
+        if self.master.liar[self.master.num_player] > 0:
+            messagebox.showwarning("Liar",
                                    "Impossible de modifier la preuve")
             self.restore()
             return
-        if self.selected_card.is_tabula_rasa():
+        if self.selected_card.is_blank():
             card = self.master.proof.pop(row, col, recent=False)
             if card is None:  # impossible de la sélectionner
                 self.restore()
@@ -369,12 +369,12 @@ class PryeCanvas(tk.Canvas):
             self.delete("selected")
             self.selected_card = None
             return
-        if self.selected_card.is_revolution():
-            messagebox.showinfo("Revolution",
+        if self.selected_card.is_exchange():
+            messagebox.showinfo("Exchange",
                                 "Sélectionnez deux cartes à échanger.\n" +
                                 "Cliquez n'importe où pour annuler.")
-            self.revolution_card1 = None
-            self.bind('<Button-1>', func=self.select_revolution)
+            self.exchange_card1 = None
+            self.bind('<Button-1>', func=self.select_exchange)
             self.unbind('<Button1-Motion>')
             self.unbind("<ButtonRelease-1>")
             self.delete("selected")
@@ -396,8 +396,8 @@ class PryeCanvas(tk.Canvas):
             self.selected_card = None
             self.master.fin_manche()
             return
-        if self.selected_card.is_wild():
-            option = ['A', 'B', 'C', 'D'] if self.selected_card.is_wildvar() \
+        if self.selected_card.is_joker():
+            option = ['A', 'B', 'C', 'D'] if self.selected_card.is_jokervar() \
                      else ['THEN', 'OR', 'AND']
             self.selected_card.name = self.choice(option)
         if self.selected_card.is_special():
@@ -419,13 +419,13 @@ class PryeCanvas(tk.Canvas):
         row = self.master.proof.insert(None, None, card, new=False)
         self.display_cards('premise', self.master.proof.premises[row], row)
         hand = self.master.hands[self.master.num_player]
-        hand.append(Card("TabulaRasa"))
+        hand.append(Card("Blank"))
         self.display_cards("hand", hand)
         self.master.cards_played -= 1
         self.master.unbind('<Escape>')
 
     def choice(self, options):
-        """Permet de choisir le carte qui doit remplacer une wildCard.
+        """Permet de choisir le carte qui doit remplacer une jokerCard.
 
         :param options: les choix possibles
         :type options: list
@@ -433,7 +433,7 @@ class PryeCanvas(tk.Canvas):
         :rtype: str
         """
         fen = tk.Toplevel()
-        fen.title("Wild Card")
+        fen.title("Joker Card")
         fen.grab_set()
         tk.Label(fen, text="Choisissez le symbole :",
                  ).grid(row=0, column=0, columnspan=len(options), pady=10)

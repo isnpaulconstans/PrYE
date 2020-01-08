@@ -85,7 +85,7 @@ class Main(tk.Tk):
         self.proof = Proof()
         self.demo = Demo(self.proof)
         self.num_player = (self.num_player + 1) % 4
-        self.fallacy = [0] * 4
+        self.liar = [0] * 4
         self.can.display_current_player(self.num_player)
         self.ordi_player = [False]*self.nb_player + [True]*(4-self.nb_player)
         self.hands = [self.deck.draw(5) for _ in range(4)]
@@ -130,8 +130,8 @@ class Main(tk.Tk):
         self.cards_played = 0
         self.unbind("<Escape>")
         self.can.delete("pile")
-        if self.fallacy[self.num_player] > 0:
-            self.fallacy[self.num_player] -= 1
+        if self.liar[self.num_player] > 0:
+            self.liar[self.num_player] -= 1
         self.num_player = (self.num_player + 1) % 4
         self.hands[self.num_player].extend(self.deck.draw(2))
         self.can.display_cards("hand", self.hands[self.num_player])
@@ -145,17 +145,17 @@ class Main(tk.Tk):
     def ordi_plays(self):
         """Fait jouer l'ordinateur."""
         ordi = Ordi(self.proof, self.hands[self.num_player],
-                    self.num_player, self.scores, self.fallacy)
+                    self.num_player, self.scores, self.liar)
         msg, special_cards = ordi.joue(self.player_names)
         qed_played = False
         for special in special_cards:
             if special == "QED":
                 qed_played = True
-            elif special == "Justification":
-                self.fallacy[self.num_player] = 0
-            else:  # special == ("Fallacy", num_player)
+            elif special == "Truth":
+                self.liar[self.num_player] = 0
+            else:  # special == ("Liar", num_player)
                 num_other = special[1]
-                self.fallacy[num_other] = 3
+                self.liar[num_other] = 3
         for num_premise in range(4):
             cards = self.proof.premises[num_premise]
             if qed_played and num_premise == 3:

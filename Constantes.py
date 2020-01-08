@@ -12,9 +12,9 @@ class Constantes():
     NUMBER = {"A": 4, "B": 4, "C": 4, "D": 4,
               "AND": 4, "OR": 4, "THEN": 4,
               "NOT": 6, "(": 4, ")": 4,
-              "Fallacy": 3, "Justification": 3,
-              "TabulaRasa": 1, "Revolution": 1,
-              "WildVar": 1,  "WildOp": 1,
+              "Liar": 3, "Truth": 3,
+              "Blank": 1, "Exchange": 1,
+              "JokerVar": 1,  "JokerOp": 1,
               "QED": 3,
              }
     # fond
